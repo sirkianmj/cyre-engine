@@ -3,6 +3,7 @@ export { Configuration } from './Configuration.js';
 export { Logger } from './Logger.js';
 export { ErrorHandler, CyreError } from './ErrorHandler.js';
 export { ModuleManager } from './ModuleManager.js';
+export { BaseModule } from './BaseModule.js';
 export type {
   EngineConfig,
   ILogger,

@@ -26,6 +26,10 @@ export interface EngineContext {
 
 export interface CyreModule {
   readonly name: string;
+  /**
+   * Optional list of module names that must be initialized before this module.
+   */
+  readonly dependencies?: string[];
   initialize(ctx: EngineContext): Promise<void> | void;
   start?(): Promise<void> | void;
   stop?(): Promise<void> | void;
