@@ -2,12 +2,20 @@
 
 Core simulation, modules, and infrastructure for the CYRE engine.
 
-This directory will contain the TypeScript source code for:
-- Core lifecycle
-- Module system
-- Cyber simulation (network, hosts, identities)
-- Attack/defense models
-- Event system
-- Scenario system
-- Rendering abstraction
-- Platform abstraction
+## Internal Structure
+engine/src/
+├── core # Minimal engine foundation (lifecycle, config, logging, modules)
+├── simulation # Domain-agnostic simulation engine (time, scheduling, state)
+├── cyber # Cybersecurity-specific simulation (hosts, networks, attacks, defenses)
+├── scenario # Scenario definition, loading, validation, procedural generation
+├── game # Game systems (missions, objectives, progression)
+├── rendering # Rendering abstraction (2D, 2.5D, future 3D)
+├── platform # Platform abstraction (web, mobile, desktop, console)
+├── analytics # Telemetry, research data, structured event recording
+├── automation # APIs, WebSockets, webhooks for automation integration
+└── shared # Shared types, utilities, and constants
+
+text
+
+Each module is independently testable and replaceable.  
+Modules communicate through well-defined interfaces managed by the Core.
