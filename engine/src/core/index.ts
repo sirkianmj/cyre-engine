@@ -1,8 +1,12 @@
-/**
- * CYRE Core Module
- * -----------------
- * This module will contain the minimal engine foundation:
- * lifecycle, configuration, logging, error handling, and module management.
- * No cybersecurity-specific code should live here.
- */
-export {};
+export { Engine } from './Engine.js';
+export { Configuration } from './Configuration.js';
+export { Logger } from './Logger.js';
+export { ErrorHandler, CyreError } from './ErrorHandler.js';
+export { ModuleManager } from './ModuleManager.js';
+export type {
+  EngineConfig,
+  ILogger,
+  CyreModule,
+  EngineContext,
+  LogLevel,
+} from './types.js';

@@ -1,0 +1,8 @@
+packages:
+  - "engine"
+
+allowBuilds:
+  esbuild: true
+
+onlyBuiltDependencies:
+  - esbuild
