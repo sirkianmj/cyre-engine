@@ -1,7 +1,7 @@
 /**
  * CYRE Cyber Module Exports
  * ---------------------------
- * Public API for cyber entities and network graph.
+ * Public API for cyber entities, network graph, and access control.
  */
 
 export { CyberEntity } from './CyberEntity.js';
@@ -23,3 +23,7 @@ export type {
   EdgeType,
   PathResult,
 } from './networkTypes.js';
+export { Privilege } from './Privilege.js';
+export { Role } from './Role.js';
+export { Session } from './Session.js';
+export { AccessControl } from './AccessControl.js';
