@@ -41,6 +41,7 @@ The engine powers a flagship cybersecurity investigation and strategy game where
 ---
 
 ## Monorepo Structure
+```bash
 CYRE
 ├── engine # Core engine code (TypeScript)
 ├── game # Flagship game implementation
@@ -49,7 +50,7 @@ CYRE
 ├── docs # Documentation
 └── experiments # Experimental prototypes and spikes
 
-text
+```
 
 ---
 
