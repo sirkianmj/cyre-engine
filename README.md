@@ -81,3 +81,12 @@ License
 
 This project is proprietary. All rights reserved.
 See LICENSE for details.
+
+---
+
+## Ownership & Governance
+
+CYRE is proprietary software owned by **ForgeX4 / Kian M.J.**  
+See [OWNERSHIP.md](OWNERSHIP.md) for licensing details.  
+Third-party licenses are documented in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).  
+Project governance is described in [GOVERNANCE.md](GOVERNANCE.md).
