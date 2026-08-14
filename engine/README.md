@@ -3,6 +3,7 @@
 Core simulation, modules, and infrastructure for the CYRE engine.
 
 ## Internal Structure
+```bash
 engine/src/
 ├── core # Minimal engine foundation (lifecycle, config, logging, modules)
 ├── simulation # Domain-agnostic simulation engine (time, scheduling, state)
@@ -15,7 +16,7 @@ engine/src/
 ├── automation # APIs, WebSockets, webhooks for automation integration
 └── shared # Shared types, utilities, and constants
 
-text
 
+```
 Each module is independently testable and replaceable.  
 Modules communicate through well-defined interfaces managed by the Core.
