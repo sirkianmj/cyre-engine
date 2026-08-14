@@ -1,0 +1,96 @@
+# ============================================
+# CYRE Monorepo .gitignore
+# --------------------------------------------
+# Ignores build artifacts, dependencies,
+# environment files, and platform-specific files.
+# ============================================
+
+# ---------- Node.js / JavaScript ----------
+node_modules/
+dist/
+build/
+coverage/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+.next/
+out/
+.cache/
+
+# ---------- TypeScript ----------
+*.tsbuildinfo
+.tscache/
+
+# ---------- Python (research/tools) ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.conda/
+.jupyter/
+.ipynb_checkpoints/
+*.ipynb
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+pyrightconfig.json
+
+# ---------- macOS ----------
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+.fseventsd
+
+# ---------- IDEs / Editors ----------
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ---------- Environment / Secrets ----------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets/
+credentials/
+
+# ---------- Database / Storage ----------
+*.sqlite
+*.sqlite3
+*.db
+data/
+*.dump
+
+# ---------- Logs / Temp ----------
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+
+# ---------- CYRE specific ----------
+/snapshots/
+/generated-scenarios/
+/research-data/
