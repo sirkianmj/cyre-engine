@@ -2,61 +2,63 @@
 
 ## Phase 0 — Foundation
 - [x] Sprint 0: Development Environment
-- [ ] Sprint 1: GitHub Repository (current)
-- [ ] Sprint 2: Ownership, License & Governance
-- [ ] Sprint 3: Professional README & Project Identity
+- [x] Sprint 1: GitHub Repository
+- [x] Sprint 2: Ownership, License & Governance
+- [x] Sprint 3: Professional README & Project Identity
 
 ## Phase 1 — Core Architecture
-- [ ] Sprint 4: Repository Architecture
-- [ ] Sprint 5: CYRE Core
-- [ ] Sprint 6: Module System
-- [ ] Sprint 7: Entity & Event Foundation
+- [x] Sprint 4: Repository Architecture
+- [x] Sprint 5: CYRE Core
+- [x] Sprint 6: Module System
+- [x] Sprint 7: Entity & Event Foundation
 
 ## Phase 2 — Cyber Simulation
-- [ ] Sprint 8: Cyber Entities
-- [ ] Sprint 9: Network Graph
-- [ ] Sprint 10: Identity & Permissions
-- [ ] Sprint 11: Services & Vulnerabilities
-- [ ] Sprint 12: Attack Model
-- [ ] Sprint 13: Defense Model
+- [x] Sprint 8: Cyber Entities
+- [x] Sprint 9: Network Graph
+- [x] Sprint 10: Identity & Permissions
+- [x] Sprint 11: Services & Vulnerabilities
+- [x] Sprint 12: Attack Model
+- [x] Sprint 13: Defense Model
 
 ## Phase 3 — Gameplay
-- [ ] Sprint 14: Mission System
-- [ ] Sprint 15: Evidence System
-- [ ] Sprint 16: Attack Graph
-- [ ] Sprint 17: Investigation Mechanics
-- [ ] Sprint 18: Scoring & Progression
+- [x] Sprint 14: Mission System
+- [x] Sprint 15: Evidence System
+- [x] Sprint 16: Attack Graph
+- [x] Sprint 17: Investigation Mechanics
+- [x] Sprint 18: Scoring & Progression
 
 ## Phase 4 — Scenario System
-- [ ] Sprint 19: Scenario Format
-- [ ] Sprint 20: Scenario Loader
-- [ ] Sprint 21: Scenario Validator
-- [ ] Sprint 22: Scenario Editor v0.1
+- [x] Sprint 19: Scenario Format
+- [x] Sprint 20: Scenario Loader
+- [x] Sprint 21: Scenario Validator
+- [x] Sprint 22: Scenario Editor v0.1
 
 ## Phase 5 — Professional Engine Tooling
-- [ ] Sprint 23: Debug Inspector
-- [ ] Sprint 24: Event Timeline
-- [ ] Sprint 25: Replay System
-- [ ] Sprint 26: Testing Framework
+- [x] Sprint 23: Debug Inspector
+- [x] Sprint 24: Event Timeline
+- [x] Sprint 25: Replay System
+- [x] Sprint 26: Testing Framework
 
 ## Phase 6 — Flagship Game MVP
-- [ ] Sprint 27: Game UI
-- [ ] Sprint 28: Mission 001
-- [ ] Sprint 29: Missions 002–003
-- [ ] Sprint 30: Game Progression
-- [ ] Sprint 31: UX / Polish
+- [x] Sprint 27: Game UI
+- [x] Sprint 28: Mission 001
+- [x] Sprint 29: Missions 002–003
+- [x] Sprint 30: Game Progression
+- [x] Sprint 31: UX / Polish
 
 ## Phase 7 — Research + Automation
-- [ ] Sprint 32: Telemetry
-- [ ] Sprint 33: Research Dataset
-- [ ] Sprint 34: Automation API
-- [ ] Sprint 35: n8n Integration
+- [x] Sprint 32: Telemetry
+- [x] Sprint 33: Research Dataset
+- [x] Sprint 34: Automation API
+- [x] Sprint 35: n8n Integration
 
 ## Phase 8 — Cross-Platform
-- [ ] Sprint 36: Web Release
-- [ ] Sprint 37: Mobile
-- [ ] Sprint 38: Desktop
-- [ ] Sprint 39: Controller / Console Readiness
+- [x] Sprint 36: Web Release
+- [x] Sprint 37: Mobile
+- [x] Sprint 38: Desktop
+- [x] Sprint 39: Controller / Console Readiness
 
 ## Phase 9 — CYRE v1.0
-- [ ] Sprint 40: Release
+- [x] Sprint 40: Release
+
+**CYRE v1.0 is complete.**
