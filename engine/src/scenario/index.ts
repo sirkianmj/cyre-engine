@@ -1,7 +1,7 @@
 /**
  * CYRE Scenario Module Exports
  * -----------------------------
- * Public API for scenario representation and loading.
+ * Public API for scenario representation, loading, and registry.
  */
 
 export type {
@@ -18,3 +18,4 @@ export type {
 } from './ScenarioTypes.js';
 export { Scenario as ScenarioDefinition } from './Scenario.js';
 export { ScenarioLoader } from './ScenarioLoader.js';
+export { ScenarioRegistry } from './ScenarioRegistry.js';
