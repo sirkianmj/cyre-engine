@@ -2,7 +2,7 @@
  * CYRE Game Module Exports
  * --------------------------
  * Public API for missions, objectives, evidence, attack graph,
- * investigation mechanics, scoring, and progression.
+ * investigation mechanics, scoring, progression, and predefined missions.
  */
 
 export { createObjective, type Objective } from './Objective.js';
@@ -32,3 +32,6 @@ export type {
 export { DEFAULT_SCORING_WEIGHTS } from './ScoringTypes.js';
 export { ScoreCalculator } from './ScoreCalculator.js';
 export { PlayerProgression, xpRequiredForLevel, type PlayerStats } from './PlayerProgression.js';
+export { MissionRunner } from './MissionRunner.js';
+export { MissionFactory } from './MissionFactory.js';
+export { createMission001Scenario } from './Mission001.js';
