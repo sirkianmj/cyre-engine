@@ -1,7 +1,9 @@
 /**
- * CYRE Game Module
- * -----------------
- * This module will contain game-specific systems:
- * missions, objectives, progression, scoring, and player interaction.
+ * CYRE Game Module Exports
+ * --------------------------
+ * Public API for missions and objectives.
  */
-export {};
+
+export { createObjective, type Objective } from './Objective.js';
+export { MissionStatus } from './MissionStatus.js';
+export { Mission, type MissionOptions } from './Mission.js';
