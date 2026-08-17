@@ -7,6 +7,8 @@
 
 import { Scenario as ScenarioDefinition } from '../scenario/Scenario.js';
 import { createMission001Scenario } from './Mission001.js';
+import { createMission002Scenario } from './Mission002.js';
+import { createMission003Scenario } from './Mission003.js';
 
 export class MissionFactory {
   private static missions: Map<string, () => ScenarioDefinition> = new Map();
@@ -35,5 +37,7 @@ export class MissionFactory {
   }
 }
 
-// Register Mission 001 by default
+// Register predefined missions
 MissionFactory.register('mission-001', createMission001Scenario);
+MissionFactory.register('mission-002', createMission002Scenario);
+MissionFactory.register('mission-003', createMission003Scenario);

@@ -35,3 +35,5 @@ export { PlayerProgression, xpRequiredForLevel, type PlayerStats } from './Playe
 export { MissionRunner } from './MissionRunner.js';
 export { MissionFactory } from './MissionFactory.js';
 export { createMission001Scenario } from './Mission001.js';
+export { createMission002Scenario } from './Mission002.js';
+export { createMission003Scenario } from './Mission003.js';
