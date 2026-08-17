@@ -1,7 +1,20 @@
 /**
- * CYRE Scenario Module
- * --------------------
- * This module will define scenario representation, loading, validation,
- * and procedural generation.
+ * CYRE Scenario Module Exports
+ * -----------------------------
+ * Public API for scenario representation and loading.
  */
-export {};
+
+export type {
+  Scenario,
+  ScenarioAsset,
+  ScenarioUser,
+  ScenarioAttacker,
+  ScenarioDefense,
+  ScenarioNetwork,
+  ScenarioAttackPath,
+  ScenarioEvidence,
+  ScenarioObjective,
+  ScenarioEvent,
+} from './ScenarioTypes.js';
+export { Scenario as ScenarioDefinition } from './Scenario.js';
+export { ScenarioLoader } from './ScenarioLoader.js';
