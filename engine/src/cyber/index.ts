@@ -2,7 +2,7 @@
  * CYRE Cyber Module Exports
  * ---------------------------
  * Public API for cyber entities, network graph, access control,
- * vulnerabilities, and services.
+ * vulnerabilities, and attack model.
  */
 
 export { CyberEntity } from './CyberEntity.js';
@@ -30,3 +30,10 @@ export { Session } from './Session.js';
 export { AccessControl } from './AccessControl.js';
 export { Vulnerability, type VulnerabilitySeverity, type VulnerabilityOptions } from './Vulnerability.js';
 export { VulnerabilityCatalog } from './VulnerabilityCatalog.js';
+export {
+  AttackStage,
+  ATTACK_STAGE_ORDER,
+  getNextStage,
+  isStageReached,
+} from './AttackStage.js';
+export { AttackState, type AttackStageTransition } from './AttackState.js';
