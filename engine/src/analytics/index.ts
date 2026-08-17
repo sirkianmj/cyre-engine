@@ -1,7 +1,9 @@
 /**
- * CYRE Analytics Module
- * ----------------------
- * This module will handle telemetry, structured event recording,
- * and research data pipelines.
+ * CYRE Analytics Module Exports
+ * ------------------------------
+ * Public API for telemetry recording and export.
  */
-export {};
+
+export type { TelemetryEvent } from './TelemetryEvent.js';
+export { TelemetryRecorder } from './TelemetryRecorder.js';
+export { TelemetryExporter } from './TelemetryExporter.js';
