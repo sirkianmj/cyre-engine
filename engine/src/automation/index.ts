@@ -1,10 +1,20 @@
 /**
  * CYRE Automation Module Exports
  * -------------------------------
- * Public API for automation server, webhooks, and events.
+ * Public API for automation server, webhooks, events, and n8n integration.
  */
 
 export type { AutomationEvent } from './AutomationTypes.js';
 export { WebhookClient } from './WebhookClient.js';
 export { WebhookRegistry } from './WebhookRegistry.js';
 export { AutomationServer } from './AutomationServer.js';
+export {
+  CYRE_EVENT_TYPES,
+  isCyreEventType,
+  type CyreEventType,
+} from './cyreEventTypes.js';
+export {
+  N8nIntegration,
+  type N8nWorkflowDefinition,
+  type N8nWorkflowNode,
+} from './N8nIntegration.js';
