@@ -1,7 +1,18 @@
 /**
- * CYRE Platform Module
- * ---------------------
- * This module will abstract platform-specific APIs for input, storage,
- * lifecycle, and packaging across web, mobile, desktop, and consoles.
+ * CYRE Platform Module Exports
+ * -----------------------------
+ * Public API for platform adapters.
  */
-export {};
+
+export type {
+  PlatformAdapter,
+  StorageAdapter,
+  LifecycleAdapter,
+} from './PlatformAdapter.js';
+export { MemoryStorageAdapter } from './MemoryStorageAdapter.js';
+export { MobilePlatformAdapter } from './MobilePlatformAdapter.js';
+export {
+  TouchInputAdapter,
+  type TouchPoint,
+  type TouchCommand,
+} from './TouchInputAdapter.js';
