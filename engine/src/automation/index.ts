@@ -1,7 +1,10 @@
 /**
- * CYRE Automation Module
- * ------------------------
- * This module will expose APIs, WebSockets, and webhooks for
- * integration with automation platforms like n8n.
+ * CYRE Automation Module Exports
+ * -------------------------------
+ * Public API for automation server, webhooks, and events.
  */
-export {};
+
+export type { AutomationEvent } from './AutomationTypes.js';
+export { WebhookClient } from './WebhookClient.js';
+export { WebhookRegistry } from './WebhookRegistry.js';
+export { AutomationServer } from './AutomationServer.js';
