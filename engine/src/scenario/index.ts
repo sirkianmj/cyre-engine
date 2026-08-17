@@ -1,7 +1,8 @@
 /**
  * CYRE Scenario Module Exports
  * -----------------------------
- * Public API for scenario representation, loading, registry, and validation.
+ * Public API for scenario representation, loading, registry, validation,
+ * and editor.
  */
 
 export type {
@@ -22,3 +23,4 @@ export { ScenarioRegistry } from './ScenarioRegistry.js';
 export { ScenarioValidator } from './ScenarioValidator.js';
 export type { ValidationResult } from './ValidationResult.js';
 export { createValidationResult } from './ValidationResult.js';
+export { ScenarioEditor } from './ScenarioEditor.js';
