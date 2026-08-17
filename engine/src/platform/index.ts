@@ -16,3 +16,6 @@ export {
   type TouchPoint,
   type TouchCommand,
 } from './TouchInputAdapter.js';
+export { FileStorageAdapter } from './FileStorageAdapter.js';
+export { DesktopPlatformAdapter } from './DesktopPlatformAdapter.js';
+export { DesktopApp } from './DesktopApp.js';
