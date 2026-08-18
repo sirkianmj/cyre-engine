@@ -33,3 +33,9 @@ export {
   type ProjectNode,
   type ProjectNodeType,
 } from './ProjectExplorer.js';
+export {
+  CyberEntityPalette,
+  CYBER_ENTITY_PALETTE_ITEMS,
+  type CyberEntityCategory,
+  type CyberEntityPaletteItem,
+} from './CyberEntityPalette.js';
