@@ -19,3 +19,7 @@ export {
   PREDEFINED_WORKSPACES,
   type WorkspaceDefinition,
 } from './WorkspaceSystem.js';
+export {
+  CommandPalette,
+  type EditorCommand,
+} from './CommandPalette.js';
