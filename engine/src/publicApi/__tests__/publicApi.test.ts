@@ -1,0 +1,49 @@
+import { describe, it, expect } from 'vitest';
+import * as CYRE from '../../index.js';
+import {
+  PublicApiRegistry,
+  CYRE_ENGINE_VERSION,
+  CYRE_PUBLIC_API_VERSION,
+} from '../index.js';
+
+describe('CYRE Public API', () => {
+  it('exposes core public runtime modules from the root index', () => {
+    expect(CYRE.Engine).toBeDefined();
+    expect(CYRE.NetworkGraph).toBeDefined();
+    expect(CYRE.MissionFactory).toBeDefined();
+    expect(CYRE.ScenarioDefinition).toBeDefined();
+    expect(CYRE.TelemetryRecorder).toBeDefined();
+    expect(CYRE.MemoryStorageAdapter).toBeDefined();
+  });
+
+  it('registers all expected public API module names', () => {
+    const names = PublicApiRegistry.getModuleNames();
+    for (const expected of [
+      'core',
+      'cyber',
+      'game',
+      'scenario',
+      'debug',
+      'timeline',
+      'replay',
+      'analytics',
+      'automation',
+      'research',
+      'platform',
+      'ui',
+    ]) {
+      expect(names).toContain(expected);
+    }
+  });
+
+  it('provides runtime symbols for core modules', () => {
+    expect(PublicApiRegistry.getRuntimeSymbols('core')).toContain('Engine');
+    expect(PublicApiRegistry.getRuntimeSymbols('cyber')).toContain('NetworkGraph');
+    expect(PublicApiRegistry.getRuntimeSymbols('game')).toContain('MissionFactory');
+  });
+
+  it('exposes version metadata', () => {
+    expect(CYRE_ENGINE_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(CYRE_PUBLIC_API_VERSION).toBe(1);
+  });
+});

@@ -18,7 +18,8 @@ export type {
   AttackGraphNodeStatus,
   AttackGraphEdgeStatus,
 } from './AttackGraphTypes.js';
-export { AttackGraph, type PathResult } from './AttackGraph.js';
+export { AttackGraph } from './AttackGraph.js';
+export type { PathResult as GamePathResult } from './AttackGraph.js';
 export { AlertStatus } from './AlertStatus.js';
 export { Alert, type AlertSeverity, type AlertOptions } from './Alert.js';
 export { InvestigationPhase } from './InvestigationPhase.js';
