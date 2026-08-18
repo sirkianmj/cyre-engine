@@ -23,3 +23,8 @@ export {
   CommandPalette,
   type EditorCommand,
 } from './CommandPalette.js';
+export {
+  ShortcutManager,
+  type ShortcutBinding,
+  type ShortcutConflict,
+} from './ShortcutSystem.js';

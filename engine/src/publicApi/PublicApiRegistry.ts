@@ -100,7 +100,7 @@ export const PUBLIC_API_MODULES: PublicApiModule[] = [
   {
     name: 'editor',
     version: 1,
-    runtimeSymbols: ['EditorShell', 'DockManager', 'WorkspaceManager', 'CommandPalette'],
+    runtimeSymbols: ['EditorShell', 'DockManager', 'WorkspaceManager', 'CommandPalette', 'ShortcutManager'],
   },
   {
     name: 'debug',
