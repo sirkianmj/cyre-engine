@@ -13,3 +13,4 @@ export type {
 } from './SceneTypes.js';
 export { SceneModel } from './SceneModel.js';
 export { SceneRegistry, type SceneSummary } from './SceneRegistry.js';
+export { SceneEditor } from './SceneEditor.js';

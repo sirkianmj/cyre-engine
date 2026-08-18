@@ -56,6 +56,24 @@ export class SceneModel {
     this.data.components.push(this.copyComponent(component));
   }
 
+  replaceComponents(components: SceneComponent[]): void {
+    if (!Array.isArray(components)) {
+      throw new Error('Scene components must be an array.');
+    }
+    const seenIds = new Set<string>();
+    for (const component of components) {
+      this.validateComponent(component);
+      if (seenIds.has(component.id)) {
+        throw new Error(`Duplicate scene component id "${component.id}".`);
+      }
+      seenIds.add(component.id);
+    }
+    this.data.components.length = 0;
+    for (const component of components) {
+      this.data.components.push(this.copyComponent(component));
+    }
+  }
+
   removeComponent(componentId: string): void {
     const index = this.data.components.findIndex((entry) => entry.id === componentId);
     if (index < 0) {

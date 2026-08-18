@@ -45,6 +45,7 @@ describe('CYRE Public API', () => {
     expect(PublicApiRegistry.getRuntimeSymbols('cyber')).toContain('NetworkGraph');
     expect(PublicApiRegistry.getRuntimeSymbols('game')).toContain('MissionFactory');
     expect(PublicApiRegistry.getRuntimeSymbols('scene')).toContain('SceneModel');
+    expect(PublicApiRegistry.getRuntimeSymbols('scene')).toContain('SceneEditor');
   });
 
   it('exposes version metadata', () => {

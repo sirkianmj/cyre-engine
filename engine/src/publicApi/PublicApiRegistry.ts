@@ -100,7 +100,7 @@ export const PUBLIC_API_MODULES: PublicApiModule[] = [
   {
     name: 'scene',
     version: 1,
-    runtimeSymbols: ['SceneModel', 'SceneRegistry'],
+    runtimeSymbols: ['SceneModel', 'SceneRegistry', 'SceneEditor'],
   },
   {
     name: 'editor',
