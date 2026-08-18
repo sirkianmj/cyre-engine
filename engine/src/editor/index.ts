@@ -73,3 +73,14 @@ export type {
   TimelineEntry as EditorTimelineEntry,
   TimelineEntryType as EditorTimelineEntryType,
 } from './TimelineEditor.js';
+export { MissionDesigner } from './MissionDesigner.js';
+export type {
+  MissionDesignerDesign as EditorMissionDesignerDesign,
+  MissionDesignerObjective as EditorMissionDesignerObjective,
+  MissionDesignerObjectiveType as EditorMissionDesignerObjectiveType,
+  MissionDesignerCondition as EditorMissionDesignerCondition,
+  MissionDesignerTrigger as EditorMissionDesignerTrigger,
+  MissionDesignerAlert as EditorMissionDesignerAlert,
+  MissionDesignerEvidence as EditorMissionDesignerEvidence,
+  MissionDesignerScoringRules as EditorMissionDesignerScoringRules,
+} from './MissionDesigner.js';

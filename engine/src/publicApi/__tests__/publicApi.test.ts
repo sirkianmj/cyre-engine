@@ -53,6 +53,7 @@ describe('CYRE Public API', () => {
     expect(PublicApiRegistry.getRuntimeSymbols('editor')).toContain('AttackGraphEditor');
     expect(PublicApiRegistry.getRuntimeSymbols('editor')).toContain('EvidenceGraphEditor');
     expect(PublicApiRegistry.getRuntimeSymbols('editor')).toContain('TimelineEditor');
+    expect(PublicApiRegistry.getRuntimeSymbols('editor')).toContain('MissionDesigner');
   });
 
   it('exposes version metadata', () => {
