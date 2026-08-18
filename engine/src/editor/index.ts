@@ -68,3 +68,8 @@ export type {
   EvidenceGraphEdge as EditorEvidenceGraphEdge,
   EvidenceRelationType as EditorEvidenceRelationType,
 } from './EvidenceGraphEditor.js';
+export { TimelineEditor } from './TimelineEditor.js';
+export type {
+  TimelineEntry as EditorTimelineEntry,
+  TimelineEntryType as EditorTimelineEntryType,
+} from './TimelineEditor.js';

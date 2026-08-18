@@ -118,6 +118,7 @@ export const PUBLIC_API_MODULES: PublicApiModule[] = [
       'NetworkGraphEditor',
       'AttackGraphEditor',
       'EvidenceGraphEditor',
+      'TimelineEditor',
     ],
   },
   {
