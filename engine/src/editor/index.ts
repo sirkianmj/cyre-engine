@@ -45,3 +45,7 @@ export {
   type InspectorPropertyType,
   type InspectorTarget,
 } from './Inspector.js';
+export {
+  MultiSelectionManager,
+  type SelectionItem,
+} from './MultiSelectionManager.js';

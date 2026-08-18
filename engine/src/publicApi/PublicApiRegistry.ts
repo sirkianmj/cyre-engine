@@ -114,6 +114,7 @@ export const PUBLIC_API_MODULES: PublicApiModule[] = [
       'ProjectExplorer',
       'CyberEntityPalette',
       'Inspector',
+      'MultiSelectionManager',
     ],
   },
   {
