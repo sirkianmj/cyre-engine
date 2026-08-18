@@ -31,6 +31,7 @@ describe('CYRE Public API', () => {
       'research',
       'platform',
       'ui',
+      'project',
     ]) {
       expect(names).toContain(expected);
     }

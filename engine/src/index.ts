@@ -11,4 +11,5 @@ export * from './automation/index.js';
 export * from './research/index.js';
 export * from './platform/index.js';
 export * from './ui/index.js';
+export * from './project/index.js';
 export * from './publicApi/index.js';

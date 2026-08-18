@@ -83,6 +83,21 @@ export const PUBLIC_API_MODULES: PublicApiModule[] = [
     ],
   },
   {
+    name: 'serialization',
+    version: 1,
+    runtimeSymbols: [
+      'SchemaRegistry',
+      'CyreSerializer',
+      'ScenarioSerializer',
+      'ProjectSerializer',
+    ],
+  },
+  {
+    name: 'project',
+    version: 1,
+    runtimeSymbols: ['ProjectModel'],
+  },
+  {
     name: 'debug',
     version: 1,
     runtimeSymbols: ['DebugInspector'],
