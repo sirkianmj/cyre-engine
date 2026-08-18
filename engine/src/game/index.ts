@@ -1,11 +1,3 @@
-/**
- * CYRE Game Module Exports
- * --------------------------
- * Public API for missions, objectives, evidence, attack graph,
- * investigation mechanics, scoring, progression, predefined missions,
- * difficulty, and campaigns.
- */
-
 export { createObjective, type Objective } from './Objective.js';
 export { MissionStatus } from './MissionStatus.js';
 export { Mission, type MissionOptions } from './Mission.js';
@@ -41,3 +33,5 @@ export { createMission002Scenario } from './Mission002.js';
 export { createMission003Scenario } from './Mission003.js';
 export { Difficulty, DIFFICULTY_SETTINGS, type DifficultySettings } from './Difficulty.js';
 export { Campaign, type CampaignProgress } from './Campaign.js';
+export { PlayModeController } from './PlayModeController.js';
+export type { PlayModeState, PlayModeClock } from './PlayModeController.js';
