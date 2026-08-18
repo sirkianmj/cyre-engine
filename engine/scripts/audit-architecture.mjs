@@ -25,7 +25,24 @@ const allowedDependencies = {
   rendering: [],
   simulation: [],
   shared: [],
-  publicApi: [],
+  publicApi: [
+    'core',
+    'cyber',
+    'game',
+    'scenario',
+    'serialization',
+    'project',
+    'scene',
+    'editor',
+    'debug',
+    'timeline',
+    'replay',
+    'analytics',
+    'automation',
+    'research',
+    'platform',
+    'ui',
+  ],
 };
 
 function getDirectories(srcDir) {
