@@ -23,6 +23,7 @@ const allowedDependencies = {
   shared: [],
   publicApi: [],
   project: ['serialization'],
+  editor: [],
   serialization: ['scenario'],
 };
 
