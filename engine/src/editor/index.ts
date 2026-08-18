@@ -84,3 +84,10 @@ export type {
   MissionDesignerEvidence as EditorMissionDesignerEvidence,
   MissionDesignerScoringRules as EditorMissionDesignerScoringRules,
 } from './MissionDesigner.js';
+export { ObjectiveGraphEditor } from './ObjectiveGraphEditor.js';
+export type {
+  ObjectiveGraphNode as EditorObjectiveGraphNode,
+  ObjectiveGraphNodeStatus as EditorObjectiveGraphNodeStatus,
+  ObjectiveGraphEdge as EditorObjectiveGraphEdge,
+  ObjectiveGraphEdgeType as EditorObjectiveGraphEdgeType,
+} from './ObjectiveGraphEditor.js';

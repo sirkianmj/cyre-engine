@@ -120,6 +120,7 @@ export const PUBLIC_API_MODULES: PublicApiModule[] = [
       'EvidenceGraphEditor',
       'TimelineEditor',
       'MissionDesigner',
+      'ObjectiveGraphEditor',
     ],
   },
   {
