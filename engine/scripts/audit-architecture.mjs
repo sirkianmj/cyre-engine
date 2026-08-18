@@ -8,6 +8,10 @@ const allowedDependencies = {
   cyber: ['core'],
   game: ['cyber', 'scenario'],
   scenario: ['core', 'cyber', 'game'],
+  serialization: ['scenario'],
+  project: ['serialization'],
+  scene: [],
+  editor: [],
   debug: ['core', 'cyber'],
   timeline: ['core'],
   replay: ['core', 'timeline'],
@@ -22,9 +26,6 @@ const allowedDependencies = {
   simulation: [],
   shared: [],
   publicApi: [],
-  project: ['serialization'],
-  editor: [],
-  serialization: ['scenario'],
 };
 
 function getDirectories(srcDir) {
