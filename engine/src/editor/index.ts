@@ -39,3 +39,9 @@ export {
   type CyberEntityCategory,
   type CyberEntityPaletteItem,
 } from './CyberEntityPalette.js';
+export {
+  Inspector,
+  type InspectorProperty,
+  type InspectorPropertyType,
+  type InspectorTarget,
+} from './Inspector.js';

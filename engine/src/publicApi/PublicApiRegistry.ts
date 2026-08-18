@@ -113,6 +113,7 @@ export const PUBLIC_API_MODULES: PublicApiModule[] = [
       'ShortcutManager',
       'ProjectExplorer',
       'CyberEntityPalette',
+      'Inspector',
     ],
   },
   {
