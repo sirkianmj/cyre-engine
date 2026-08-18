@@ -1,186 +1,43 @@
+import * as core from '../core/index.js';
+import * as cyber from '../cyber/index.js';
+import * as game from '../game/index.js';
+import * as scenario from '../scenario/index.js';
+import * as serialization from '../serialization/index.js';
+import * as project from '../project/index.js';
+import * as scene from '../scene/index.js';
+import * as editor from '../editor/index.js';
+import * as debug from '../debug/index.js';
+import * as timeline from '../timeline/index.js';
+import * as replay from '../replay/index.js';
+import * as analytics from '../analytics/index.js';
+import * as automation from '../automation/index.js';
+import * as research from '../research/index.js';
+import * as platform from '../platform/index.js';
+import * as ui from '../ui/index.js';
+
 export interface PublicApiModule {
   name: string;
   version: number;
-  runtimeSymbols: string[];
+  namespace: Record<string, unknown>;
 }
 
 export const PUBLIC_API_MODULES: PublicApiModule[] = [
-  {
-    name: 'core',
-    version: 1,
-    runtimeSymbols: [
-      'Engine',
-      'Configuration',
-      'Logger',
-      'ErrorHandler',
-      'CyreError',
-      'ModuleManager',
-      'BaseModule',
-      'Clock',
-      'SystemClock',
-      'ManualClock',
-      'Entity',
-      'EventBus',
-      'StateContainer',
-    ],
-  },
-  {
-    name: 'cyber',
-    version: 1,
-    runtimeSymbols: [
-      'CyberEntity',
-      'Host',
-      'Server',
-      'Client',
-      'Router',
-      'Firewall',
-      'Database',
-      'Service',
-      'User',
-      'Account',
-      'NetworkGraph',
-      'Privilege',
-      'Role',
-      'Session',
-      'AccessControl',
-      'Vulnerability',
-      'VulnerabilityCatalog',
-      'AttackStage',
-      'AttackState',
-      'DefensiveAction',
-      'DefenseState',
-    ],
-  },
-  {
-    name: 'game',
-    version: 1,
-    runtimeSymbols: [
-      'Mission',
-      'MissionStatus',
-      'createObjective',
-      'createEvidence',
-      'EvidenceCollection',
-      'AttackGraph',
-      'Alert',
-      'InvestigationState',
-      'ScoreCalculator',
-      'PlayerProgression',
-      'Difficulty',
-      'Campaign',
-      'MissionRunner',
-      'MissionFactory',
-    ],
-  },
-  {
-    name: 'scenario',
-    version: 1,
-    runtimeSymbols: [
-      'ScenarioDefinition',
-      'ScenarioLoader',
-      'ScenarioRegistry',
-      'ScenarioValidator',
-      'ScenarioEditor',
-    ],
-  },
-  {
-    name: 'serialization',
-    version: 1,
-    runtimeSymbols: [
-      'SchemaRegistry',
-      'CyreSerializer',
-      'ScenarioSerializer',
-      'ProjectSerializer',
-    ],
-  },
-  {
-    name: 'project',
-    version: 1,
-    runtimeSymbols: ['ProjectModel', 'ProjectCreator', 'ProjectManager'],
-  },
-  {
-    name: 'scene',
-    version: 1,
-    runtimeSymbols: ['SceneModel', 'SceneRegistry', 'SceneEditor'],
-  },
-  {
-    name: 'editor',
-    version: 1,
-    runtimeSymbols: [
-      'EditorShell',
-      'DockManager',
-      'WorkspaceManager',
-      'CommandPalette',
-      'ShortcutManager',
-      'ProjectExplorer',
-      'CyberEntityPalette',
-      'Inspector',
-      'MultiSelectionManager',
-      'NetworkGraphEditor',
-      'AttackGraphEditor',
-      'EvidenceGraphEditor',
-      'TimelineEditor',
-      'MissionDesigner',
-      'ObjectiveGraphEditor',
-    ],
-  },
-  {
-    name: 'debug',
-    version: 1,
-    runtimeSymbols: ['DebugInspector'],
-  },
-  {
-    name: 'timeline',
-    version: 1,
-    runtimeSymbols: ['Timeline'],
-  },
-  {
-    name: 'replay',
-    version: 1,
-    runtimeSymbols: ['ReplayRecorder', 'ReplayPlayer'],
-  },
-  {
-    name: 'analytics',
-    version: 1,
-    runtimeSymbols: ['TelemetryRecorder', 'TelemetryExporter'],
-  },
-  {
-    name: 'automation',
-    version: 1,
-    runtimeSymbols: ['AutomationServer', 'WebhookRegistry', 'N8nIntegration'],
-  },
-  {
-    name: 'research',
-    version: 1,
-    runtimeSymbols: ['ResearchDataset'],
-  },
-  {
-    name: 'platform',
-    version: 1,
-    runtimeSymbols: [
-      'MemoryStorageAdapter',
-      'FileStorageAdapter',
-      'MobilePlatformAdapter',
-      'DesktopPlatformAdapter',
-      'ConsolePlatformAdapter',
-      'TouchInputAdapter',
-      'GamepadInputAdapter',
-      'PerformanceProfile',
-      'ResolutionSettings',
-      'DesktopApp',
-    ],
-  },
-  {
-    name: 'ui',
-    version: 1,
-    runtimeSymbols: [
-      'TerminalUI',
-      'DashboardUI',
-      'UIRenderer',
-      'AccessibilitySettings',
-      'FeedbackSystem',
-      'OnboardingManager',
-    ],
-  },
+  { name: 'core', version: 1, namespace: core },
+  { name: 'cyber', version: 1, namespace: cyber },
+  { name: 'game', version: 1, namespace: game },
+  { name: 'scenario', version: 1, namespace: scenario },
+  { name: 'serialization', version: 1, namespace: serialization },
+  { name: 'project', version: 1, namespace: project },
+  { name: 'scene', version: 1, namespace: scene },
+  { name: 'editor', version: 1, namespace: editor },
+  { name: 'debug', version: 1, namespace: debug },
+  { name: 'timeline', version: 1, namespace: timeline },
+  { name: 'replay', version: 1, namespace: replay },
+  { name: 'analytics', version: 1, namespace: analytics },
+  { name: 'automation', version: 1, namespace: automation },
+  { name: 'research', version: 1, namespace: research },
+  { name: 'platform', version: 1, namespace: platform },
+  { name: 'ui', version: 1, namespace: ui },
 ];
 
 export const CYRE_ENGINE_VERSION = '1.0.0';
@@ -193,7 +50,10 @@ export class PublicApiRegistry {
 
   static getRuntimeSymbols(moduleName: string): string[] {
     const module = PUBLIC_API_MODULES.find((entry) => entry.name === moduleName);
-    return module ? [...module.runtimeSymbols] : [];
+    if (!module) {
+      return [];
+    }
+    return Object.keys(module.namespace).sort();
   }
 
   static hasModule(moduleName: string): boolean {
