@@ -79,8 +79,8 @@ export class Inspector {
   }
 
   getProperties(category?: string): InspectorProperty[] {
-    this.ensureSelected();
-    const properties = this.target!.properties.map((property) => this.copyProperty(property));
+    const target = this.requireTarget();
+    const properties = target.properties.map((property) => this.copyProperty(property));
     if (category === undefined) {
       return properties;
     }
@@ -88,34 +88,32 @@ export class Inspector {
   }
 
   getProperty(key: string): InspectorProperty {
-    this.ensureSelected();
-    const property = this.findProperty(key);
-    return this.copyProperty(property);
+    const target = this.requireTarget();
+    return this.copyProperty(this.findProperty(target, key));
   }
 
   getPropertyValue(key: string): unknown {
-    this.ensureSelected();
-    const property = this.findProperty(key);
-    return this.deepClone(property.value);
+    const target = this.requireTarget();
+    return this.deepClone(this.findProperty(target, key).value);
   }
 
   setPropertyValue(key: string, value: unknown): void {
-    this.ensureSelected();
-    const property = this.findProperty(key);
+    const target = this.requireTarget();
+    const property = this.findProperty(target, key);
     this.validateValueForType(property, value);
     property.value = this.deepClone(value);
   }
 
   isPropertyModified(key: string): boolean {
-    this.ensureSelected();
-    const property = this.findProperty(key);
+    const target = this.requireTarget();
+    const property = this.findProperty(target, key);
     const originalValue = this.originalValues.get(key);
     return JSON.stringify(property.value) !== JSON.stringify(originalValue);
   }
 
   resetProperty(key: string): void {
-    this.ensureSelected();
-    const property = this.findProperty(key);
+    const target = this.requireTarget();
+    const property = this.findProperty(target, key);
     if (!this.originalValues.has(key)) {
       throw new Error(`Inspector property "${key}" does not have an original value.`);
     }
@@ -123,8 +121,8 @@ export class Inspector {
   }
 
   resetAllProperties(): void {
-    this.ensureSelected();
-    for (const property of this.target!.properties) {
+    const target = this.requireTarget();
+    for (const property of target.properties) {
       if (this.originalValues.has(property.key)) {
         property.value = this.deepClone(this.originalValues.get(property.key));
       }
@@ -132,9 +130,9 @@ export class Inspector {
   }
 
   listCategories(): string[] {
-    this.ensureSelected();
+    const target = this.requireTarget();
     const categories = new Set<string>();
-    for (const property of this.target!.properties) {
+    for (const property of target.properties) {
       if (property.category && property.category.trim() !== '') {
         categories.add(property.category);
       }
@@ -143,13 +141,15 @@ export class Inspector {
   }
 
   search(query: string): InspectorProperty[] {
-    this.ensureSelected();
+    const target = this.requireTarget();
     const normalizedQuery = query.trim().toLowerCase();
+    const properties = target.properties.map((property) => this.copyProperty(property));
+
     if (normalizedQuery === '') {
-      return this.getProperties();
+      return properties;
     }
 
-    return this.getProperties().filter((property) => {
+    return properties.filter((property) => {
       const searchableText = [
         property.key,
         property.label,
@@ -163,17 +163,18 @@ export class Inspector {
     });
   }
 
-  private ensureSelected(): asserts this is { target: InspectorTarget } {
+  private requireTarget(): InspectorTarget {
     if (!this.target) {
       throw new Error('No inspector target selected.');
     }
+    return this.target;
   }
 
-  private findProperty(key: string): InspectorProperty {
+  private findProperty(target: InspectorTarget, key: string): InspectorProperty {
     if (!key || key.trim() === '') {
       throw new Error('Inspector property key is required.');
     }
-    const property = this.target!.properties.find((entry) => entry.key === key);
+    const property = target.properties.find((entry) => entry.key === key);
     if (!property) {
       throw new Error(`Inspector property "${key}" does not exist.`);
     }
