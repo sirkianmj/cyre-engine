@@ -28,3 +28,8 @@ export {
   type ShortcutBinding,
   type ShortcutConflict,
 } from './ShortcutSystem.js';
+export {
+  ProjectExplorer,
+  type ProjectNode,
+  type ProjectNodeType,
+} from './ProjectExplorer.js';
