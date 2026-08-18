@@ -116,6 +116,7 @@ export const PUBLIC_API_MODULES: PublicApiModule[] = [
       'Inspector',
       'MultiSelectionManager',
       'NetworkGraphEditor',
+      'AttackGraphEditor',
     ],
   },
   {

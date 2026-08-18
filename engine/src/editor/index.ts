@@ -55,3 +55,9 @@ export {
   type NetworkGraphNodeType,
   type NetworkGraphEdge,
 } from './NetworkGraphEditor.js';
+export { AttackGraphEditor } from './AttackGraphEditor.js';
+export type {
+  AttackGraphNode as EditorAttackGraphNode,
+  AttackGraphNodeStatus as EditorAttackGraphNodeStatus,
+  AttackGraphEdge as EditorAttackGraphEdge,
+} from './AttackGraphEditor.js';
