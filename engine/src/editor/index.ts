@@ -91,3 +91,12 @@ export type {
   ObjectiveGraphEdge as EditorObjectiveGraphEdge,
   ObjectiveGraphEdgeType as EditorObjectiveGraphEdgeType,
 } from './ObjectiveGraphEditor.js';
+export { EventTriggerSystem } from './EventTriggerSystem.js';
+export type {
+  EventTriggerRule as EditorEventTriggerRule,
+  EventTriggerCondition as EditorEventTriggerCondition,
+  EventTriggerAction as EditorEventTriggerAction,
+  EventTriggerActionType as EditorEventTriggerActionType,
+  TriggerEvent as EditorTriggerEvent,
+  TriggerActionResult as EditorTriggerActionResult,
+} from './EventTriggerSystem.js';
