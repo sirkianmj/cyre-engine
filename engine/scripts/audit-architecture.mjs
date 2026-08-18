@@ -22,7 +22,7 @@ const allowedDependencies = {
   simulation: [],
   shared: [],
   publicApi: [],
-  project: [],
+  project: ['serialization'],
   serialization: ['scenario'],
 };
 

@@ -95,7 +95,7 @@ export const PUBLIC_API_MODULES: PublicApiModule[] = [
   {
     name: 'project',
     version: 1,
-    runtimeSymbols: ['ProjectModel', 'ProjectCreator'],
+    runtimeSymbols: ['ProjectModel', 'ProjectCreator', 'ProjectManager'],
   },
   {
     name: 'debug',
