@@ -115,6 +115,7 @@ export const PUBLIC_API_MODULES: PublicApiModule[] = [
       'CyberEntityPalette',
       'Inspector',
       'MultiSelectionManager',
+      'NetworkGraphEditor',
     ],
   },
   {

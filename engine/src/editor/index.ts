@@ -49,3 +49,9 @@ export {
   MultiSelectionManager,
   type SelectionItem,
 } from './MultiSelectionManager.js';
+export {
+  NetworkGraphEditor,
+  type NetworkGraphNode,
+  type NetworkGraphNodeType,
+  type NetworkGraphEdge,
+} from './NetworkGraphEditor.js';
