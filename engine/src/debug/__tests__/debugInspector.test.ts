@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { DebugInspector } from '../DebugInspector.js';
-import { NetworkGraph } from '../../cyber/NetworkGraph.js';
-import { AttackState } from '../../cyber/AttackState.js';
-import { AttackStage } from '../../cyber/AttackStage.js';
+import { NetworkGraph } from '../../cyber/index.js';
+import { AttackState } from '../../cyber/index.js';
+import { AttackStage } from '../../cyber/index.js';
 
 describe('DebugInspector', () => {
   it('inspects a component with toJSON', () => {

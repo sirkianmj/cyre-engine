@@ -5,8 +5,8 @@
  * a phishing email containing a malicious attachment.
  */
 
-import { ScenarioEditor } from '../scenario/ScenarioEditor.js';
-import { Scenario as ScenarioDefinition } from '../scenario/Scenario.js';
+import { ScenarioEditor } from '../scenario/index.js';
+import { ScenarioDefinition } from '../scenario/index.js';
 
 export function createMission002Scenario(): ScenarioDefinition {
   const editor = new ScenarioEditor()

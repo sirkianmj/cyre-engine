@@ -5,7 +5,7 @@ import {
   createMission002Scenario,
   createMission003Scenario,
 } from '../index.js';
-import { ScenarioValidator } from '../../scenario/ScenarioValidator.js';
+import { ScenarioValidator } from '../../scenario/index.js';
 
 describe('Mission002 - Ransomware Outbreak', () => {
   it('creates a valid scenario', () => {

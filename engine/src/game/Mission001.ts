@@ -5,8 +5,8 @@
  * The player investigates suspicious authentication activity.
  */
 
-import { ScenarioEditor } from '../scenario/ScenarioEditor.js';
-import { Scenario as ScenarioDefinition } from '../scenario/Scenario.js';
+import { ScenarioEditor } from '../scenario/index.js';
+import { ScenarioDefinition } from '../scenario/index.js';
 
 export function createMission001Scenario(): ScenarioDefinition {
   const editor = new ScenarioEditor()

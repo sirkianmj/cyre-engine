@@ -7,7 +7,7 @@
 
 import { createServer, type Server, type IncomingMessage, type ServerResponse } from 'node:http';
 import { WebApplication } from './WebApplication.js';
-import type { ScoringMetrics } from '../game/ScoringTypes.js';
+import type { ScoringMetrics } from '../game/index.js';
 
 export class WebServer {
   private server: Server;

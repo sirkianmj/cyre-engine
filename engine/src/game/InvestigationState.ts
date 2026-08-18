@@ -10,7 +10,7 @@ import { Alert } from './Alert.js';
 import { AlertStatus } from './AlertStatus.js';
 import { InvestigationPhase } from './InvestigationPhase.js';
 import { Hypothesis } from './Hypothesis.js';
-import { DefensiveAction } from '../cyber/DefensiveAction.js';
+import { DefensiveAction } from '../cyber/index.js';
 
 export interface DefensiveActionRecord {
   action: DefensiveAction;

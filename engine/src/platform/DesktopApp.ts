@@ -5,7 +5,7 @@
  * Uses a desktop platform adapter and file storage.
  */
 
-import { Engine } from '../core/Engine.js';
+import { Engine } from '../core/index.js';
 import { DesktopPlatformAdapter } from './DesktopPlatformAdapter.js';
 
 export class DesktopApp {

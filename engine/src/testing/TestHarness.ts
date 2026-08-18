@@ -5,10 +5,10 @@
  * and loads a scenario into the engine.
  */
 
-import { Engine } from '../core/Engine.js';
-import { ManualClock } from '../core/Clock.js';
-import type { Scenario as ScenarioData } from '../scenario/ScenarioTypes.js';
-import { Scenario } from '../scenario/Scenario.js';
+import { Engine } from '../core/index.js';
+import { ManualClock } from '../core/index.js';
+import type { Scenario as ScenarioData } from '../scenario/index.js';
+import { ScenarioDefinition as Scenario } from '../scenario/index.js';
 
 export interface HarnessResult {
   engine: Engine;

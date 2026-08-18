@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { DeterminismChecker } from '../DeterminismChecker.js';
 import { ScenarioTestHelper } from '../ScenarioTestHelper.js';
 import { TestHarness } from '../TestHarness.js';
-import { NetworkGraph } from '../../cyber/NetworkGraph.js';
+import { NetworkGraph } from '../../cyber/index.js';
 
 describe('DeterminismChecker', () => {
   it('detects deterministic function', () => {

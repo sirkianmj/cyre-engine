@@ -5,8 +5,8 @@
  * internal employee account accessing HR and finance systems.
  */
 
-import { ScenarioEditor } from '../scenario/ScenarioEditor.js';
-import { Scenario as ScenarioDefinition } from '../scenario/Scenario.js';
+import { ScenarioEditor } from '../scenario/index.js';
+import { ScenarioDefinition } from '../scenario/index.js';
 
 export function createMission003Scenario(): ScenarioDefinition {
   const editor = new ScenarioEditor()

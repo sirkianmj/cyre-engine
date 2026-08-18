@@ -5,7 +5,7 @@
  * by ID.
  */
 
-import { Scenario as ScenarioDefinition } from '../scenario/Scenario.js';
+import { ScenarioDefinition } from '../scenario/index.js';
 import { createMission001Scenario } from './Mission001.js';
 import { createMission002Scenario } from './Mission002.js';
 import { createMission003Scenario } from './Mission003.js';

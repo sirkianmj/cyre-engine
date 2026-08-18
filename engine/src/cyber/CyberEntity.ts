@@ -5,7 +5,7 @@
  * Extends the core Entity with a human-readable name and additional metadata.
  */
 
-import { Entity, type EntityData } from '../core/Entity.js';
+import { Entity, type EntityData } from '../core/index.js';
 
 export abstract class CyberEntity extends Entity {
   readonly name: string;

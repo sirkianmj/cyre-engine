@@ -4,8 +4,8 @@
  * Provides quick scenario creation for tests, using the ScenarioEditor.
  */
 
-import { ScenarioEditor } from '../scenario/ScenarioEditor.js';
-import { Scenario as ScenarioDefinition } from '../scenario/Scenario.js';
+import { ScenarioEditor } from '../scenario/index.js';
+import { ScenarioDefinition } from '../scenario/index.js';
 
 export class ScenarioTestHelper {
   /**

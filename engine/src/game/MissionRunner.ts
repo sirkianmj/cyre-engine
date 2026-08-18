@@ -6,7 +6,7 @@
  * to simulate player decisions.
  */
 
-import { Scenario as ScenarioDefinition } from '../scenario/Scenario.js';
+import { ScenarioDefinition } from '../scenario/index.js';
 import { InvestigationState } from './InvestigationState.js';
 import { Mission } from './Mission.js';
 import { MissionStatus } from './MissionStatus.js';
@@ -18,7 +18,7 @@ import { createEvidence } from './Evidence.js';
 import { EvidenceType } from './EvidenceType.js';
 import { ScoreCalculator } from './ScoreCalculator.js';
 import type { ScoringMetrics } from './ScoringTypes.js';
-import { DefensiveAction } from '../cyber/DefensiveAction.js';
+import { DefensiveAction } from '../cyber/index.js';
 
 export class MissionRunner {
   readonly scenario: ScenarioDefinition;

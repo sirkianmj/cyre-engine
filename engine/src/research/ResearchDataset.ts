@@ -6,8 +6,8 @@
  * Supports export to JSON and CSV.
  */
 
-import type { TelemetryEvent } from '../analytics/TelemetryEvent.js';
-import { TelemetryExporter } from '../analytics/TelemetryExporter.js';
+import type { TelemetryEvent } from '../analytics/index.js';
+import { TelemetryExporter } from '../analytics/index.js';
 import type {
   ExperimentMetadata,
   ResearchSession,

@@ -5,9 +5,9 @@
  * Acts as the backend for the CYRE web release.
  */
 
-import { MissionFactory } from '../game/MissionFactory.js';
-import { MissionRunner } from '../game/MissionRunner.js';
-import type { ScoringMetrics } from '../game/ScoringTypes.js';
+import { MissionFactory } from '../game/index.js';
+import { MissionRunner } from '../game/index.js';
+import type { ScoringMetrics } from '../game/index.js';
 
 export class WebApplication {
   private runners: Map<string, MissionRunner> = new Map();

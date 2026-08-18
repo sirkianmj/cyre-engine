@@ -4,7 +4,7 @@
  * Type definitions for the CYRE research dataset.
  */
 
-import type { TelemetryEvent } from '../analytics/TelemetryEvent.js';
+import type { TelemetryEvent } from '../analytics/index.js';
 
 export interface ExperimentMetadata {
   id: string;

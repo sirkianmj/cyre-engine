@@ -4,7 +4,7 @@ import {
   MissionRunner,
   createMission001Scenario,
 } from '../index.js';
-import { ScenarioValidator } from '../../scenario/ScenarioValidator.js';
+import { ScenarioValidator } from '../../scenario/index.js';
 
 describe('Mission001', () => {
   it('creates a valid scenario', () => {

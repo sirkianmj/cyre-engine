@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ResearchDataset } from '../ResearchDataset.js';
-import type { TelemetryEvent } from '../../analytics/TelemetryEvent.js';
+import type { TelemetryEvent } from '../../analytics/index.js';
 
 describe('ResearchDataset', () => {
   it('creates experiment and registers session', () => {
