@@ -3,6 +3,27 @@ import path from 'path';
 
 const root = path.resolve(process.cwd(), 'src');
 
+const allowedDependencies = {
+  core: [],
+  cyber: ['core'],
+  game: ['cyber', 'scenario'],
+  scenario: ['core', 'cyber', 'game'],
+  debug: ['core', 'cyber'],
+  timeline: ['core'],
+  replay: ['core', 'timeline'],
+  testing: ['core', 'cyber', 'scenario'],
+  ui: ['core'],
+  automation: ['core'],
+  analytics: ['core'],
+  research: ['core', 'scenario', 'analytics'],
+  platform: ['core', 'game', 'scenario', 'web'],
+  web: ['core', 'game', 'scenario'],
+  rendering: [],
+  simulation: [],
+  shared: [],
+  publicApi: [],
+};
+
 function getDirectories(srcDir) {
   return fs.readdirSync(srcDir, { withFileTypes: true })
     .filter((entry) => entry.isDirectory())
@@ -15,6 +36,7 @@ function getTypeScriptFiles(dir) {
   for (const entry of entries) {
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
+      if (entry.name === '__tests__') continue;
       results = results.concat(getTypeScriptFiles(fullPath));
     } else if (entry.isFile() && entry.name.endsWith('.ts') && !entry.name.endsWith('.d.ts')) {
       results.push(fullPath);
@@ -45,9 +67,13 @@ const violations = [];
 
 for (const file of files) {
   const relativePath = path.relative(root, file);
+
+  if (relativePath === 'index.ts') continue;
+
   const fileModule = relativePath.split(path.sep)[0];
   const content = fs.readFileSync(file, 'utf8');
   const imports = extractRelativeImports(content);
+
   for (const imp of imports) {
     if (!imp.startsWith('.')) continue;
     const resolvedPath = path.resolve(path.dirname(file), imp);
@@ -62,14 +88,19 @@ for (const file of files) {
     crossModuleImports.get(fileModule).add(targetModule);
 
     const targetFile = path.basename(relativeToRoot);
-    const targetDir = path.dirname(relativeToRoot);
+
     if (targetFile !== 'index.ts' && targetFile !== 'index.js') {
-      violations.push({
-        file: relativePath,
-        importPath: imp,
-        targetModule,
-        targetFile: relativeToRoot,
-      });
+      violations.push(
+        `${relativePath} imports ${imp}; cross-module import must use public index`,
+      );
+      continue;
+    }
+
+    const allowedTargets = allowedDependencies[fileModule] ?? [];
+    if (!allowedTargets.includes(targetModule)) {
+      violations.push(
+        `Architecture boundary violation: ${fileModule} must not depend on ${targetModule}`,
+      );
     }
   }
 }
@@ -89,10 +120,9 @@ if (crossModuleImports.size === 0) {
 }
 
 if (violations.length > 0) {
-  console.log('\nArchitecture violations found (cross-module import does not use public index):\n');
-  for (const v of violations) {
-    console.log(`${v.file} imports ${v.importPath} which targets ${v.targetFile}`);
-    console.log(`  Target module: ${v.targetModule}. Use module index instead.\n`);
+  console.log('\nArchitecture violations found:\n');
+  for (const violation of violations) {
+    console.log(`- ${violation}`);
   }
   process.exitCode = 1;
 } else {
