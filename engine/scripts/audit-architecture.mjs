@@ -22,6 +22,7 @@ const allowedDependencies = {
   simulation: [],
   shared: [],
   publicApi: [],
+  serialization: ['scenario'],
 };
 
 function getDirectories(srcDir) {

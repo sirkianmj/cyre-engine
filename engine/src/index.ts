@@ -2,6 +2,7 @@ export * from './core/index.js';
 export * from './cyber/index.js';
 export * from './game/index.js';
 export * from './scenario/index.js';
+export * from './serialization/index.js';
 export * from './debug/index.js';
 export * from './timeline/index.js';
 export * from './replay/index.js';
