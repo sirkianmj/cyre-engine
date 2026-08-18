@@ -14,3 +14,8 @@ export {
   type DockArea,
   type DockLayout,
 } from './DockingSystem.js';
+export {
+  WorkspaceManager,
+  PREDEFINED_WORKSPACES,
+  type WorkspaceDefinition,
+} from './WorkspaceSystem.js';
