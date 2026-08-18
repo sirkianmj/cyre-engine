@@ -61,3 +61,10 @@ export type {
   AttackGraphNodeStatus as EditorAttackGraphNodeStatus,
   AttackGraphEdge as EditorAttackGraphEdge,
 } from './AttackGraphEditor.js';
+export { EvidenceGraphEditor } from './EvidenceGraphEditor.js';
+export type {
+  EvidenceGraphNode as EditorEvidenceGraphNode,
+  EvidenceNodeType as EditorEvidenceGraphNodeType,
+  EvidenceGraphEdge as EditorEvidenceGraphEdge,
+  EvidenceRelationType as EditorEvidenceRelationType,
+} from './EvidenceGraphEditor.js';
