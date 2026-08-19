@@ -18,3 +18,18 @@ export {
   type N8nWorkflowDefinition,
   type N8nWorkflowNode,
 } from './N8nIntegration.js';
+
+export {
+  API_METHODS,
+  isApiMethod,
+} from './ApiTypes.js';
+export type {
+  ApiMethod,
+  ApiRequest,
+  ApiResponse,
+  ApiHandler,
+  ApiRouteDefinition,
+  ApiRouteInfo,
+  ApiGatewaySnapshot,
+} from './ApiTypes.js';
+export { ApiGateway } from './ApiGateway.js';
