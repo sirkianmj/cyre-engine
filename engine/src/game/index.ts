@@ -49,3 +49,25 @@ export type {
   LiveEventStreamClock,
   LiveEventStreamOptions,
 } from './LiveEventStream.js';
+
+export {
+  CyreScript,
+} from './CyreScript.js';
+export type {
+  CyreScriptNetworkNode,
+  CyreScriptNetworkEdge,
+  CyreScriptAsset,
+  CyreScriptUser,
+  CyreScriptAttacker,
+  CyreScriptDefense,
+  CyreScriptAttackPath,
+  CyreScriptEvidence,
+  CyreScriptObjective,
+  CyreScriptTimelineEvent,
+  CyreScriptDefinition,
+  CyreScriptAttackerSophistication,
+  CyreScriptDefenseMonitoringLevel,
+} from './CyreScriptTypes.js';
+export { CyreScriptBuilder } from './CyreScriptBuilder.js';
+export { CyreScriptRegistry } from './CyreScriptRegistry.js';
+export { CyreScriptEngine } from './CyreScriptEngine.js';
