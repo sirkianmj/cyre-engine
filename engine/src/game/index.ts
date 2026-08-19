@@ -41,3 +41,11 @@ export type {
   LiveSimulationEvidenceSummary,
   LiveSimulationObjectiveSummary,
 } from './LiveSimulationInspector.js';
+export { LiveEventStream } from './LiveEventStream.js';
+export type {
+  LiveEventType,
+  LiveSimulationEvent,
+  LiveEventStreamListener,
+  LiveEventStreamClock,
+  LiveEventStreamOptions,
+} from './LiveEventStream.js';
