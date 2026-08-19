@@ -126,3 +126,30 @@ export type {
   ConsoleArchitectureOptions,
   ConsoleArchitectureSnapshot,
 } from './ConsoleArchitecture.js';
+
+export {
+  AUDIO_CHANNELS,
+  AUDIO_CLIP_KINDS,
+  AUDIO_PLAYBACK_STATES,
+  AUDIO_EVENT_TYPES,
+  isAudioChannel,
+  isAudioClipKind,
+  isAudioPlaybackState,
+  isAudioEventType,
+} from './AudioTypes.js';
+export type {
+  AudioChannel,
+  AudioClipKind,
+  AudioPlaybackState,
+  AudioEventType,
+  AudioEvent,
+} from './AudioTypes.js';
+export { AudioClipDescriptor } from './AudioClipDescriptor.js';
+export type { AudioClipDescriptorOptions } from './AudioClipDescriptor.js';
+export { AudioMixer } from './AudioMixer.js';
+export type { AudioMixerSnapshot } from './AudioMixer.js';
+export { AudioSystem } from './AudioSystem.js';
+export type {
+  AudioSystemOptions,
+  AudioSystemSnapshot,
+} from './AudioSystem.js';
