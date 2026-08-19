@@ -35,3 +35,9 @@ export { Difficulty, DIFFICULTY_SETTINGS, type DifficultySettings } from './Diff
 export { Campaign, type CampaignProgress } from './Campaign.js';
 export { PlayModeController } from './PlayModeController.js';
 export type { PlayModeState, PlayModeClock } from './PlayModeController.js';
+export { LiveSimulationInspector } from './LiveSimulationInspector.js';
+export type {
+  LiveSimulationSnapshot,
+  LiveSimulationEvidenceSummary,
+  LiveSimulationObjectiveSummary,
+} from './LiveSimulationInspector.js';
