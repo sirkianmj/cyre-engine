@@ -210,3 +210,20 @@ export { CooperativeSocSession } from './CooperativeSocSession.js';
 export type { CooperativeSocSessionOptions } from './CooperativeSocSession.js';
 export { CooperativeSocManager } from './CooperativeSocManager.js';
 export type { CooperativeSocManagerSnapshot } from './CooperativeSocManager.js';
+
+export {
+  RED_VS_BLUE_TEAMS,
+  RED_VS_BLUE_PLAYER_ROLES,
+  isRedVsBlueTeam,
+  isRedVsBluePlayerRole,
+} from './RedVsBlueTypes.js';
+export type {
+  RedVsBlueTeam,
+  RedVsBluePlayerRole,
+  RedVsBlueTeamState,
+  RedVsBlueSnapshot,
+} from './RedVsBlueTypes.js';
+export { RedVsBlueSession } from './RedVsBlueSession.js';
+export type { RedVsBlueSessionOptions } from './RedVsBlueSession.js';
+export { RedVsBlueManager } from './RedVsBlueManager.js';
+export type { RedVsBlueManagerSnapshot } from './RedVsBlueManager.js';
