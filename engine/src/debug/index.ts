@@ -1,7 +1,7 @@
 /**
  * CYRE Debug Module Exports
  * ---------------------------
- * Public API for debug inspection and professional debugging.
+ * Public API for debug inspection, professional debugging, and profiling.
  */
 
 export type { DebugSnapshot } from './DebugSnapshot.js';
@@ -22,3 +22,12 @@ export type {
   CyreDebuggerSnapshot,
   EventQuery,
 } from './CyreDebugger.js';
+export { PerformanceProfiler } from './PerformanceProfiler.js';
+export type {
+  PerformanceProfilerOptions,
+  PerformanceProfileSnapshot,
+  ProfilerMemoryUsage,
+  ProfilerSectionSnapshot,
+  ProfilerOperationStats,
+  ProfilerEventRecord,
+} from './PerformanceProfiler.js';
