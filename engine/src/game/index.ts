@@ -113,3 +113,6 @@ export type {
 export { GameIdentity } from './GameIdentity.js';
 export { GameIdentityRegistry } from './GameIdentityRegistry.js';
 export type { GameIdentityRegistrySnapshot } from './GameIdentityRegistry.js';
+
+export { Mission001Runner, MISSION_001_CONSTANTS } from './Mission001Runner.js';
+export type { Mission001Summary } from './Mission001Runner.js';
