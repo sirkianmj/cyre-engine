@@ -2,7 +2,7 @@
  * CYRE Platform Module Exports
  * -----------------------------
  * Public API for platform adapters, input, performance, resolution,
- * build pipeline tooling, web packaging, and desktop packaging.
+ * build pipeline tooling, web packaging, desktop packaging, and mobile packaging.
  */
 
 export type {
@@ -75,3 +75,20 @@ export type {
   DesktopPackageBuildInput,
   DesktopPackageBuildResult,
 } from './DesktopPackager.js';
+
+export {
+  MOBILE_PLATFORMS,
+  isMobilePlatform,
+} from './MobilePackageTypes.js';
+export type {
+  MobilePlatform,
+  MobilePackageOptions,
+  MobilePackageManifest,
+} from './MobilePackageTypes.js';
+export { MobilePackage } from './MobilePackage.js';
+export { MobilePackager } from './MobilePackager.js';
+export type {
+  MobilePackagerOptions,
+  MobilePackageBuildInput,
+  MobilePackageBuildResult,
+} from './MobilePackager.js';
