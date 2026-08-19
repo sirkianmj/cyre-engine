@@ -57,3 +57,13 @@ export type {
   ExperimentRunBatchResult,
   ExperimentRunnerSnapshot,
 } from './ExperimentRunnerTypes.js';
+
+export {
+  RESEARCH_EXPORT_FORMATS,
+  isResearchExportFormat,
+} from './ResearchExportTypes.js';
+export type {
+  ResearchExportFormat,
+  ResearchExportResult,
+} from './ResearchExportTypes.js';
+export { ResearchDatasetExporter } from './ResearchDatasetExporter.js';
