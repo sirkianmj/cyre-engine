@@ -162,3 +162,11 @@ export type { AutonomousAttackerOptions } from './AutonomousAttackerAgent.js';
 
 export { AutonomousDefenderAgent } from './AutonomousDefenderAgent.js';
 export type { AutonomousDefenderOptions } from './AutonomousDefenderAgent.js';
+
+export { AdaptiveScenarioEngine } from './AdaptiveScenarioEngine.js';
+export type {
+  AdaptiveScenarioBaseOptions,
+  AdaptiveScenarioEngineOptions,
+  AdaptiveScenarioAdjustment,
+  AdaptiveScenarioEngineSnapshot,
+} from './AdaptiveScenarioEngine.js';
