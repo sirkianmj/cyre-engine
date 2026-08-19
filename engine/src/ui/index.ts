@@ -23,3 +23,9 @@ export type {
   DesignSystemTokenValue,
   DesignSystemToken,
 } from './DesignSystem.js';
+export { MotionSystem, MOTION_PRESETS } from './MotionSystem.js';
+export type {
+  MotionEasing,
+  MotionTransition,
+  MotionPreset,
+} from './MotionSystem.js';
