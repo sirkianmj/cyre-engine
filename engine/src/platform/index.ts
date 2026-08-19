@@ -2,7 +2,7 @@
  * CYRE Platform Module Exports
  * -----------------------------
  * Public API for platform adapters, input, performance, resolution,
- * and build pipeline tooling.
+ * build pipeline tooling, and web packaging.
  */
 
 export type {
@@ -46,3 +46,15 @@ export type {
   BuildLogEntry,
   BuildResult,
 } from './BuildPipeline.js';
+
+export { WebPackage } from './WebPackage.js';
+export type {
+  WebPackageOptions,
+  WebPackageManifest,
+} from './WebPackageTypes.js';
+export { WebPackager } from './WebPackager.js';
+export type {
+  WebPackagerOptions,
+  WebPackageBuildInput,
+  WebPackageBuildResult,
+} from './WebPackager.js';
