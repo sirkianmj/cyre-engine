@@ -61,3 +61,28 @@ export { InvestigationTimelineUI } from './InvestigationTimelineUI.js';
 export { MissionStatusUI } from './MissionStatusUI.js';
 export { GameUIWorkspace } from './GameUIWorkspace.js';
 export type { GameUIPanel } from './GameUIWorkspace.js';
+
+export {
+  VISUAL_INTENSITIES,
+  VISUAL_MOTION_PRESETS,
+  isVisualIntensity,
+  isVisualMotionPreset,
+} from './VisualPolishTypes.js';
+export type {
+  VisualIntensity,
+  VisualMotionPreset,
+} from './VisualPolishTypes.js';
+export {
+  VisualPolishProfile,
+} from './VisualPolishProfile.js';
+export type {
+  VisualPolishProfileOptions,
+} from './VisualPolishProfile.js';
+export {
+  VisualPolishSystem,
+} from './VisualPolishSystem.js';
+export type {
+  VisualPolishMotionSnapshot,
+  VisualPolishSnapshot,
+  VisualPolishSystemOptions,
+} from './VisualPolishSystem.js';
