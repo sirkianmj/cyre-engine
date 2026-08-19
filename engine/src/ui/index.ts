@@ -17,3 +17,9 @@ export type {
   UIThemeDefinition,
 } from './UIThemeManager.js';
 export { UIComponentRegistry } from './UIComponentRegistry.js';
+export { DesignSystem } from './DesignSystem.js';
+export type {
+  DesignSystemCategory,
+  DesignSystemTokenValue,
+  DesignSystemToken,
+} from './DesignSystem.js';
