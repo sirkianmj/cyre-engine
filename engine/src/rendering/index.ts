@@ -67,3 +67,10 @@ export type {
   CyberEnvironmentDefinition,
 } from './CyberWorldTypes.js';
 export { CyberWorldVisualization } from './CyberWorldVisualization.js';
+
+export { ASSET_TYPES, isAssetType } from './AssetTypes.js';
+export type { AssetType } from './AssetTypes.js';
+export { AssetDescriptor } from './AssetDescriptor.js';
+export type { AssetDescriptorOptions } from './AssetDescriptor.js';
+export { AssetManager } from './AssetManager.js';
+export type { AssetUpdatePatch } from './AssetManager.js';
