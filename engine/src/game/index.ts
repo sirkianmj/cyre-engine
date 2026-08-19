@@ -136,3 +136,23 @@ export type {
   DifficultyManagerOptions,
   DifficultyManagerSnapshot,
 } from './DifficultyManager.js';
+
+export {
+  CYBER_AGENT_ROLES,
+  CYBER_AGENT_STATUSES,
+  isCyberAgentRole,
+  isCyberAgentStatus,
+} from './CyberAgentTypes.js';
+export type {
+  CyberAgentRole,
+  CyberAgentStatus,
+  CyberAgentAction,
+  CyberAgentDecision,
+  CyberAgentObservation,
+  CyberAgentContext,
+  CyberAgent,
+  CyberAgentActionRecord,
+  CyberAgentRegistrySnapshot,
+} from './CyberAgentTypes.js';
+export { BaseCyberAgent } from './BaseCyberAgent.js';
+export { CyberAgentRegistry } from './CyberAgentRegistry.js';
