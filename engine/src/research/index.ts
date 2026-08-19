@@ -1,7 +1,8 @@
 /**
  * CYRE Research Module Exports
  * ------------------------------
- * Public API for research dataset management.
+ * Public API for research dataset management, experimental scenarios,
+ * and reproducibility.
  */
 
 export type {
@@ -28,3 +29,18 @@ export type {
   ExperimentalScenarioFrameworkSnapshot,
 } from './ExperimentalScenarioTypes.js';
 export { ExperimentalScenarioFramework } from './ExperimentalScenarioFramework.js';
+
+export {
+  REPRODUCIBILITY_SCHEMA_VERSION,
+} from './ReproducibilityTypes.js';
+export type {
+  ReproducibilityManifestInput,
+  ReproducibilityManifest,
+  ReproducibilityVerificationResult,
+  ReproducibilityManagerSnapshot,
+} from './ReproducibilityTypes.js';
+export {
+  computeReproducibilityChecksum,
+  stableStringify,
+} from './ReproducibilityUtils.js';
+export { ReproducibilityManager } from './ReproducibilityManager.js';
