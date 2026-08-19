@@ -2,7 +2,8 @@
  * CYRE Platform Module Exports
  * -----------------------------
  * Public API for platform adapters, input, performance, resolution,
- * build pipeline tooling, web packaging, desktop packaging, and mobile packaging.
+ * build pipeline tooling, web packaging, desktop packaging, mobile packaging,
+ * and console architecture.
  */
 
 export type {
@@ -92,3 +93,36 @@ export type {
   MobilePackageBuildInput,
   MobilePackageBuildResult,
 } from './MobilePackager.js';
+
+export {
+  CONSOLE_FAMILIES,
+  CONSOLE_RENDERING_ABSTRACTIONS,
+  CONSOLE_INPUT_ABSTRACTIONS,
+  CONSOLE_SAVE_SYSTEMS,
+  CONSOLE_SERVICES,
+  isConsoleFamily,
+  isConsoleRenderingAbstraction,
+  isConsoleInputAbstraction,
+  isConsoleSaveSystem,
+  isConsoleService,
+} from './ConsoleArchitectureTypes.js';
+export type {
+  ConsoleFamily,
+  ConsoleRenderingAbstraction,
+  ConsoleInputAbstraction,
+  ConsoleSaveSystem,
+  ConsoleService,
+} from './ConsoleArchitectureTypes.js';
+export {
+  ConsoleArchitectureProfile,
+} from './ConsoleArchitectureProfile.js';
+export type {
+  ConsoleArchitectureProfileOptions,
+} from './ConsoleArchitectureProfile.js';
+export {
+  ConsoleArchitecture,
+} from './ConsoleArchitecture.js';
+export type {
+  ConsoleArchitectureOptions,
+  ConsoleArchitectureSnapshot,
+} from './ConsoleArchitecture.js';
