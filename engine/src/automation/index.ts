@@ -55,3 +55,13 @@ export type {
   WebhookSystemSnapshot,
   WebhookSender,
 } from './WebhookSystemTypes.js';
+
+export { N8nIntegrationManager } from './N8nIntegrationManager.js';
+export type {
+  N8nIntegrationEntryDefinition,
+  N8nDeliveryResult,
+  N8nDeliveryReport,
+  N8nDeliveryRecord,
+  N8nIntegrationManagerStats,
+  N8nIntegrationManagerSnapshot,
+} from './N8nIntegrationManagerTypes.js';
