@@ -196,3 +196,17 @@ export type {
 } from './MultiplayerTypes.js';
 export { MultiplayerSession } from './MultiplayerSession.js';
 export { MultiplayerSessionManager } from './MultiplayerSessionManager.js';
+
+export {
+  COOPERATIVE_SOC_ROLES,
+  isCooperativeSocRole,
+} from './CooperativeSocTypes.js';
+export type {
+  CooperativeSocRole,
+  CooperativeEvidenceAssignment,
+  CooperativeSocSnapshot,
+} from './CooperativeSocTypes.js';
+export { CooperativeSocSession } from './CooperativeSocSession.js';
+export type { CooperativeSocSessionOptions } from './CooperativeSocSession.js';
+export { CooperativeSocManager } from './CooperativeSocManager.js';
+export type { CooperativeSocManagerSnapshot } from './CooperativeSocManager.js';
