@@ -26,3 +26,16 @@ export { AnimationClip2D } from './AnimationClip2D.js';
 export type { AnimationClip2DOptions, AnimationFrame2D } from './AnimationClip2D.js';
 export { Scene2D } from './Scene2D.js';
 export { Renderer2D } from './Renderer2D.js';
+
+export { Transform25D } from './Transform25D.js';
+export type { Transform25DOptions } from './Transform25D.js';
+export { Light25D } from './Light25D.js';
+export type { Light25DOptions, Light25DType } from './Light25D.js';
+export { Camera25D } from './Camera25D.js';
+export type { Camera25DOptions } from './Camera25D.js';
+export { Layer25D } from './Layer25D.js';
+export type { Layer25DOptions } from './Layer25D.js';
+export { Sprite25D } from './Sprite25D.js';
+export type { Sprite25DOptions } from './Sprite25D.js';
+export { Scene25D } from './Scene25D.js';
+export { Renderer25D } from './Renderer25D.js';
