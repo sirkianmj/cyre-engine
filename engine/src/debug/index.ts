@@ -31,3 +31,12 @@ export type {
   ProfilerOperationStats,
   ProfilerEventRecord,
 } from './PerformanceProfiler.js';
+export { ResourceDiagnostics } from './ResourceDiagnostics.js';
+export type {
+  ResourceDiagnosticsOptions,
+  ResourceDiagnosticsSnapshot,
+  ResourceMetricKey,
+  ResourceSample,
+  ResourceUsageSnapshot,
+  ResourceThresholdResult,
+} from './ResourceDiagnostics.js';
