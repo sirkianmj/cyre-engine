@@ -1,7 +1,8 @@
 /**
  * CYRE Automation Module Exports
  * -------------------------------
- * Public API for automation server, webhooks, events, and n8n integration.
+ * Public API for automation server, webhooks, events, n8n integration,
+ * API gateway, and WebSocket event streaming.
  */
 
 export type { AutomationEvent } from './AutomationTypes.js';
@@ -33,3 +34,13 @@ export type {
   ApiGatewaySnapshot,
 } from './ApiTypes.js';
 export { ApiGateway } from './ApiGateway.js';
+
+export { WebSocketEventStream } from './WebSocketEventStream.js';
+export type {
+  WebSocketLike,
+  WebSocketEventEnvelope,
+  EventStreamFilter,
+  WebSocketEventStreamStats,
+  WebSocketEventStreamSnapshot,
+  WebSocketEventStreamOptions,
+} from './WebSocketEventStream.js';
