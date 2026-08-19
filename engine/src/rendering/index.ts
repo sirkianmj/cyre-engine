@@ -96,3 +96,11 @@ export {
   createAssetImportCacheKey,
 } from './AssetImportCache.js';
 export { AssetImportPipeline } from './AssetImportPipeline.js';
+
+export { AssetBrowser } from './AssetBrowser.js';
+export type {
+  AssetBrowserQuery,
+  AssetBrowserPage,
+  AssetSortField,
+  AssetSortDirection,
+} from './AssetBrowser.js';
