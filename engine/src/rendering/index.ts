@@ -52,3 +52,18 @@ export { Light3D } from './Light3D.js';
 export type { Light3DOptions, Light3DType } from './Light3D.js';
 export { Scene3D } from './Scene3D.js';
 export { Renderer3D } from './Renderer3D.js';
+
+export {
+  CYBER_ENVIRONMENT_TYPES,
+  CYBER_ENTITY_VISUAL_TYPES,
+  isCyberEnvironmentType,
+  isCyberEntityVisualType,
+} from './CyberWorldTypes.js';
+export type {
+  CyberEnvironmentType,
+  CyberEntityVisualType,
+  Vector3,
+  CyberVisualEntity,
+  CyberEnvironmentDefinition,
+} from './CyberWorldTypes.js';
+export { CyberWorldVisualization } from './CyberWorldVisualization.js';
