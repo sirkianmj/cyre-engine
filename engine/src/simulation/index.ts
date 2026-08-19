@@ -1,8 +1,14 @@
 /**
  * CYRE Simulation Module
  * -----------------------
- * This module will contain the generic simulation engine:
- * time management, deterministic event scheduling, and state transitions.
- * It should remain domain-agnostic.
+ * Domain-agnostic simulation profiling and future simulation utilities.
  */
-export {};
+
+export { SimulationProfiler } from './SimulationProfiler.js';
+export type {
+  SimulationEventKind,
+  SimulationProfilerOptions,
+  SimulationEventStats,
+  SimulationEntityCounter,
+  SimulationProfileSnapshot,
+} from './SimulationProfiler.js';
