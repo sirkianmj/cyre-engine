@@ -82,3 +82,34 @@ export type {
 } from './CyrePluginTypes.js';
 export { CyrePluginManager } from './CyrePluginManager.js';
 export type { CyrePluginInfo } from './CyrePluginManager.js';
+
+export {
+  GAME_TARGET_PLATFORMS,
+  ART_DIRECTION_STYLES,
+  PLAYER_ROLES,
+  NARRATIVE_TONES,
+  PROGRESSION_STYLES,
+  GAME_PILLAR_CATEGORIES,
+  ACCESSIBILITY_TARGETS,
+  isGameTargetPlatform,
+  isArtDirectionStyle,
+  isPlayerRole,
+  isNarrativeTone,
+  isProgressionStyle,
+  isGamePillarCategory,
+  isAccessibilityTarget,
+} from './GameIdentityTypes.js';
+export type {
+  GameTargetPlatform,
+  ArtDirectionStyle,
+  PlayerRole,
+  NarrativeTone,
+  ProgressionStyle,
+  GamePillarCategory,
+  AccessibilityTarget,
+  GamePillar,
+  GameIdentityDefinition,
+} from './GameIdentityTypes.js';
+export { GameIdentity } from './GameIdentity.js';
+export { GameIdentityRegistry } from './GameIdentityRegistry.js';
+export type { GameIdentityRegistrySnapshot } from './GameIdentityRegistry.js';
