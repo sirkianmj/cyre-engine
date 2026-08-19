@@ -11,3 +11,18 @@ export type { SceneGraphNodeData, SceneGraphEdgeData } from './SceneGraph.js';
 export { RenderBackendRegistry } from './RenderBackendRegistry.js';
 export type { RenderBackend } from './RenderBackend.js';
 export { SimpleSceneGraphBackend } from './SimpleSceneGraphBackend.js';
+
+export { Transform2D } from './Transform2D.js';
+export type { Transform2DOptions } from './Transform2D.js';
+export { Sprite2D } from './Sprite2D.js';
+export type { Sprite2DOptions } from './Sprite2D.js';
+export { Layer2D } from './Layer2D.js';
+export type { Layer2DOptions } from './Layer2D.js';
+export { Camera2D } from './Camera2D.js';
+export type { Camera2DOptions } from './Camera2D.js';
+export { ParticleSystem2D } from './ParticleSystem2D.js';
+export type { ParticleSystem2DOptions } from './ParticleSystem2D.js';
+export { AnimationClip2D } from './AnimationClip2D.js';
+export type { AnimationClip2DOptions, AnimationFrame2D } from './AnimationClip2D.js';
+export { Scene2D } from './Scene2D.js';
+export { Renderer2D } from './Renderer2D.js';
