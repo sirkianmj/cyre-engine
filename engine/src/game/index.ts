@@ -159,3 +159,6 @@ export { CyberAgentRegistry } from './CyberAgentRegistry.js';
 
 export { AutonomousAttackerAgent } from './AutonomousAttackerAgent.js';
 export type { AutonomousAttackerOptions } from './AutonomousAttackerAgent.js';
+
+export { AutonomousDefenderAgent } from './AutonomousDefenderAgent.js';
+export type { AutonomousDefenderOptions } from './AutonomousDefenderAgent.js';
