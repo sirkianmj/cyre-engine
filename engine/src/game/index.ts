@@ -119,3 +119,20 @@ export type { Mission001Summary } from './Mission001Runner.js';
 
 export { createMission004Scenario } from './Mission004.js';
 export { createMission005Scenario } from './Mission005.js';
+
+export { DifficultyProfile } from './DifficultyProfile.js';
+export type { DifficultyProfileOptions } from './DifficultyProfile.js';
+export {
+  AdaptiveDifficultyController,
+} from './AdaptiveDifficultyController.js';
+export type {
+  AdaptiveDifficultyOptions,
+  AdaptiveDifficultyResult,
+  AdaptiveDifficultyAdjustment,
+  AdaptiveDifficultySnapshot,
+} from './AdaptiveDifficultyController.js';
+export { DifficultyManager } from './DifficultyManager.js';
+export type {
+  DifficultyManagerOptions,
+  DifficultyManagerSnapshot,
+} from './DifficultyManager.js';
