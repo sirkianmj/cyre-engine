@@ -67,3 +67,12 @@ export type {
   ResearchExportResult,
 } from './ResearchExportTypes.js';
 export { ResearchDatasetExporter } from './ResearchDatasetExporter.js';
+
+export { ResearchDashboard } from './ResearchDashboard.js';
+export type {
+  ResponseTimeStats,
+  ErrorSummary,
+  ScenarioPerformance,
+  InvestigationPathSummary,
+  ResearchDashboardSnapshot,
+} from './ResearchDashboard.js';
