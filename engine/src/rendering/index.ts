@@ -104,3 +104,10 @@ export type {
   AssetSortField,
   AssetSortDirection,
 } from './AssetBrowser.js';
+
+export { AssetPreview } from './AssetPreview.js';
+export type {
+  AssetPreviewOptions,
+  AssetPreviewKind,
+} from './AssetPreview.js';
+export { AssetPreviewGenerator } from './AssetPreviewGenerator.js';
