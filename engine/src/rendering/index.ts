@@ -39,3 +39,16 @@ export { Sprite25D } from './Sprite25D.js';
 export type { Sprite25DOptions } from './Sprite25D.js';
 export { Scene25D } from './Scene25D.js';
 export { Renderer25D } from './Renderer25D.js';
+
+export { Transform3D } from './Transform3D.js';
+export type { Transform3DOptions } from './Transform3D.js';
+export { Material3D } from './Material3D.js';
+export type { Material3DOptions } from './Material3D.js';
+export { Mesh3D } from './Mesh3D.js';
+export type { Mesh3DOptions, Mesh3DGeometryType } from './Mesh3D.js';
+export { Camera3D } from './Camera3D.js';
+export type { Camera3DOptions } from './Camera3D.js';
+export { Light3D } from './Light3D.js';
+export type { Light3DOptions, Light3DType } from './Light3D.js';
+export { Scene3D } from './Scene3D.js';
+export { Renderer3D } from './Renderer3D.js';
