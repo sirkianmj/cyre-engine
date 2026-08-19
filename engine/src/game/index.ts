@@ -71,3 +71,12 @@ export type {
 export { CyreScriptBuilder } from './CyreScriptBuilder.js';
 export { CyreScriptRegistry } from './CyreScriptRegistry.js';
 export { CyreScriptEngine } from './CyreScriptEngine.js';
+
+export { CyrePluginContextImpl } from './CyrePluginContext.js';
+export { CyrePluginRegistry } from './CyrePluginRegistry.js';
+export { CyrePluginSystem } from './CyrePluginSystem.js';
+export type {
+  CyrePlugin,
+  CyrePluginContext,
+  CyrePluginState,
+} from './CyrePluginTypes.js';
