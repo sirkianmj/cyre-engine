@@ -170,3 +170,29 @@ export type {
   AdaptiveScenarioAdjustment,
   AdaptiveScenarioEngineSnapshot,
 } from './AdaptiveScenarioEngine.js';
+
+export {
+  MULTIPLAYER_MODES,
+  MULTIPLAYER_STATES,
+  MULTIPLAYER_PLAYER_ROLES,
+  MULTIPLAYER_CONNECTION_STATES,
+  isMultiplayerMode,
+  isMultiplayerSessionState,
+  isMultiplayerPlayerRole,
+  isMultiplayerConnectionState,
+} from './MultiplayerTypes.js';
+export type {
+  MultiplayerMode,
+  MultiplayerSessionState,
+  MultiplayerPlayerRole,
+  MultiplayerConnectionState,
+  MultiplayerPlayerInput,
+  MultiplayerPlayer,
+  MultiplayerMessage,
+  MultiplayerAction,
+  MultiplayerSessionOptions,
+  MultiplayerReplicationSnapshot,
+  MultiplayerSessionManagerSnapshot,
+} from './MultiplayerTypes.js';
+export { MultiplayerSession } from './MultiplayerSession.js';
+export { MultiplayerSessionManager } from './MultiplayerSessionManager.js';
