@@ -1,4 +1,4 @@
-import type { CyrePlugin } from './CyrePluginTypes.js';
+import type { CyrePlugin, CyrePluginState } from './CyrePluginTypes.js';
 import { CyrePluginContextImpl } from './CyrePluginContext.js';
 import { CyrePluginRegistry } from './CyrePluginRegistry.js';
 import { CyreScriptRegistry } from './CyreScriptRegistry.js';
@@ -70,6 +70,25 @@ export class CyrePluginSystem {
 
   listActivePlugins(): CyrePlugin[] {
     return this.pluginRegistry.listActive();
+  }
+
+  getPluginState(id: string): CyrePluginState | undefined {
+    return this.pluginRegistry.getState(id);
+  }
+
+  listPluginsByState(state: CyrePluginState): CyrePlugin[] {
+    const validStates: readonly CyrePluginState[] = [
+      'registered',
+      'active',
+      'inactive',
+      'error',
+    ];
+    if (!validStates.includes(state)) {
+      throw new Error(`Invalid plugin state "${state}".`);
+    }
+    return this.pluginRegistry
+      .list()
+      .filter((plugin) => this.pluginRegistry.getState(plugin.id) === state);
   }
 
   getScript(id: string): CyreScript | undefined {

@@ -80,3 +80,5 @@ export type {
   CyrePluginContext,
   CyrePluginState,
 } from './CyrePluginTypes.js';
+export { CyrePluginManager } from './CyrePluginManager.js';
+export type { CyrePluginInfo } from './CyrePluginManager.js';
