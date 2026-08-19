@@ -74,3 +74,25 @@ export { AssetDescriptor } from './AssetDescriptor.js';
 export type { AssetDescriptorOptions } from './AssetDescriptor.js';
 export { AssetManager } from './AssetManager.js';
 export type { AssetUpdatePatch } from './AssetManager.js';
+
+export {
+  computeContentChecksum,
+  uniqueTags,
+  inferFileExtension,
+} from './AssetImportUtils.js';
+export type { AssetContent } from './AssetImportUtils.js';
+export { resolveAssetType } from './AssetTypeResolver.js';
+export type { AssetTypeResolutionInput } from './AssetTypeResolver.js';
+export { AssetImportRequest } from './AssetImportRequest.js';
+export type { AssetImportRequestOptions } from './AssetImportRequest.js';
+export { AssetImportResult } from './AssetImportResult.js';
+export type {
+  AssetImportResultOptions,
+  AssetImportStatus,
+} from './AssetImportResult.js';
+export { AssetImporter } from './AssetImporter.js';
+export {
+  AssetImportCache,
+  createAssetImportCacheKey,
+} from './AssetImportCache.js';
+export { AssetImportPipeline } from './AssetImportPipeline.js';
