@@ -44,3 +44,16 @@ export {
   stableStringify,
 } from './ReproducibilityUtils.js';
 export { ReproducibilityManager } from './ReproducibilityManager.js';
+
+export {
+  ExperimentRunner,
+} from './ExperimentRunner.js';
+export type {
+  ExperimentRunContext,
+  ExperimentOutcomeResolverInput,
+  ExperimentOutcomeResolver,
+  ExperimentRunParticipantInput,
+  ExperimentParticipantResult,
+  ExperimentRunBatchResult,
+  ExperimentRunnerSnapshot,
+} from './ExperimentRunnerTypes.js';
