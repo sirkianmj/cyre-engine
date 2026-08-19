@@ -1,7 +1,8 @@
 /**
  * CYRE Platform Module Exports
  * -----------------------------
- * Public API for platform adapters, input, performance, and resolution.
+ * Public API for platform adapters, input, performance, resolution,
+ * and build pipeline tooling.
  */
 
 export type {
@@ -31,3 +32,17 @@ export {
   type ResolutionInfo,
 } from './ResolutionSettings.js';
 export { ConsolePlatformAdapter } from './ConsolePlatformAdapter.js';
+
+export { BUILD_TARGETS, BUILD_FLAVORS, isBuildTarget, isBuildFlavor } from './BuildTypes.js';
+export type { BuildTarget, BuildFlavor } from './BuildTypes.js';
+export { BuildProfile } from './BuildProfile.js';
+export type { BuildProfileOptions } from './BuildProfile.js';
+export { BuildArtifact } from './BuildArtifact.js';
+export type { BuildArtifactOptions } from './BuildArtifact.js';
+export { BuildPipeline } from './BuildPipeline.js';
+export type {
+  BuildPipelineOptions,
+  BuildStage,
+  BuildLogEntry,
+  BuildResult,
+} from './BuildPipeline.js';
