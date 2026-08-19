@@ -29,3 +29,9 @@ export type {
   MotionTransition,
   MotionPreset,
 } from './MotionSystem.js';
+export { AccessibilityController } from './AccessibilityController.js';
+export type {
+  ScreenReaderPriority,
+  ScreenReaderAnnouncement,
+  AccessibilityControllerOptions,
+} from './AccessibilityController.js';
