@@ -1,8 +1,13 @@
-/**
- * CYRE Rendering Module
- * ----------------------
- * This module will provide the rendering abstraction layer,
- * supporting 2D, 2.5D, and future 3D backends.
- * It must remain independent of the simulation.
- */
-export {};
+export { RenderTarget } from './RenderTarget.js';
+export type { RenderTargetOptions, RenderingMode } from './RenderTarget.js';
+export { RenderRequest } from './RenderRequest.js';
+export type { RenderRequestOptions } from './RenderRequest.js';
+export { RenderingCapabilities } from './RenderingCapabilities.js';
+export type { RenderingCapabilitiesOptions } from './RenderingCapabilities.js';
+export { RenderResult } from './RenderResult.js';
+export type { RenderResultOptions } from './RenderResult.js';
+export { SceneGraph } from './SceneGraph.js';
+export type { SceneGraphNodeData, SceneGraphEdgeData } from './SceneGraph.js';
+export { RenderBackendRegistry } from './RenderBackendRegistry.js';
+export type { RenderBackend } from './RenderBackend.js';
+export { SimpleSceneGraphBackend } from './SimpleSceneGraphBackend.js';
