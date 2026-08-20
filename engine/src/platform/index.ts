@@ -168,3 +168,20 @@ export type {
   CompatibilityAuditSystemOptions,
 } from './CompatibilityTypes.js';
 export { CompatibilityAuditSystem } from './CompatibilityAuditSystem.js';
+
+export {
+  CI_CD_STAGES,
+} from './CiCdTypes.js';
+export type {
+  CiCdStage,
+  CiCdStageStatus,
+  CiCdStageResult,
+  CiCdPipelineResult,
+} from './CiCdTypes.js';
+export {
+  CiCdPipeline,
+} from './CiCdPipeline.js';
+export type {
+  CiCdPipelineOptions,
+  CiCdPackageInput,
+} from './CiCdPipeline.js';
