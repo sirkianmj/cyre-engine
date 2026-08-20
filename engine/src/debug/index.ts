@@ -40,3 +40,19 @@ export type {
   ResourceUsageSnapshot,
   ResourceThresholdResult,
 } from './ResourceDiagnostics.js';
+
+export {
+  PERFORMANCE_AUDIT_SEVERITIES,
+  PERFORMANCE_AUDIT_CATEGORIES,
+  isPerformanceAuditSeverity,
+  isPerformanceAuditCategory,
+} from './PerformanceAuditTypes.js';
+export type {
+  PerformanceAuditSeverity,
+  PerformanceAuditCategory,
+  PerformanceAuditIssue,
+  PerformanceAuditReport,
+  PerformanceAuditThresholds,
+  PerformanceAuditSystemOptions,
+} from './PerformanceAuditTypes.js';
+export { PerformanceAuditSystem } from './PerformanceAuditSystem.js';
