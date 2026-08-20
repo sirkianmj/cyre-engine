@@ -40,6 +40,14 @@ export class ProjectCreator {
       },
     };
 
+    if (overrides.sceneIds) {
+      projectData.sceneIds = [...overrides.sceneIds];
+    }
+
+    if (overrides.assetIds) {
+      projectData.assetIds = [...overrides.assetIds];
+    }
+
     if (overrides.scenes) {
       projectData.scenes = overrides.scenes.map((scene) => ({
         ...scene,

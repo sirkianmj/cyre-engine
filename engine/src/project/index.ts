@@ -17,6 +17,11 @@ export {
   ProjectTemplateRegistry,
   type ProjectTemplateSummary,
 } from './ProjectTemplateRegistry.js';
+export {
+  DeveloperExperience,
+  type DeveloperQuickStartResult,
+  type DeveloperExperienceReport,
+} from './DeveloperExperience.js';
 export { ProjectManager, type ProjectSummary, type ProjectManagerOptions } from './ProjectManager.js';
 export { SampleProjects } from './SampleProjects.js';
 export type { SampleProjectDefinition, SampleProjectCategory } from './SampleProjects.js';
