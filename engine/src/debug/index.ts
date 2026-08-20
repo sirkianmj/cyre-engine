@@ -56,3 +56,20 @@ export type {
   PerformanceAuditSystemOptions,
 } from './PerformanceAuditTypes.js';
 export { PerformanceAuditSystem } from './PerformanceAuditSystem.js';
+
+export {
+  SECURITY_AUDIT_SEVERITIES,
+  SECURITY_AUDIT_CATEGORIES,
+  isSecurityAuditSeverity,
+  isSecurityAuditCategory,
+} from './SecurityAuditTypes.js';
+export type {
+  SecurityAuditSeverity,
+  SecurityAuditCategory,
+  SecurityAuditIssue,
+  SecurityAuditReport,
+  SecurityAuditTarget,
+  SecurityAuditInputValue,
+  SecurityAuditSystemOptions,
+} from './SecurityAuditTypes.js';
+export { SecurityAuditSystem } from './SecurityAuditSystem.js';
