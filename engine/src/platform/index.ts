@@ -153,3 +153,18 @@ export type {
   AudioSystemOptions,
   AudioSystemSnapshot,
 } from './AudioSystem.js';
+
+export {
+  COMPATIBILITY_AUDIT_SEVERITIES,
+  COMPATIBILITY_AUDIT_CATEGORIES,
+  isCompatibilityAuditSeverity,
+  isCompatibilityAuditCategory,
+} from './CompatibilityTypes.js';
+export type {
+  CompatibilityAuditSeverity,
+  CompatibilityAuditCategory,
+  CompatibilityAuditIssue,
+  CompatibilityAuditReport,
+  CompatibilityAuditSystemOptions,
+} from './CompatibilityTypes.js';
+export { CompatibilityAuditSystem } from './CompatibilityAuditSystem.js';
