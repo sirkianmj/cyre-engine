@@ -8,3 +8,6 @@ export type { PublicApiModule } from './PublicApiRegistry.js';
 
 export { DocumentationGenerator } from './DocumentationGenerator.js';
 export type { GeneratedDocument } from './DocumentationGenerator.js';
+
+export { TutorialGenerator } from './TutorialGenerator.js';
+export type { GeneratedTutorial } from './TutorialGenerator.js';
