@@ -8,6 +8,8 @@ export { Clock, SystemClock, ManualClock } from './Clock.js';
 export { Entity, type EntityData, type EntityType } from './Entity.js';
 export { EventBus, type BaseEvent, type EventHandler } from './EventBus.js';
 export { StateContainer, type StateChangeEvent } from './StateContainer.js';
+export { SemanticVersion } from './SemanticVersion.js';
+export type { SemanticVersionParts } from './SemanticVersion.js';
 export type {
   EngineConfig,
   ILogger,
