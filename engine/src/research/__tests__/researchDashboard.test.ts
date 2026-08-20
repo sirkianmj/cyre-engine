@@ -189,6 +189,8 @@ describe('ResearchDashboard', () => {
   it('validates cleanly', () => {
     const dashboard = new ResearchDashboard(createDataset(), 'Test Dashboard');
     expect(() => dashboard.validate()).not.toThrow();
-    expect(dashboard.toJSON()).toEqual(dashboard.createSnapshot());
+    const toJson = dashboard.toJSON();
+    const snapshot = dashboard.createSnapshot();
+    expect({ ...toJson, generatedAt: 0 }).toEqual({ ...snapshot, generatedAt: 0 });
   });
 });

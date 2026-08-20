@@ -86,3 +86,18 @@ export type {
   VisualPolishSnapshot,
   VisualPolishSystemOptions,
 } from './VisualPolishSystem.js';
+
+export {
+  UX_AUDIT_SEVERITIES,
+  UX_AUDIT_CATEGORIES,
+  isUxAuditSeverity,
+  isUxAuditCategory,
+} from './UxAuditTypes.js';
+export type {
+  UxAuditSeverity,
+  UxAuditCategory,
+  UxAuditIssue,
+  UxAuditReport,
+  UxAuditSystemOptions,
+} from './UxAuditTypes.js';
+export { UxAuditSystem } from './UxAuditSystem.js';
