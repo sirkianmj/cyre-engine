@@ -101,3 +101,16 @@ export type {
   UxAuditSystemOptions,
 } from './UxAuditTypes.js';
 export { UxAuditSystem } from './UxAuditSystem.js';
+
+export {
+  VISUAL_DESIGN_AUDIT_CATEGORIES,
+  isVisualDesignAuditCategory,
+  normalizeAuditSeverity,
+} from './VisualDesignAuditTypes.js';
+export type {
+  VisualDesignAuditCategory,
+  VisualDesignAuditIssue,
+  VisualDesignAuditReport,
+  VisualDesignAuditSystemOptions,
+} from './VisualDesignAuditTypes.js';
+export { VisualDesignAuditSystem } from './VisualDesignAuditSystem.js';
