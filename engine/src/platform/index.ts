@@ -185,3 +185,16 @@ export type {
   CiCdPipelineOptions,
   CiCdPackageInput,
 } from './CiCdPipeline.js';
+
+export {
+  RELEASE_CHANNELS,
+  isReleaseChannel,
+} from './ReleaseChannelTypes.js';
+export type {
+  ReleaseChannel,
+  ReleaseChannelManagerOptions,
+  ReleaseChannelManagerSnapshot,
+} from './ReleaseChannelTypes.js';
+export {
+  ReleaseChannelManager,
+} from './ReleaseChannelManager.js';
