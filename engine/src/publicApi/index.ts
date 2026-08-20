@@ -5,3 +5,6 @@ export {
   CYRE_PUBLIC_API_VERSION,
 } from './PublicApiRegistry.js';
 export type { PublicApiModule } from './PublicApiRegistry.js';
+
+export { DocumentationGenerator } from './DocumentationGenerator.js';
+export type { GeneratedDocument } from './DocumentationGenerator.js';
