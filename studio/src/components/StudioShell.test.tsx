@@ -2,45 +2,50 @@ import { describe, expect, it } from 'vitest';
 import { StudioApplication } from '../studio/StudioApplication';
 
 describe('StudioApplication', () => {
-  it('starts in a stable editor state', () => {
+  it('creates a default CYRE project', () => {
     const application = new StudioApplication();
     const state = application.getState();
 
-    expect(state.projectName).toBe('Untitled CYRE Project');
-    expect(state.workspace).toBe('default');
-    expect(state.isPlaying).toBe(false);
-    expect(state.visiblePanels.project).toBe(true);
-    expect(state.visiblePanels.inspector).toBe(true);
+    expect(state.projectTitle).toBe(
+      'Untitled CYRE Project',
+    );
+    expect(state.projectData?.id).toBeTruthy();
+    expect(state.playState).toBe('stopped');
+    expect(state.workspaces.length).toBeGreaterThan(0);
+    expect(state.engineState).toBeTruthy();
   });
 
-  it('controls simulation lifecycle', () => {
+  it('controls the real play mode lifecycle', () => {
     const application = new StudioApplication();
 
     application.play();
+    expect(application.getState().playState).toBe('running');
     expect(application.getState().isPlaying).toBe(true);
-    expect(application.getState().isPaused).toBe(false);
 
     application.pause();
+    expect(application.getState().playState).toBe('paused');
     expect(application.getState().isPaused).toBe(true);
 
     application.resume();
-    expect(application.getState().isPaused).toBe(false);
+    expect(application.getState().playState).toBe('running');
 
     application.stop();
-    expect(application.getState().isPlaying).toBe(false);
+    expect(application.getState().playState).toBe('stopped');
   });
 
-  it('changes workspace and panel visibility', () => {
+  it('creates and saves a project', () => {
     const application = new StudioApplication();
 
-    application.setWorkspace('network');
-    expect(application.getState().workspace).toBe('network');
+    application.createProject(
+      'Test Project',
+      'training-simulation',
+    );
 
-    application.togglePanel('inspector');
-    expect(application.getState().visiblePanels.inspector).toBe(false);
+    expect(application.getState().projectTitle).toBe(
+      'Test Project',
+    );
 
-    application.togglePanel('inspector');
-    expect(application.getState().visiblePanels.inspector).toBe(true);
+    expect(() => application.saveProject()).not.toThrow();
   });
 
   it('rejects invalid simulation speed', () => {

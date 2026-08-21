@@ -1,100 +1,101 @@
-import { createContext, useContext, useMemo, useSyncExternalStore } from 'react';
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useSyncExternalStore,
+} from 'react';
+
 import type { ReactNode } from 'react';
-import { StudioApplication } from './StudioApplication';
 
-export interface StudioNotification {
-  id: string;
-  level: 'info' | 'success' | 'warning' | 'error';
-  message: string;
-  timestamp: number;
-}
+import {
+  StudioApplication,
+} from './StudioApplication';
 
-export interface StudioState {
+import type {
+  StudioSnapshot,
+} from './StudioApplication';
+
+export type StudioNotificationLevel =
+  | 'info'
+  | 'warning'
+  | 'error'
+  | 'success';
+
+export interface StudioContextValue {
   application: StudioApplication;
-  notifications: StudioNotification[];
+  state: StudioSnapshot;
+
+  togglePanel: (panelId: string) => void;
+  setWorkspace: (workspaceId: string) => void;
+
+  notify: (
+    level: StudioNotificationLevel,
+    message: string,
+  ) => void;
+
+  clearNotifications: () => void;
+
+  play: () => void;
+  pause: () => void;
+  resume: () => void;
+  stop: () => void;
+  restart: () => void;
+  setSimulationSpeed: (speed: number) => void;
+  executeCommand: (commandId: string) => void;
 }
 
 const studioApplication = new StudioApplication();
 
-let notifications: StudioNotification[] = [];
-const listeners = new Set<() => void>();
+const subscribe = (onStoreChange: () => void): (() => void) =>
+  studioApplication.subscribe(onStoreChange);
 
-const emitChange = (): void => {
-  for (const listener of listeners) {
-    listener();
-  }
-};
+const getSnapshot = (): StudioSnapshot =>
+  studioApplication.getState();
 
-const subscribe = (listener: () => void): (() => void) => {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-};
+const StudioContext =
+  createContext<StudioContextValue | null>(null);
 
-let snapshot: StudioState = {
-  application: studioApplication,
-  notifications,
-};
-
-const getSnapshot = (): StudioState => snapshot;
-
-const addNotification = (
-  level: StudioNotification['level'],
-  message: string,
-): StudioNotification => {
-  const notification: StudioNotification = {
-    id: `notification-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    level,
-    message,
-    timestamp: Date.now(),
-  };
-
-  notifications = [...notifications, notification];
-  snapshot = { application: studioApplication, notifications };
-  emitChange();
-
-  return notification;
-};
-
-const removeNotification = (id: string): void => {
-  notifications = notifications.filter((notification) => notification.id !== id);
-  snapshot = { application: studioApplication, notifications };
-  emitChange();
-};
-
-const clearNotifications = (): void => {
-  notifications = [];
-  snapshot = { application: studioApplication, notifications };
-  emitChange();
-};
-
-export interface StudioContextValue extends StudioState {
-  state: ReturnType<StudioApplication['getState']>;
-  togglePanel: (panel: import('./StudioApplication').StudioPanelId) => void;
-  setWorkspace: (workspace: import('./StudioApplication').StudioWorkspace) => void;
-  notify: (
-    level: StudioNotification['level'],
-    message: string,
-  ) => StudioNotification;
-  removeNotification: (id: string) => void;
-  clearNotifications: () => void;
-}
-
-const StudioContext = createContext<StudioContextValue | null>(null);
-
-export function StudioProvider({ children }: { children: ReactNode }): JSX.Element {
-  const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+export function StudioProvider({
+  children,
+}: {
+  children: ReactNode;
+}): JSX.Element {
+  const snapshot = useSyncExternalStore(
+    subscribe,
+    getSnapshot,
+    getSnapshot,
+  );
 
   const value = useMemo<StudioContextValue>(
     () => ({
-      ...state,
-      state: state.application.getState(),
-      togglePanel: (panel) => state.application.togglePanel(panel),
-      setWorkspace: (workspace) => state.application.setWorkspace(workspace),
-      notify: addNotification,
-      removeNotification,
-      clearNotifications,
+      application: studioApplication,
+      state: snapshot,
+
+      togglePanel: (panelId) =>
+        studioApplication.togglePanel(panelId),
+
+      setWorkspace: (workspaceId) =>
+        studioApplication.setWorkspace(workspaceId),
+
+      notify: (level, message) =>
+        studioApplication.notify(level, message),
+
+      clearNotifications: () =>
+        studioApplication.clearNotifications(),
+
+      play: () => studioApplication.play(),
+      pause: () => studioApplication.pause(),
+      resume: () => studioApplication.resume(),
+      stop: () => studioApplication.stop(),
+      restart: () => studioApplication.restart(),
+
+      setSimulationSpeed: (speed) =>
+        studioApplication.setSimulationSpeed(speed),
+
+      executeCommand: (commandId) =>
+        studioApplication.executeCommand(commandId),
     }),
-    [state],
+    [snapshot],
   );
 
   return (
@@ -108,12 +109,10 @@ export function useStudio(): StudioContextValue {
   const context = useContext(StudioContext);
 
   if (!context) {
-    throw new Error('useStudio must be used inside a StudioProvider.');
+    throw new Error(
+      'useStudio must be used inside StudioProvider.',
+    );
   }
 
   return context;
 }
-
-export const useStudioState = useStudio;
-
-export { StudioContext };
