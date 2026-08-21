@@ -30,10 +30,12 @@ const subscribe = (listener: () => void): (() => void) => {
   return () => listeners.delete(listener);
 };
 
-const getSnapshot = (): StudioState => ({
+let snapshot: StudioState = {
   application: studioApplication,
   notifications,
-});
+};
+
+const getSnapshot = (): StudioState => snapshot;
 
 const addNotification = (
   level: StudioNotification['level'],
@@ -47,6 +49,7 @@ const addNotification = (
   };
 
   notifications = [...notifications, notification];
+  snapshot = { application: studioApplication, notifications };
   emitChange();
 
   return notification;
@@ -54,11 +57,13 @@ const addNotification = (
 
 const removeNotification = (id: string): void => {
   notifications = notifications.filter((notification) => notification.id !== id);
+  snapshot = { application: studioApplication, notifications };
   emitChange();
 };
 
 const clearNotifications = (): void => {
   notifications = [];
+  snapshot = { application: studioApplication, notifications };
   emitChange();
 };
 
