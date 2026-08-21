@@ -1,7 +1,8 @@
 /**
  * CYRE Testing Module Exports
  * ----------------------------
- * Utilities for deterministic simulation testing and full regression suites.
+ * Utilities for deterministic simulation testing, full regression suites,
+ * and real-world developer workflow validation.
  */
 
 export { DeterminismChecker } from './DeterminismChecker.js';
@@ -23,3 +24,13 @@ export type {
   RegressionCase,
   RegressionSuiteOptions,
 } from './RegressionSuite.js';
+
+export { RealWorldDeveloperTest } from './RealWorldDeveloperTest.js';
+export type {
+  RealWorldDeveloperStepStatus,
+  RealWorldDeveloperStepResult,
+  RealWorldDeveloperTestReport,
+  RealWorldDeveloperStepFn,
+  RealWorldDeveloperStep,
+  RealWorldDeveloperTestOptions,
+} from './RealWorldDeveloperTest.js';
