@@ -198,3 +198,11 @@ export type {
 export {
   ReleaseChannelManager,
 } from './ReleaseChannelManager.js';
+
+export {
+  FlagshipGameReleaseCandidate,
+} from './FlagshipGameReleaseCandidate.js';
+export type {
+  FlagshipGameReleaseCandidateOptions,
+  FlagshipGameReleaseCandidateSnapshot,
+} from './FlagshipGameReleaseCandidate.js';
