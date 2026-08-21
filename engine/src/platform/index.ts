@@ -206,3 +206,11 @@ export type {
   FlagshipGameReleaseCandidateOptions,
   FlagshipGameReleaseCandidateSnapshot,
 } from './FlagshipGameReleaseCandidate.js';
+
+export {
+  CyreReleaseCandidate,
+} from './CyreReleaseCandidate.js';
+export type {
+  CyreReleaseCandidateOptions,
+  CyreReleaseCandidateReport,
+} from './CyreReleaseCandidate.js';
