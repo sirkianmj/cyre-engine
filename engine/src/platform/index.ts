@@ -214,3 +214,11 @@ export type {
   CyreReleaseCandidateOptions,
   CyreReleaseCandidateReport,
 } from './CyreReleaseCandidate.js';
+
+export {
+  CyreRelease,
+} from './CyreRelease.js';
+export type {
+  CyreReleaseOptions,
+  CyreReleaseManifest,
+} from './CyreRelease.js';
