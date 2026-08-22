@@ -2273,3 +2273,9 @@ select {
   color: var(--studio-text-tertiary);
   font-size: 12px;
 }
+
+/* ===== DEBUG/REPLAY ===== */
+
+.graph-node-row.selected {
+  background: rgba(91, 170, 255, 0.16);
+}

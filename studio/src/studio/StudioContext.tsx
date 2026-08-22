@@ -130,6 +130,20 @@ export interface StudioContextValue {
   ) => void;
   clearLiveEvents: () => void;
 
+  startDebugger: () => void;
+  pauseDebugger: () => void;
+  resumeDebugger: () => void;
+  stopDebugger: () => void;
+  refreshDebuggerSnapshot: () => void;
+
+  recordReplayEvent: (type: string, data?: unknown) => void;
+  stepReplay: () => void;
+  playReplay: () => void;
+  stopReplay: () => void;
+  jumpReplay: (index: number) => void;
+  addReplayBookmark: (label: string) => void;
+  gotoReplayBookmark: (bookmarkId: string) => void;
+
   notify: (
     level: StudioNotificationLevel,
     message: string,
@@ -371,6 +385,42 @@ export function StudioProvider({
 
       clearLiveEvents: () =>
         studioApplication.clearLiveEvents(),
+
+      startDebugger: () =>
+        studioApplication.startDebugger(),
+
+      pauseDebugger: () =>
+        studioApplication.pauseDebugger(),
+
+      resumeDebugger: () =>
+        studioApplication.resumeDebugger(),
+
+      stopDebugger: () =>
+        studioApplication.stopDebugger(),
+
+      refreshDebuggerSnapshot: () =>
+        studioApplication.refreshDebuggerSnapshot(),
+
+      recordReplayEvent: (type, data) =>
+        studioApplication.recordReplayEvent(type, data),
+
+      stepReplay: () =>
+        studioApplication.stepReplay(),
+
+      playReplay: () =>
+        studioApplication.playReplay(),
+
+      stopReplay: () =>
+        studioApplication.stopReplay(),
+
+      jumpReplay: (index) =>
+        studioApplication.jumpReplay(index),
+
+      addReplayBookmark: (label) =>
+        studioApplication.addReplayBookmark(label),
+
+      gotoReplayBookmark: (bookmarkId) =>
+        studioApplication.gotoReplayBookmark(bookmarkId),
 
       executeCommand: (commandId) =>
         studioApplication.executeCommand(commandId),

@@ -7,10 +7,14 @@ import {
   Engine,
   EventTriggerSystem,
   EvidenceGraphEditor,
+  CyreDebugger,
+  DebugInspector,
   Inspector,
   LiveEventStream,
   LiveSimulationInspector,
   MissionDesigner,
+  ReplayRecorder,
+  ReplayStudio,
   MultiSelectionManager,
   NetworkGraphEditor,
   ObjectiveGraphEditor,
@@ -48,6 +52,8 @@ import type {
   LiveSimulationEvent,
   LiveSimulationSnapshot,
   MenuGroup,
+  ReplayBookmark,
+  ReplayEvent,
   MenuItem,
   NetworkGraphEdge,
   NetworkGraphNode,
@@ -110,6 +116,16 @@ export interface StudioSnapshot {
   eventTriggerRules: EditorEventTriggerRule[];
   liveSimulationSnapshot: LiveSimulationSnapshot | null;
   liveSimulationEvents: LiveSimulationEvent[];
+  debugSnapshot: {
+    state: string;
+    breakpointCount: number;
+    entities: Record<string, unknown>;
+    states: Record<string, unknown>;
+    summary: string;
+  } | null;
+  replayEvents: ReplayEvent[];
+  replayCurrentIndex: number;
+  replayBookmarks: ReplayBookmark[];
 }
 
 interface PanelInit {
@@ -149,6 +165,17 @@ export class StudioApplication {
   private currentScenarioData: ScenarioData | null = null;
   private readonly liveSimulationInspector = new LiveSimulationInspector();
   private readonly liveEventStream = new LiveEventStream();
+  private readonly cyreDebugger = new CyreDebugger({ name: 'CYRE Studio Debugger' });
+  private readonly debugInspector = new DebugInspector();
+  private readonly replayStudio = new ReplayStudio();
+  private readonly replayRecorder = new ReplayRecorder();
+  private debugSnapshot: {
+    state: string;
+    breakpointCount: number;
+    entities: Record<string, unknown>;
+    states: Record<string, unknown>;
+    summary: string;
+  } | null = null;
 
   private liveSimulationSnapshot: LiveSimulationSnapshot | null = null;
 
@@ -1034,6 +1061,145 @@ export class StudioApplication {
     this.emit();
   }
 
+    startDebugger(): void {
+    try {
+      this.cyreDebugger.start();
+      this.captureDebugSnapshot();
+      this.editorShell.addNotification('success', 'Debugger started.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Debugger start failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  pauseDebugger(): void {
+    try {
+      this.cyreDebugger.pause();
+      this.captureDebugSnapshot();
+      this.editorShell.addNotification('warning', 'Debugger paused.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Debugger pause failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  resumeDebugger(): void {
+    try {
+      this.cyreDebugger.resume();
+      this.captureDebugSnapshot();
+      this.editorShell.addNotification('success', 'Debugger resumed.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Debugger resume failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  stopDebugger(): void {
+    try {
+      this.cyreDebugger.stop();
+      this.captureDebugSnapshot();
+      this.editorShell.addNotification('warning', 'Debugger stopped.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Debugger stop failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  refreshDebuggerSnapshot(): void {
+    try {
+      this.captureDebugSnapshot();
+      this.editorShell.addNotification('success', 'Debugger snapshot refreshed.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Debugger snapshot refresh failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  recordReplayEvent(type: string, data?: unknown): void {
+    try {
+      this.replayRecorder.record(type, data);
+      this.replayStudio.load(this.replayRecorder.getEvents());
+      this.editorShell.addNotification('success', 'Replay event recorded.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Record replay event failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  stepReplay(): void {
+    try {
+      this.replayStudio.step();
+      this.editorShell.addNotification('success', 'Replay stepped.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Replay step failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  playReplay(): void {
+    try {
+      this.replayStudio.play();
+      this.editorShell.addNotification('success', 'Replay played.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Replay play failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  stopReplay(): void {
+    try {
+      this.replayStudio.stop();
+      this.editorShell.addNotification('warning', 'Replay stopped.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Replay stop failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  jumpReplay(index: number): void {
+    try {
+      this.replayStudio.jumpTo(index);
+      this.editorShell.addNotification('success', 'Replay position changed.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Replay jump failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  addReplayBookmark(label: string): void {
+    try {
+      this.replayStudio.addBookmark(label);
+      this.editorShell.addNotification('success', 'Replay bookmark added.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Add replay bookmark failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  gotoReplayBookmark(bookmarkId: string): void {
+    try {
+      this.replayStudio.gotoBookmark(bookmarkId);
+      this.editorShell.addNotification('success', 'Replay bookmark jumped.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Goto replay bookmark failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  private captureDebugSnapshot(): void {
+    try {
+      this.debugSnapshot = {
+        state: this.cyreDebugger.getState(),
+        breakpointCount: this.cyreDebugger.listBreakpoints().length,
+        entities: this.cyreDebugger.inspectEntities(),
+        states: this.cyreDebugger.inspectStates(),
+        summary: 'Debugger ' + this.cyreDebugger.getState(),
+      };
+    } catch {
+      this.debugSnapshot = null;
+    }
+  }
+
     play(): void {
     try {
       this.playModeController.start();
@@ -1264,6 +1430,20 @@ export class StudioApplication {
         editorDock: 'bottom',
         dockArea: 'bottom',
         order: 15,
+      },
+      {
+        id: 'debugger-panel',
+        title: 'Debugger',
+        editorDock: 'right',
+        dockArea: 'right',
+        order: 16,
+      },
+      {
+        id: 'replay-panel',
+        title: 'Replay',
+        editorDock: 'bottom',
+        dockArea: 'bottom',
+        order: 17,
       },
     ];
 
@@ -1697,6 +1877,10 @@ export class StudioApplication {
       eventTriggerRules: this.eventTriggerSystem.listRules(),
       liveSimulationSnapshot: this.tryCaptureLiveSimulation(),
       liveSimulationEvents: this.liveEventStream.listHistory(),
+      debugSnapshot: this.debugSnapshot,
+      replayEvents: this.replayStudio.listEvents(),
+      replayCurrentIndex: this.replayStudio.getCurrentIndex(),
+      replayBookmarks: this.replayStudio.listBookmarks(),
     };
   }
 

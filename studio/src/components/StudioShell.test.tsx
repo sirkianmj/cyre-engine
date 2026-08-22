@@ -154,3 +154,28 @@ describe('Phase 05: Live Simulation', () => {
     expect(app.getState().liveSimulationEvents.length).toBe(0);
   });
 });
+
+describe('Phase 06: Debugger and Replay', () => {
+  it('starts and stops debugger', () => {
+    const app = new StudioApplication();
+    app.startDebugger();
+    expect(app.getState().debugSnapshot?.state).toBe('running');
+    app.stopDebugger();
+    expect(app.getState().debugSnapshot?.state).toBe('stopped');
+  });
+
+  it('records replay events', () => {
+    const app = new StudioApplication();
+    app.recordReplayEvent('mission-start');
+    expect(app.getState().replayEvents.length).toBe(1);
+    expect(app.getState().replayCurrentIndex).toBe(0);
+  });
+
+  it('steps through replay events', () => {
+    const app = new StudioApplication();
+    app.recordReplayEvent('a');
+    app.recordReplayEvent('b');
+    app.stepReplay();
+    expect(app.getState().replayCurrentIndex).toBe(1);
+  });
+});
