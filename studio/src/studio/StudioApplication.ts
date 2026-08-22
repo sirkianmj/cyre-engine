@@ -12,6 +12,7 @@ import {
   Inspector,
   LiveEventStream,
   LiveSimulationInspector,
+  GameUIWorkspace,
   MissionDesigner,
   MotionSystem,
   UIThemeManager,
@@ -142,6 +143,7 @@ export interface StudioSnapshot {
   accessibilitySettings: Record<string, unknown>;
   uxAuditReport: UxAuditReport | null;
   visualDesignAuditReport: VisualDesignAuditReport | null;
+  gameUiRender: Record<string, unknown> | null;
 }
 
 interface PanelInit {
@@ -187,6 +189,8 @@ export class StudioApplication {
   private readonly replayRecorder = new ReplayRecorder();
   private readonly uiThemeManager = new UIThemeManager();
   private readonly motionSystem = new MotionSystem();
+  private readonly gameUiWorkspace = new GameUIWorkspace();
+  private gameUiRender: Record<string, unknown> | null = null;
   private readonly accessibilityController = new AccessibilityController({
     motionSystem: this.motionSystem,
   });
@@ -1300,6 +1304,97 @@ export class StudioApplication {
     this.emit();
   }
 
+    refreshGameUI(): void {
+    try {
+      this.gameUiRender = this.gameUiWorkspace.render() as Record<string, unknown>;
+      this.editorShell.addNotification('success', 'Game UI refreshed.');
+    } catch (error) {
+      this.gameUiRender = null;
+      this.editorShell.addNotification('error', 'Refresh game UI failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  setGameUIEvidence(items: unknown[]): void {
+    try {
+      this.gameUiWorkspace.setEvidence(items as any);
+      this.refreshGameUI();
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Set game UI evidence failed: ' + this.errorMessage(error));
+      this.emit();
+    }
+  }
+
+  addGameUIEvidence(item: unknown): void {
+    try {
+      this.gameUiWorkspace.addEvidence(item as any);
+      this.refreshGameUI();
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Add game UI evidence failed: ' + this.errorMessage(error));
+      this.emit();
+    }
+  }
+
+  setGameUIAlerts(items: unknown[]): void {
+    try {
+      this.gameUiWorkspace.setAlerts(items as any);
+      this.refreshGameUI();
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Set game UI alerts failed: ' + this.errorMessage(error));
+      this.emit();
+    }
+  }
+
+  addGameUIAlert(item: unknown): void {
+    try {
+      this.gameUiWorkspace.addAlert(item as any);
+      this.refreshGameUI();
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Add game UI alert failed: ' + this.errorMessage(error));
+      this.emit();
+    }
+  }
+
+  setGameUITimeline(events: unknown[]): void {
+    try {
+      this.gameUiWorkspace.setTimeline(events as any);
+      this.refreshGameUI();
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Set game UI timeline failed: ' + this.errorMessage(error));
+      this.emit();
+    }
+  }
+
+  addGameUITimelineEvent(event: unknown): void {
+    try {
+      this.gameUiWorkspace.addTimelineEvent(event as any);
+      this.refreshGameUI();
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Add game UI timeline event failed: ' + this.errorMessage(error));
+      this.emit();
+    }
+  }
+
+  setGameUIMission(mission: unknown): void {
+    try {
+      this.gameUiWorkspace.setMission(mission as any);
+      this.refreshGameUI();
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Set game UI mission failed: ' + this.errorMessage(error));
+      this.emit();
+    }
+  }
+
+  setGameUIActivePanel(panel: string): void {
+    try {
+      this.gameUiWorkspace.setActivePanel(panel as any);
+      this.refreshGameUI();
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Set game UI active panel failed: ' + this.errorMessage(error));
+      this.emit();
+    }
+  }
+
     play(): void {
     try {
       this.playModeController.start();
@@ -1551,6 +1646,13 @@ export class StudioApplication {
         editorDock: 'right',
         dockArea: 'right',
         order: 18,
+      },
+      {
+        id: 'game-ui-panel',
+        title: 'Game UI',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 19,
       },
     ];
 
@@ -1995,6 +2097,7 @@ export class StudioApplication {
       accessibilitySettings: this.accessibilityController.getSettings(),
       uxAuditReport: this.uxAuditReport,
       visualDesignAuditReport: this.visualDesignAuditReport,
+      gameUiRender: this.gameUiRender,
     };
   }
 

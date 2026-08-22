@@ -171,6 +171,16 @@ export interface StudioContextValue {
   setHighContrast: (enabled: boolean) => void;
   runUxAudit: () => void;
   runVisualDesignAudit: () => void;
+
+  refreshGameUI: () => void;
+  setGameUIEvidence: (items: unknown[]) => void;
+  addGameUIEvidence: (item: unknown) => void;
+  setGameUIAlerts: (items: unknown[]) => void;
+  addGameUIAlert: (item: unknown) => void;
+  setGameUITimeline: (events: unknown[]) => void;
+  addGameUITimelineEvent: (event: unknown) => void;
+  setGameUIMission: (mission: unknown) => void;
+  setGameUIActivePanel: (panel: string) => void;
 }
 
 const studioApplication = new StudioApplication();
@@ -306,6 +316,16 @@ export function StudioProvider({
       setHighContrast: (enabled) => studioApplication.setHighContrast(enabled),
       runUxAudit: () => studioApplication.runUxAudit(),
       runVisualDesignAudit: () => studioApplication.runVisualDesignAudit(),
+
+      refreshGameUI: () => studioApplication.refreshGameUI(),
+      setGameUIEvidence: (items) => studioApplication.setGameUIEvidence(items),
+      addGameUIEvidence: (item) => studioApplication.addGameUIEvidence(item),
+      setGameUIAlerts: (items) => studioApplication.setGameUIAlerts(items),
+      addGameUIAlert: (item) => studioApplication.addGameUIAlert(item),
+      setGameUITimeline: (events) => studioApplication.setGameUITimeline(events),
+      addGameUITimelineEvent: (event) => studioApplication.addGameUITimelineEvent(event),
+      setGameUIMission: (mission) => studioApplication.setGameUIMission(mission),
+      setGameUIActivePanel: (panel) => studioApplication.setGameUIActivePanel(panel),
     }),
     [snapshot],
   );

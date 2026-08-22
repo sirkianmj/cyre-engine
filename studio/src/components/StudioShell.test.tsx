@@ -219,3 +219,37 @@ describe('Phase 07: Presentation', () => {
     expect(app.getState().uxAuditReport).not.toBeNull();
   });
 });
+
+describe('Phase 08: Game UI Workspace', () => {
+  it('sets active game UI panel', () => {
+    const app = new StudioApplication();
+    app.setGameUIActivePanel('mission');
+    expect(app.getState().gameUiRender?.activePanel).toBe('mission');
+  });
+
+  it('adds game UI evidence', () => {
+    const app = new StudioApplication();
+    app.addGameUIEvidence({
+      id: 'evidence-test',
+      type: 'log',
+      title: 'Test Evidence',
+      sourceId: 'test',
+    });
+    const render = app.getState().gameUiRender as any;
+    expect(render.evidence.length).toBe(1);
+  });
+
+  it('adds game UI alert', () => {
+    const app = new StudioApplication();
+    app.addGameUIAlert({
+      id: 'alert-test',
+      title: 'Test Alert',
+      description: 'Alert message',
+      severity: 'medium',
+      status: 'new',
+      timestamp: Date.now(),
+    });
+    const render = app.getState().gameUiRender as any;
+    expect(render.alerts.length).toBe(1);
+  });
+});

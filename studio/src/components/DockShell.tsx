@@ -29,6 +29,7 @@ import { AttackGraphPanel, EvidenceGraphPanel, TimelinePanel } from './CyberGrap
 import { LiveInspectorPanel, LiveEventsPanel } from './LivePanels';
 import { DebuggerPanel, ReplayPanel } from './DebugReplayPanels';
 import { PresentationPanel } from './PresentationPanel';
+import { GameUIPanel } from './GameUIPanel';
 import { ScenarioDesignerPanel, MissionDesignerPanel, ObjectiveGraphPanel, EventTriggerPanel, ScenarioGeneratorPanel } from './AuthoringPanels';
 
 const nodeIcons: Record<string, string> = {
@@ -1109,6 +1110,9 @@ function getPanelBody(
 
     case 'presentation-panel':
       return <PresentationPanel />;
+
+    case 'game-ui-panel':
+      return <GameUIPanel />;
 
     default:
       return (
