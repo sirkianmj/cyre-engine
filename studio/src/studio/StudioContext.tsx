@@ -181,6 +181,14 @@ export interface StudioContextValue {
   addGameUITimelineEvent: (event: unknown) => void;
   setGameUIMission: (mission: unknown) => void;
   setGameUIActivePanel: (panel: string) => void;
+
+  listRenderingBackends: () => Array<{
+    id: string;
+    name: string;
+    capabilities: Record<string, unknown>;
+  }>;
+  setActiveRenderingBackend: (backendId: string) => void;
+  renderScene: (width: number, height: number, mode: string) => void;
 }
 
 const studioApplication = new StudioApplication();
@@ -326,6 +334,10 @@ export function StudioProvider({
       addGameUITimelineEvent: (event) => studioApplication.addGameUITimelineEvent(event),
       setGameUIMission: (mission) => studioApplication.setGameUIMission(mission),
       setGameUIActivePanel: (panel) => studioApplication.setGameUIActivePanel(panel),
+
+      listRenderingBackends: () => studioApplication.listRenderingBackends(),
+      setActiveRenderingBackend: (backendId) => studioApplication.setActiveRenderingBackend(backendId),
+      renderScene: (width, height, mode) => studioApplication.renderScene(width, height, mode),
     }),
     [snapshot],
   );

@@ -30,6 +30,7 @@ import { LiveInspectorPanel, LiveEventsPanel } from './LivePanels';
 import { DebuggerPanel, ReplayPanel } from './DebugReplayPanels';
 import { PresentationPanel } from './PresentationPanel';
 import { GameUIPanel } from './GameUIPanel';
+import { RenderingPanel } from './RenderingPanel';
 import { ScenarioDesignerPanel, MissionDesignerPanel, ObjectiveGraphPanel, EventTriggerPanel, ScenarioGeneratorPanel } from './AuthoringPanels';
 
 const nodeIcons: Record<string, string> = {
@@ -1113,6 +1114,9 @@ function getPanelBody(
 
     case 'game-ui-panel':
       return <GameUIPanel />;
+
+    case 'rendering-panel':
+      return <RenderingPanel />;
 
     default:
       return (

@@ -31,6 +31,12 @@ import {
   ScenarioGenerator,
   TimelineEditor,
   WorkspaceManager,
+  RenderBackendRegistry,
+  RenderRequest,
+  RenderResult,
+  RenderTarget,
+  SceneGraph,
+  SimpleSceneGraphBackend,
 } from '@cyre/engine';
 
 import type {
@@ -76,6 +82,10 @@ import type {
   ScenarioGeneratorOptions,
   ToolbarButton,
   WorkspaceDefinition,
+  RenderBackend,
+  RenderResult as RenderResultData,
+  RenderingMode,
+  SceneGraphNodeData,
 } from '@cyre/engine';
 
 type PlayModeState = ReturnType<PlayModeController['getState']>;
@@ -144,6 +154,13 @@ export interface StudioSnapshot {
   uxAuditReport: UxAuditReport | null;
   visualDesignAuditReport: VisualDesignAuditReport | null;
   gameUiRender: Record<string, unknown> | null;
+  renderingBackends: Array<{
+    id: string;
+    name: string;
+    capabilities: Record<string, unknown>;
+  }>;
+  activeRenderingBackendId: string | null;
+  renderResult: RenderResultData | null;
 }
 
 interface PanelInit {
@@ -190,6 +207,10 @@ export class StudioApplication {
   private readonly uiThemeManager = new UIThemeManager();
   private readonly motionSystem = new MotionSystem();
   private readonly gameUiWorkspace = new GameUIWorkspace();
+  private readonly renderBackendRegistry = new RenderBackendRegistry();
+  private readonly simpleRenderBackend = new SimpleSceneGraphBackend();
+  private activeRenderingBackendId: string | null = null;
+  private renderResult: RenderResultData | null = null;
   private gameUiRender: Record<string, unknown> | null = null;
   private readonly accessibilityController = new AccessibilityController({
     motionSystem: this.motionSystem,
@@ -272,6 +293,7 @@ export class StudioApplication {
 
   constructor() {
     this.initializeStudioShell();
+    this.initializeRenderingSystem();
     this.createProject('Untitled CYRE Project', 'soc-game');
   }
 
@@ -1395,6 +1417,84 @@ export class StudioApplication {
     }
   }
 
+    initializeRenderingSystem(): void {
+    try {
+      this.renderBackendRegistry.register(this.simpleRenderBackend);
+      this.renderBackendRegistry.setDefault(this.simpleRenderBackend.id);
+      this.activeRenderingBackendId = this.simpleRenderBackend.id;
+      this.editorShell.addNotification('success', 'Rendering system initialized.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Rendering system init failed: ' + this.errorMessage(error));
+    }
+  }
+
+  listRenderingBackends(): Array<{
+    id: string;
+    name: string;
+    capabilities: Record<string, unknown>;
+  }> {
+    try {
+      return this.renderBackendRegistry.list().map((backend) => ({
+        id: backend.id,
+        name: backend.name,
+        capabilities: backend.capabilities.toJSON(),
+      }));
+    } catch (error) {
+      this.editorShell.addNotification('error', 'List render backends failed: ' + this.errorMessage(error));
+      return [];
+    }
+  }
+
+  setActiveRenderingBackend(backendId: string): void {
+    try {
+      this.renderBackendRegistry.setDefault(backendId);
+      this.activeRenderingBackendId = backendId;
+      this.editorShell.addNotification('success', 'Active render backend: ' + backendId);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Set render backend failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  renderScene(width: number, height: number, mode: string): void {
+    try {
+      const backend = this.renderBackendRegistry.getDefault();
+      if (!backend) {
+        throw new Error('No active render backend.');
+      }
+
+      const scene = new SceneGraph();
+      for (const node of this.networkGraphEditor.listNodes()) {
+        scene.addNode({
+          id: node.id,
+          name: node.label,
+          type: node.type,
+          metadata: node.metadata,
+        });
+      }
+
+      const target = new RenderTarget({
+        id: 'studio-main-target',
+        width,
+        height,
+        mode: mode as RenderingMode,
+      });
+
+      const request = new RenderRequest({
+        id: 'studio-render-' + Date.now().toString(36),
+        targetId: target.id,
+      });
+
+      const result = backend.render(target, request, scene);
+      this.renderResult = result;
+      this.editorShell.addNotification('success', 'Scene rendered.');
+    } catch (error) {
+      this.renderResult = null;
+      this.editorShell.addNotification('error', 'Render scene failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
     play(): void {
     try {
       this.playModeController.start();
@@ -1653,6 +1753,13 @@ export class StudioApplication {
         editorDock: 'center',
         dockArea: 'center',
         order: 19,
+      },
+      {
+        id: 'rendering-panel',
+        title: 'Rendering',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 20,
       },
     ];
 
@@ -2098,6 +2205,9 @@ export class StudioApplication {
       uxAuditReport: this.uxAuditReport,
       visualDesignAuditReport: this.visualDesignAuditReport,
       gameUiRender: this.gameUiRender,
+      renderingBackends: this.listRenderingBackends(),
+      activeRenderingBackendId: this.activeRenderingBackendId,
+      renderResult: this.renderResult,
     };
   }
 

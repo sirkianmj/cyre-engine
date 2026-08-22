@@ -253,3 +253,16 @@ describe('Phase 08: Game UI Workspace', () => {
     expect(render.alerts.length).toBe(1);
   });
 });
+
+describe('Phase 09: Rendering', () => {
+  it('lists rendering backends', () => {
+    const app = new StudioApplication();
+    expect(app.getState().renderingBackends.length).toBeGreaterThan(0);
+  });
+
+  it('renders a scene', () => {
+    const app = new StudioApplication();
+    app.renderScene(800, 600, '2d');
+    expect(app.getState().renderResult).not.toBeNull();
+  });
+});
