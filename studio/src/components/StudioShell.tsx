@@ -1,4 +1,9 @@
-import { useMemo, useState } from 'react';
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import type {
   EditorNotification,
@@ -21,10 +26,14 @@ function ProjectTreeNode({
   node,
   nodes,
   depth,
+  selectedNodeId,
+  onSelect,
 }: {
   node: ProjectNode;
   nodes: ProjectNode[];
   depth: number;
+  selectedNodeId: string | null;
+  onSelect: (nodeId: string) => void;
 }): JSX.Element {
   const [expanded, setExpanded] = useState(true);
   const children = nodes.filter(
@@ -34,11 +43,21 @@ function ProjectTreeNode({
   return (
     <div>
       <button
-        className="tree-item"
-        style={{ paddingLeft: depth * 12 }}
-        onClick={() => setExpanded(!expanded)}
+        className={`tree-item ${
+          selectedNodeId === node.id ? 'selected' : ''
+        }`}
+        style={{ paddingLeft: `${depth * 12 + 8}px` }}
+        onClick={() => onSelect(node.id)}
+        onDoubleClick={() => setExpanded(!expanded)}
+        aria-expanded={children.length > 0 ? expanded : undefined}
       >
-        <span>{children.length > 0 ? (expanded ? '▾' : '▸') : '·'}</span>
+        <span>
+          {children.length > 0
+            ? expanded
+              ? '▾'
+              : '▸'
+            : '·'}
+        </span>
         <span>{nodeIcons[node.type] ?? '·'}</span>
         <span>{node.name}</span>
       </button>
@@ -50,6 +69,8 @@ function ProjectTreeNode({
             node={child}
             nodes={nodes}
             depth={depth + 1}
+            selectedNodeId={selectedNodeId}
+            onSelect={onSelect}
           />
         ))}
     </div>
@@ -62,9 +83,12 @@ function ProjectExplorerPanel({
   nodes: ProjectNode[];
 }): JSX.Element {
   const roots = nodes.filter((node) => !node.parentId);
+  const [selectedNodeId, setSelectedNodeId] = useState<
+    string | null
+  >(null);
 
   return (
-    <aside className="project-panel">
+    <aside className="project-panel layout-panel">
       <div className="panel-header">
         <span>PROJECT</span>
       </div>
@@ -76,6 +100,8 @@ function ProjectExplorerPanel({
             node={node}
             nodes={nodes}
             depth={0}
+            selectedNodeId={selectedNodeId}
+            onSelect={setSelectedNodeId}
           />
         ))}
       </div>
@@ -90,7 +116,7 @@ function InspectorPanel({
 }): JSX.Element {
   if (!target) {
     return (
-      <aside className="inspector-panel">
+      <aside className="inspector-panel layout-panel">
         <div className="panel-header">
           <span>INSPECTOR</span>
         </div>
@@ -108,7 +134,7 @@ function InspectorPanel({
   ).sort();
 
   return (
-    <aside className="layout-panel inspector-panel">
+    <aside className="inspector-panel layout-panel">
       <div className="panel-header">
         <span>INSPECTOR</span>
         <strong>{target.name}</strong>
@@ -164,7 +190,7 @@ function ConsolePanel({
               <strong>
                 {notification.type.toUpperCase()}
               </strong>
-              {notification.message}
+              <span>{notification.message}</span>
             </div>
           ))
         )}
@@ -187,9 +213,10 @@ export function StudioShell(): JSX.Element {
     clearNotifications,
   } = useStudio();
 
-  const [mobilePanel, setMobilePanel] = useState<
-    'project' | 'inspector' | 'console' | null
-  >(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(
+    null,
+  );
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const simulationLabel = useMemo(() => {
     if (!state.isPlaying) return 'STOPPED';
@@ -197,12 +224,46 @@ export function StudioShell(): JSX.Element {
     return 'RUNNING';
   }, [state.isPlaying, state.isPaused]);
 
-  const handleMenuAction = (
-    action?: string,
-  ): void => {
+  const panelVisible = (panelId: string): boolean =>
+    state.panels.find((panel) => panel.id === panelId)
+      ?.isVisible ?? false;
+
+  useEffect(() => {
+    const handlePointerDown = (event: PointerEvent): void => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setOpenMenuId(null);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') {
+        setOpenMenuId(null);
+      }
+    };
+
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const handleMenuTrigger = (menuId: string): void => {
+    setOpenMenuId((current) =>
+      current === menuId ? null : menuId,
+    );
+  };
+
+  const handleMenuAction = (action?: string): void => {
     if (action) {
       application.executeCommand(action);
     }
+    setOpenMenuId(null);
   };
 
   return (
@@ -217,7 +278,7 @@ export function StudioShell(): JSX.Element {
         </div>
 
         <div className="project-title">
-          {state.projectTitle}
+          <span>{state.projectTitle}</span>
           <span>•</span>
           <span className="saved">{state.statusMessage}</span>
         </div>
@@ -226,33 +287,37 @@ export function StudioShell(): JSX.Element {
           <button onClick={clearNotifications}>
             ◉ {state.notifications.length}
           </button>
-          <button>□</button>
-          <button>×</button>
         </div>
       </header>
 
-      <nav className="studio-menubar">
+      <nav className="studio-menubar" ref={menuRef}>
         {state.menuGroups.map((group) => (
           <div key={group.id} className="menu-wrapper">
-            <button className="menu-trigger">
+            <button
+              className="menu-trigger"
+              aria-expanded={openMenuId === group.id}
+              onClick={() => handleMenuTrigger(group.id)}
+            >
               {group.label}
             </button>
 
-            <div className="menu-dropdown">
-              {group.items.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleMenuAction(item.action)}
-                >
-                  <span>{item.label}</span>
-                  {item.shortcut && (
-                    <span className="menu-shortcut">
-                      {item.shortcut}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
+            {openMenuId === group.id && (
+              <div className="menu-dropdown">
+                {group.items.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleMenuAction(item.action)}
+                  >
+                    <span>{item.label}</span>
+                    {item.shortcut && (
+                      <span className="menu-shortcut">
+                        {item.shortcut}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ))}
 
@@ -269,6 +334,7 @@ export function StudioShell(): JSX.Element {
           <button
             className={!state.isPlaying ? 'active' : ''}
             onClick={state.isPlaying ? stop : play}
+            title={state.isPlaying ? 'Stop' : 'Play'}
           >
             {state.isPlaying ? '■' : '▶'}
           </button>
@@ -276,11 +342,14 @@ export function StudioShell(): JSX.Element {
           <button
             disabled={!state.isPlaying}
             onClick={state.isPaused ? resume : pause}
+            title={state.isPaused ? 'Resume' : 'Pause'}
           >
             {state.isPaused ? '▶' : 'Ⅱ'}
           </button>
 
-          <button onClick={restart}>↻</button>
+          <button onClick={restart} title="Restart">
+            ↻
+          </button>
 
           <div className="speed-control">
             <span>Speed</span>
@@ -331,15 +400,11 @@ export function StudioShell(): JSX.Element {
       </div>
 
       <main className="studio-layout">
-        <div
-          className={`layout-panel project-panel ${
-            mobilePanel === 'project' ? 'mobile-open' : ''
-          }`}
-        >
+        {panelVisible('project-explorer') && (
           <ProjectExplorerPanel
             nodes={state.projectExplorerNodes}
           />
-        </div>
+        )}
 
         <section className="studio-center">
           <div className="workspace-header">
@@ -358,18 +423,16 @@ export function StudioShell(): JSX.Element {
             />
           </div>
 
-          <ConsolePanel
-            notifications={state.notifications}
-          />
+          {panelVisible('console') && (
+            <ConsolePanel
+              notifications={state.notifications}
+            />
+          )}
         </section>
 
-        <div
-          className={`layout-panel inspector-panel ${
-            mobilePanel === 'inspector' ? 'mobile-open' : ''
-          }`}
-        >
+        {panelVisible('inspector') && (
           <InspectorPanel target={state.inspectorTarget} />
-        </div>
+        )}
       </main>
 
       <footer className="studio-statusbar">
@@ -381,9 +444,7 @@ export function StudioShell(): JSX.Element {
         <div className="status-center">
           <span>Simulation: {simulationLabel}</span>
           <span>Speed: {state.simulationSpeed}×</span>
-          <span>
-            Entities: {state.networkNodes.length}
-          </span>
+          <span>Entities: {state.networkNodes.length}</span>
           <span>Edges: {state.networkEdges.length}</span>
         </div>
 
