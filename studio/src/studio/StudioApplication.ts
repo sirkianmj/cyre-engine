@@ -26,6 +26,7 @@ import type {
   ProjectData,
   ProjectModel,
   ProjectNode,
+  ProjectNodeType,
   ToolbarButton,
   WorkspaceDefinition,
 } from '@cyre/engine';
@@ -823,7 +824,119 @@ export class StudioApplication {
     }
   }
 
-  private syncProjectExplorer(project: ProjectModel): void {
+  addProjectNode(
+    parentId: string | undefined,
+    type: ProjectNodeType,
+    name: string,
+  ): void {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      throw new Error('Project node name is required.');
+    }
+
+    try {
+      const nodeId = `project-node-${Date.now().toString(36)}-${Math.random()
+        .toString(36)
+        .slice(2, 8)}`;
+
+      this.projectExplorer.addNode({
+        id: nodeId,
+        name: trimmedName,
+        type,
+        parentId,
+      });
+
+      this.editorShell.addNotification(
+        'success',
+        `Created ${type} "${trimmedName}".`,
+      );
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Create project node failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  renameProjectNode(nodeId: string, name: string): void {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      throw new Error('Project node name is required.');
+    }
+
+    try {
+      this.projectExplorer.renameNode(nodeId, trimmedName);
+      this.editorShell.addNotification(
+        'success',
+        `Renamed project node to "${trimmedName}".`,
+      );
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Rename project node failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  deleteProjectNode(nodeId: string): void {
+    try {
+      this.projectExplorer.removeNode(nodeId);
+      this.editorShell.addNotification(
+        'success',
+        'Project node deleted.',
+      );
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Delete project node failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  duplicateProjectNode(nodeId: string): void {
+    try {
+      const newId = `project-node-${Date.now().toString(36)}-${Math.random()
+        .toString(36)
+        .slice(2, 8)}`;
+      this.projectExplorer.duplicateNode(nodeId, newId);
+      this.editorShell.addNotification(
+        'success',
+        'Project node duplicated.',
+      );
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Duplicate project node failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  moveProjectNode(nodeId: string, newParentId?: string): void {
+    try {
+      this.projectExplorer.moveNode(nodeId, newParentId);
+      this.editorShell.addNotification(
+        'success',
+        'Project node moved.',
+      );
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Move project node failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+    private syncProjectExplorer(project: ProjectModel): void {
     const explorer = new ProjectExplorer();
     const rootId = `project:${project.getId()}`;
 

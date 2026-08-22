@@ -10,7 +10,12 @@ import type { ReactNode } from 'react';
 import type {
   DockArea,
   DockLayout,
+  ProjectNodeType,
 } from '@cyre/engine';
+
+import type {
+  DockLayoutSummary,
+} from './StudioApplication';
 
 import {
   StudioApplication,
@@ -45,6 +50,23 @@ export interface StudioContextValue {
   untabPanels: (panelIds: string[]) => void;
   getDockLayout: () => DockLayout;
   restoreDockLayout: (layout: DockLayout) => void;
+
+  addProjectNode: (
+    parentId: string | undefined,
+    type: ProjectNodeType,
+    name: string,
+  ) => void;
+  renameProjectNode: (nodeId: string, name: string) => void;
+  deleteProjectNode: (nodeId: string) => void;
+  duplicateProjectNode: (nodeId: string) => void;
+  moveProjectNode: (
+    nodeId: string,
+    newParentId?: string,
+  ) => void;
+  saveDockLayout: (name: string) => void;
+  listDockLayouts: () => DockLayoutSummary[];
+  loadDockLayout: (name: string) => void;
+  deleteDockLayout: (name: string) => void;
 
   notify: (
     level: StudioNotificationLevel,
@@ -130,6 +152,33 @@ export function StudioProvider({
 
       restoreDockLayout: (layout) =>
         studioApplication.restoreDockLayout(layout),
+
+      addProjectNode: (parentId, type, name) =>
+        studioApplication.addProjectNode(parentId, type, name),
+
+      renameProjectNode: (nodeId, name) =>
+        studioApplication.renameProjectNode(nodeId, name),
+
+      deleteProjectNode: (nodeId) =>
+        studioApplication.deleteProjectNode(nodeId),
+
+      duplicateProjectNode: (nodeId) =>
+        studioApplication.duplicateProjectNode(nodeId),
+
+      moveProjectNode: (nodeId, newParentId) =>
+        studioApplication.moveProjectNode(nodeId, newParentId),
+
+      saveDockLayout: (name) =>
+        studioApplication.saveDockLayout(name),
+
+      listDockLayouts: () =>
+        studioApplication.listDockLayouts(),
+
+      loadDockLayout: (name) =>
+        studioApplication.loadDockLayout(name),
+
+      deleteDockLayout: (name) =>
+        studioApplication.deleteDockLayout(name),
 
       notify: (level, message) =>
         studioApplication.notify(level, message),

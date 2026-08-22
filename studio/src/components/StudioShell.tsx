@@ -8,6 +8,7 @@ import type {
 
 import { useStudio } from '../studio/StudioContext';
 import { Viewport } from './Viewport';
+import { DockShell } from './DockShell';
 
 type StudioPhase = 'boot' | 'home' | 'editor';
 
@@ -530,41 +531,7 @@ export function StudioShell(): JSX.Element {
         </div>
       </div>
 
-      <main className="studio-layout">
-        {panelVisible('project-explorer') && (
-          <ProjectExplorerPanel
-            nodes={state.projectExplorerNodes}
-          />
-        )}
-
-        <section className="studio-center">
-          <div className="workspace-header">
-            <div>
-              <span className="workspace-eyebrow">
-                {state.activeWorkspaceId?.toUpperCase()} WORKSPACE
-              </span>
-              <h1>{state.projectTitle}</h1>
-            </div>
-          </div>
-
-          <div className="workspace-content">
-            <Viewport
-              nodes={state.networkNodes}
-              edges={state.networkEdges}
-            />
-          </div>
-
-          {panelVisible('console') && (
-            <ConsolePanel
-              notifications={state.notifications}
-            />
-          )}
-        </section>
-
-        {panelVisible('inspector') && (
-          <InspectorPanel target={state.inspectorTarget} />
-        )}
-      </main>
+      <DockShell />
 
       <footer className="studio-statusbar">
         <div>

@@ -176,6 +176,11 @@ interface ProjectTreeNodeProps {
   depth: number;
   selectedNodeId: string | null;
   onSelect: (nodeId: string) => void;
+  onCreateChild: (parentId: string) => void;
+  onRename: (nodeId: string) => void;
+  onDuplicate: (nodeId: string) => void;
+  onDelete: (nodeId: string) => void;
+  onDragMove: (nodeId: string) => void;
 }
 
 function ProjectTreeNode({
@@ -184,33 +189,110 @@ function ProjectTreeNode({
   depth,
   selectedNodeId,
   onSelect,
+  onCreateChild,
+  onRename,
+  onDuplicate,
+  onDelete,
+  onDragMove,
 }: ProjectTreeNodeProps): JSX.Element {
   const [expanded, setExpanded] = useState(true);
+  const [hovered, setHovered] = useState(false);
   const children = nodes.filter(
     (child) => child.parentId === node.id,
   );
 
   return (
-    <div>
-      <button
-        type="button"
-        className={`tree-item ${
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div
+        className={`tree-row ${
           selectedNodeId === node.id ? 'selected' : ''
         }`}
-        style={{ paddingLeft: `${depth * 12 + 8}px` }}
+        style={{ paddingLeft: `${depth * 12 + 6}px` }}
+        draggable
+        onDragStart={(event) => {
+          event.dataTransfer.setData(
+            'text/plain',
+            `project-node:${node.id}`,
+          );
+          event.dataTransfer.effectAllowed = 'move';
+          onDragMove(node.id);
+        }}
         onClick={() => onSelect(node.id)}
-        onDoubleClick={() => setExpanded(!expanded)}
       >
-        <span>
+        <button
+          type="button"
+          className="tree-expander"
+          onClick={(event) => {
+            event.stopPropagation();
+            setExpanded(!expanded);
+          }}
+        >
           {children.length > 0
             ? expanded
               ? '▾'
               : '▸'
             : '·'}
+        </button>
+
+        <span className="tree-icon">
+          {nodeIcons[node.type] ?? '·'}
         </span>
-        <span>{nodeIcons[node.type] ?? '·'}</span>
-        <span>{node.name}</span>
-      </button>
+
+        <span className="tree-name">{node.name}</span>
+
+        {hovered && (
+          <span className="tree-actions">
+            {node.type === 'folder' && (
+              <button
+                type="button"
+                title="New child"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onCreateChild(node.id);
+                }}
+              >
+                +
+              </button>
+            )}
+
+            <button
+              type="button"
+              title="Rename"
+              onClick={(event) => {
+                event.stopPropagation();
+                onRename(node.id);
+              }}
+            >
+              ✏
+            </button>
+
+            <button
+              type="button"
+              title="Duplicate"
+              onClick={(event) => {
+                event.stopPropagation();
+                onDuplicate(node.id);
+              }}
+            >
+              ⧉
+            </button>
+
+            <button
+              type="button"
+              title="Delete"
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete(node.id);
+              }}
+            >
+              ×
+            </button>
+          </span>
+        )}
+      </div>
 
       {expanded &&
         children.map((child) => (
@@ -221,6 +303,11 @@ function ProjectTreeNode({
             depth={depth + 1}
             selectedNodeId={selectedNodeId}
             onSelect={onSelect}
+            onCreateChild={onCreateChild}
+            onRename={onRename}
+            onDuplicate={onDuplicate}
+            onDelete={onDelete}
+            onDragMove={onDragMove}
           />
         ))}
     </div>
@@ -232,23 +319,186 @@ function ProjectTree({
 }: {
   nodes: ProjectNode[];
 }): JSX.Element {
+  const {
+    addProjectNode,
+    renameProjectNode,
+    deleteProjectNode,
+    duplicateProjectNode,
+    moveProjectNode,
+    notify,
+  } = useStudio();
+
   const [selectedNodeId, setSelectedNodeId] = useState<
     string | null
   >(null);
-  const roots = nodes.filter((node) => !node.parentId);
+  const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState<
+    ProjectNode['type'] | 'all'
+  >('all');
+  const [editingNodeId, setEditingNodeId] = useState<
+    string | null
+  >(null);
+  const [editingName, setEditingName] = useState('');
+  const [draggedNodeId, setDraggedNodeId] = useState<
+    string | null
+  >(null);
+  const [dropTargetId, setDropTargetId] = useState<
+    string | undefined
+  >(undefined);
+
+  const filteredNodes = nodes.filter((node) => {
+    const matchesType =
+      filterType === 'all' || node.type === filterType;
+    const query = search.trim().toLowerCase();
+    const matchesSearch =
+      query === '' || node.name.toLowerCase().includes(query);
+    return matchesType && matchesSearch;
+  });
+
+  const roots = filteredNodes.filter((node) => !node.parentId);
+
+  const getChildren = (parentId: string): ProjectNode[] =>
+    filteredNodes.filter(
+      (node) => node.parentId === parentId,
+    );
+
+  const renderTree = (parentId?: string): JSX.Element => {
+    const list = parentId
+      ? getChildren(parentId)
+      : roots;
+
+    return (
+      <>
+        {list.map((node) => (
+          <ProjectTreeNode
+            key={node.id}
+            node={node}
+            nodes={filteredNodes}
+            depth={0}
+            selectedNodeId={selectedNodeId}
+            onSelect={setSelectedNodeId}
+            onCreateChild={(id) => {
+              const childName = window.prompt('Child name:');
+              if (childName) {
+                addProjectNode(id, 'folder', childName);
+              }
+            }}
+            onRename={(id) => {
+              setEditingNodeId(id);
+              const current = nodes.find((n) => n.id === id);
+              setEditingName(current?.name ?? '');
+            }}
+            onDuplicate={(id) => {
+              duplicateProjectNode(id);
+            }}
+            onDelete={(id) => {
+              if (window.confirm('Delete this node?')) {
+                deleteProjectNode(id);
+              }
+            }}
+            onDragMove={(id) => setDraggedNodeId(id)}
+          />
+        ))}
+      </>
+    );
+  };
+
+  const finishEditing = (): void => {
+    if (editingNodeId) {
+      renameProjectNode(editingNodeId, editingName);
+      setEditingNodeId(null);
+      setEditingName('');
+    }
+  };
+
+  const handleDrop = (
+    event: React.DragEvent<HTMLDivElement>,
+    targetParentId?: string,
+  ): void => {
+    event.preventDefault();
+    const data = event.dataTransfer.getData('text/plain');
+    if (!data.startsWith('project-node:')) return;
+
+    const nodeId = data.slice('project-node:'.length);
+    if (nodeId === targetParentId) return;
+
+    moveProjectNode(nodeId, targetParentId);
+    setDraggedNodeId(null);
+    setDropTargetId(undefined);
+  };
 
   return (
-    <div className="tree">
-      {roots.map((node) => (
-        <ProjectTreeNode
-          key={node.id}
-          node={node}
-          nodes={nodes}
-          depth={0}
-          selectedNodeId={selectedNodeId}
-          onSelect={setSelectedNodeId}
+    <div className="project-explorer">
+      <div className="project-toolbar">
+        <input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search…"
         />
-      ))}
+
+        <select
+          value={filterType}
+          onChange={(event) =>
+            setFilterType(
+              event.target.value as ProjectNode['type'] | 'all',
+            )
+          }
+        >
+          <option value="all">All</option>
+          <option value="folder">Folders</option>
+          <option value="scene">Scenes</option>
+          <option value="mission">Missions</option>
+          <option value="asset">Assets</option>
+          <option value="scenario">Scenarios</option>
+        </select>
+
+        <button
+          type="button"
+          onClick={() => {
+            const name = window.prompt('Folder name:');
+            if (name) {
+              addProjectNode(undefined, 'folder', name);
+            }
+          }}
+        >
+          + Folder
+        </button>
+      </div>
+
+      {editingNodeId && (
+        <div className="project-rename-bar">
+          <input
+            value={editingName}
+            onChange={(event) => setEditingName(event.target.value)}
+            autoFocus
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') {
+                finishEditing();
+              }
+              if (event.key === 'Escape') {
+                setEditingNodeId(null);
+                setEditingName('');
+              }
+            }}
+          />
+          <button type="button" onClick={finishEditing}>
+            Save
+          </button>
+        </div>
+      )}
+
+      <div
+        className="tree"
+        onDragOver={(event) => {
+          event.preventDefault();
+          setDropTargetId(undefined);
+        }}
+        onDrop={(event) => handleDrop(event, undefined)}
+      >
+        {editingNodeId
+          ? renderTree()
+          : renderTree()}
+      </div>
     </div>
   );
 }
