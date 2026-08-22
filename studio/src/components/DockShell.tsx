@@ -1008,7 +1008,16 @@ function NetworkBody({
   nodes: NetworkGraphNode[];
   edges: NetworkGraphEdge[];
 }): JSX.Element {
-  const { selectNetworkNode, addNetworkNodeFromPalette } = useStudio();
+  const {
+    selectNetworkNode,
+    addNetworkNodeFromPalette,
+    moveNetworkNode,
+    connectNetworkNodes,
+    removeNetworkNode,
+    removeNetworkEdge,
+    searchNetworkNodes,
+    validateNetworkGraph,
+  } = useStudio();
 
   return (
     <Viewport
@@ -1016,6 +1025,12 @@ function NetworkBody({
       edges={edges}
       onSelectNode={selectNetworkNode}
       onDropEntity={addNetworkNodeFromPalette}
+      onMoveNode={moveNetworkNode}
+      onConnectNodes={connectNetworkNodes}
+      onDeleteNode={removeNetworkNode}
+      onDeleteEdge={removeNetworkEdge}
+      onSearchNodes={searchNetworkNodes}
+      onValidateGraph={validateNetworkGraph}
     />
   );
 }

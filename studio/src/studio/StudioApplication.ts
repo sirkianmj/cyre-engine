@@ -246,214 +246,18 @@ export class StudioApplication {
     if (!this.workspaceManager.hasWorkspace(workspaceId)) {
       this.editorShell.addNotification(
         'warning',
-        `Workspace "${workspaceId}" does not exist.`,
+        'Workspace "' + workspaceId + '" does not exist.',
       );
       this.emit();
       return;
     }
 
-    this.restoreActiveWorkspaceLayout(workspaceId);
+    this.activeWorkspaceId = workspaceId;
+    this.editorShell.setStatusMessage('Workspace: ' + workspaceId);
     this.emit();
   }
 
-  selectProjectNode(nodeId: string): void {
-    try {
-      const node = this.projectExplorer.getNode(nodeId);
-      const properties: InspectorTarget['properties'] = [
-        { key: 'id', label: 'ID', type: 'string', value: node.id },
-        { key: 'name', label: 'Name', type: 'string', value: node.name },
-        { key: 'type', label: 'Type', type: 'string', value: node.type },
-        { key: 'parentId', label: 'Parent', type: 'string', value: node.parentId ?? '' },
-      ];
-      this.inspector.selectTarget(node.id, node.name, properties);
-      this.multiSelectionManager.select({ id: node.id, type: node.type, name: node.name });
-      this.editorShell.setStatusMessage(`Selected project node: ${node.name}`);
-    } catch (error) {
-      this.editorShell.addNotification('error', `Select project node failed: ${this.errorMessage(error)}`);
-    }
-    this.emit();
-  }
-
-  selectNetworkNode(nodeId: string): void {
-    try {
-      const node = this.networkGraphEditor.getNode(nodeId);
-      const properties: InspectorTarget['properties'] = [
-        { key: 'id', label: 'ID', type: 'string', value: node.id },
-        { key: 'label', label: 'Label', type: 'string', value: node.label },
-        { key: 'type', label: 'Type', type: 'string', value: node.type },
-        { key: 'subnet', label: 'Subnet', type: 'string', value: node.subnet ?? '' },
-        { key: 'zone', label: 'Zone', type: 'string', value: node.zone ?? '' },
-        { key: 'group', label: 'Group', type: 'string', value: node.group ?? '' },
-      ];
-      this.inspector.selectTarget(node.id, node.label, properties);
-      this.multiSelectionManager.select({ id: node.id, type: node.type, name: node.label });
-      this.editorShell.setStatusMessage(`Selected network node: ${node.label}`);
-    } catch (error) {
-      this.editorShell.addNotification('error', `Select network node failed: ${this.errorMessage(error)}`);
-    }
-    this.emit();
-  }
-
-  toggleSelection(item: SelectionItem): void {
-    try {
-      this.multiSelectionManager.toggle(item);
-    } catch (error) {
-      this.editorShell.addNotification('error', `Toggle selection failed: ${this.errorMessage(error)}`);
-    }
-    this.emit();
-  }
-
-  clearMultiSelection(): void {
-    try {
-      this.multiSelectionManager.clear();
-    } catch (error) {
-      this.editorShell.addNotification('error', `Clear selection failed: ${this.errorMessage(error)}`);
-    }
-    this.emit();
-  }
-
-  setInspectorPropertyValue(key: string, value: unknown): void {
-    try {
-      const targetId = this.inspector.getSelectedTargetId();
-      if (!targetId) {
-        throw new Error('No inspector target selected.');
-      }
-
-      this.inspector.setPropertyValue(key, value);
-
-      const projectNode = this.projectExplorer.listNodes().find(
-        (node) => node.id === targetId,
-      );
-
-      if (projectNode) {
-        if (key === 'name') {
-          this.projectExplorer.renameNode(targetId, String(value));
-          this.editorShell.addNotification('success', 'Updated project node ' + key + '.');
-        } else {
-          this.editorShell.addNotification('warning', 'Project property "' + key + '" is read-only.');
-        }
-
-        this.selectProjectNode(targetId);
-        return;
-      }
-
-      const networkNode = this.networkGraphEditor.listNodes().find(
-        (node) => node.id === targetId,
-      );
-
-      if (networkNode) {
-        if (key === 'label') {
-          const edges = this.networkGraphEditor.getConnectedEdges(targetId);
-          const updatedNode = { ...networkNode, label: String(value) };
-
-          this.networkGraphEditor.removeNode(targetId);
-          this.networkGraphEditor.addNode(updatedNode);
-
-          for (const edge of edges) {
-            try {
-              this.networkGraphEditor.addEdge(edge);
-            } catch (edgeError) {
-              // Edge may already exist in a different representation.
-            }
-          }
-        } else if (key === 'subnet') {
-          this.networkGraphEditor.setSubnet(targetId, String(value));
-        } else if (key === 'zone') {
-          this.networkGraphEditor.setZone(targetId, String(value));
-        } else if (key === 'group') {
-          this.networkGraphEditor.setGroup(targetId, String(value));
-        } else {
-          this.editorShell.addNotification('warning', 'Network property "' + key + '" is read-only.');
-        }
-
-        this.selectNetworkNode(targetId);
-        return;
-      }
-
-      this.editorShell.addNotification('warning', 'Selected target "' + targetId + '" is not editable.');
-      this.emit();
-    } catch (error) {
-      this.editorShell.addNotification('error', 'Update inspector property failed: ' + this.errorMessage(error));
-      this.emit();
-    }
-  }  resetInspectorProperty(key: string): void {
-    try {
-      this.inspector.resetProperty(key);
-      this.editorShell.addNotification('success', `Reset inspector property ${key}.`);
-    } catch (error) {
-      this.editorShell.addNotification('error', `Reset inspector property failed: ${this.errorMessage(error)}`);
-    }
-    this.emit();
-  }
-
-  resetInspectorProperties(): void {
-    try {
-      this.inspector.resetAllProperties();
-      this.editorShell.addNotification('success', 'Reset all inspector properties.');
-    } catch (error) {
-      this.editorShell.addNotification('error', `Reset inspector properties failed: ${this.errorMessage(error)}`);
-    }
-    this.emit();
-  }
-
-  addNetworkNodeFromPalette(itemId: string, x?: number, y?: number): void {
-    try {
-      const item = this.cyberEntityPalette.getItem(itemId);
-      const entity = this.cyberEntityPalette.createEntityData(itemId);
-      const typeMap: Record<string, NetworkGraphNode['type']> = {
-        host: 'host',
-        server: 'server',
-        client: 'client',
-        router: 'router',
-        firewall: 'firewall',
-        network: 'network',
-        database: 'database',
-        service: 'service',
-        user: 'other',
-        account: 'other',
-        role: 'other',
-        vulnerability: 'other',
-        'security-control': 'other',
-      };
-      const nodeType = typeMap[itemId] ?? 'other';
-      const node: NetworkGraphNode = {
-        id: `entity-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
-        label: item.label,
-        type: nodeType,
-        position: x !== undefined && y !== undefined ? { x, y } : {
-          x: 80 + Math.random() * 600,
-          y: 80 + Math.random() * 400,
-        },
-        metadata: entity.properties,
-      };
-
-      this.networkGraphEditor.addNode(node);
-      this.selectNetworkNode(node.id);
-      this.editorShell.addNotification('success', `Created ${item.label}.`);
-    } catch (error) {
-      this.editorShell.addNotification('error', `Add entity failed: ${this.errorMessage(error)}`);
-    }
-    this.emit();
-  }
-
-    clearInspectorSelection(): void {
-    try {
-      this.inspector.clearSelection();
-      this.editorShell.addNotification(
-        'success',
-        'Inspector selection cleared.',
-      );
-    } catch (error) {
-      this.editorShell.addNotification(
-        'error',
-        `Clear inspector selection failed: ${this.errorMessage(error)}`,
-      );
-    }
-
-    this.emit();
-  }
-
-    togglePanel(panelId: string): void {
+  togglePanel(panelId: string): void {
     try {
       const panel = this.editorShell.getPanel(panelId);
       this.setPanelVisible(panelId, !panel.isVisible);
@@ -632,7 +436,319 @@ export class StudioApplication {
     this.emit();
   }
 
-  play(): void {
+  addProjectNode(
+    parentId: string | undefined,
+    type: ProjectNodeType,
+    name: string,
+  ): void {
+    const trimmedName = name.trim();
+    if (!trimmedName) throw new Error('Project node name is required.');
+
+    try {
+      const nodeId = 'project-node-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+      this.projectExplorer.addNode({
+        id: nodeId,
+        name: trimmedName,
+        type,
+        parentId,
+      });
+      this.editorShell.addNotification('success', 'Created ' + type + ' "' + trimmedName + '".');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Create project node failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  renameProjectNode(nodeId: string, name: string): void {
+    const trimmedName = name.trim();
+    if (!trimmedName) throw new Error('Project node name is required.');
+
+    try {
+      this.projectExplorer.renameNode(nodeId, trimmedName);
+      this.editorShell.addNotification('success', 'Renamed project node to "' + trimmedName + '".');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Rename project node failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  deleteProjectNode(nodeId: string): void {
+    try {
+      this.projectExplorer.removeNode(nodeId);
+      this.editorShell.addNotification('success', 'Project node deleted.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Delete project node failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  duplicateProjectNode(nodeId: string): void {
+    try {
+      const newId = 'project-node-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);
+      this.projectExplorer.duplicateNode(nodeId, newId);
+      this.editorShell.addNotification('success', 'Project node duplicated.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Duplicate project node failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  moveProjectNode(nodeId: string, newParentId?: string): void {
+    try {
+      this.projectExplorer.moveNode(nodeId, newParentId);
+      this.editorShell.addNotification('success', 'Project node moved.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Move project node failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  selectProjectNode(nodeId: string): void {
+    try {
+      const node = this.projectExplorer.getNode(nodeId);
+      const properties: InspectorTarget['properties'] = [
+        { key: 'id', label: 'ID', type: 'string', value: node.id },
+        { key: 'name', label: 'Name', type: 'string', value: node.name },
+        { key: 'type', label: 'Type', type: 'string', value: node.type },
+        { key: 'parentId', label: 'Parent', type: 'string', value: node.parentId ?? '' },
+      ];
+      this.inspector.selectTarget(node.id, node.name, properties);
+      this.multiSelectionManager.select({ id: node.id, type: node.type, name: node.name });
+      this.editorShell.setStatusMessage('Selected project node: ' + node.name);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Select project node failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  selectNetworkNode(nodeId: string): void {
+    try {
+      const node = this.networkGraphEditor.getNode(nodeId);
+      const properties: InspectorTarget['properties'] = [
+        { key: 'id', label: 'ID', type: 'string', value: node.id },
+        { key: 'label', label: 'Label', type: 'string', value: node.label },
+        { key: 'type', label: 'Type', type: 'string', value: node.type },
+        { key: 'subnet', label: 'Subnet', type: 'string', value: node.subnet ?? '' },
+        { key: 'zone', label: 'Zone', type: 'string', value: node.zone ?? '' },
+        { key: 'group', label: 'Group', type: 'string', value: node.group ?? '' },
+      ];
+      this.inspector.selectTarget(node.id, node.label, properties);
+      this.multiSelectionManager.select({ id: node.id, type: node.type, name: node.label });
+      this.editorShell.setStatusMessage('Selected network node: ' + node.label);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Select network node failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  toggleSelection(item: SelectionItem): void {
+    try {
+      this.multiSelectionManager.toggle(item);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Toggle selection failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  clearMultiSelection(): void {
+    try {
+      this.multiSelectionManager.clear();
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Clear selection failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  setInspectorPropertyValue(key: string, value: unknown): void {
+    try {
+      const targetId = this.inspector.getSelectedTargetId();
+      if (!targetId) throw new Error('No inspector target selected.');
+
+      this.inspector.setPropertyValue(key, value);
+
+      const projectNode = this.projectExplorer.listNodes().find((node) => node.id === targetId);
+      if (projectNode) {
+        if (key === 'name') {
+          this.projectExplorer.renameNode(targetId, String(value));
+          this.editorShell.addNotification('success', 'Updated project node ' + key + '.');
+        } else {
+          this.editorShell.addNotification('warning', 'Project property "' + key + '" is read-only.');
+        }
+        this.selectProjectNode(targetId);
+        return;
+      }
+
+      const networkNode = this.networkGraphEditor.listNodes().find((node) => node.id === targetId);
+      if (networkNode) {
+        if (key === 'label') {
+          const edges = this.networkGraphEditor.getConnectedEdges(targetId);
+          this.networkGraphEditor.removeNode(targetId);
+          this.networkGraphEditor.addNode({ ...networkNode, label: String(value) });
+          for (const edge of edges) {
+            try { this.networkGraphEditor.addEdge(edge); } catch {}
+          }
+        } else if (key === 'subnet') {
+          this.networkGraphEditor.setSubnet(targetId, String(value));
+        } else if (key === 'zone') {
+          this.networkGraphEditor.setZone(targetId, String(value));
+        } else if (key === 'group') {
+          this.networkGraphEditor.setGroup(targetId, String(value));
+        } else {
+          this.editorShell.addNotification('warning', 'Network property "' + key + '" is read-only.');
+        }
+        this.selectNetworkNode(targetId);
+        return;
+      }
+
+      this.editorShell.addNotification('warning', 'Selected target "' + targetId + '" is not editable.');
+      this.emit();
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Update inspector property failed: ' + this.errorMessage(error));
+      this.emit();
+    }
+  }
+
+  resetInspectorProperty(key: string): void {
+    try {
+      this.inspector.resetProperty(key);
+      this.editorShell.addNotification('success', 'Reset inspector property ' + key + '.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Reset inspector property failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  resetInspectorProperties(): void {
+    try {
+      this.inspector.resetAllProperties();
+      this.editorShell.addNotification('success', 'Reset all inspector properties.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Reset inspector properties failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  clearInspectorSelection(): void {
+    try {
+      this.inspector.clearSelection();
+      this.multiSelectionManager.clear();
+      this.editorShell.addNotification('success', 'Inspector selection cleared.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Clear inspector selection failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  addNetworkNodeFromPalette(itemId: string, x?: number, y?: number): void {
+    try {
+      const item = this.cyberEntityPalette.getItem(itemId);
+      const entity = this.cyberEntityPalette.createEntityData(itemId);
+      const typeMap: Record<string, NetworkGraphNode['type']> = {
+        host: 'host',
+        server: 'server',
+        client: 'client',
+        router: 'router',
+        firewall: 'firewall',
+        network: 'network',
+        database: 'database',
+        service: 'service',
+        user: 'other',
+        account: 'other',
+        role: 'other',
+        vulnerability: 'other',
+        'security-control': 'other',
+      };
+      const node: NetworkGraphNode = {
+        id: 'entity-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+        label: item.label,
+        type: typeMap[itemId] ?? 'other',
+        position: x !== undefined && y !== undefined
+          ? { x, y }
+          : { x: 80 + Math.random() * 600, y: 80 + Math.random() * 400 },
+        metadata: entity.properties,
+      };
+      this.networkGraphEditor.addNode(node);
+      this.selectNetworkNode(node.id);
+      this.editorShell.addNotification('success', 'Created ' + item.label + '.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Add entity failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  moveNetworkNode(nodeId: string, x: number, y: number): void {
+    try {
+      const node = this.networkGraphEditor.getNode(nodeId);
+      const edges = this.networkGraphEditor.getConnectedEdges(nodeId);
+      this.networkGraphEditor.removeNode(nodeId);
+      this.networkGraphEditor.addNode({ ...node, position: { x, y } });
+      for (const edge of edges) {
+        try { this.networkGraphEditor.addEdge(edge); } catch {}
+      }
+      this.selectNetworkNode(nodeId);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Move network node failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  connectNetworkNodes(sourceId: string, targetId: string, edgeType?: string): void {
+    try {
+      this.networkGraphEditor.connect(sourceId, targetId, { type: edgeType });
+      this.editorShell.addNotification('success', 'Connected ' + sourceId + ' -> ' + targetId);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Connect nodes failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  removeNetworkNode(nodeId: string): void {
+    try {
+      this.networkGraphEditor.removeNode(nodeId);
+      if (this.inspector.getSelectedTargetId() === nodeId) {
+        this.inspector.clearSelection();
+      }
+      this.editorShell.addNotification('success', 'Network node removed.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Remove network node failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  removeNetworkEdge(edgeId: string): void {
+    try {
+      this.networkGraphEditor.removeEdge(edgeId);
+      this.editorShell.addNotification('success', 'Network edge removed.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Remove network edge failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  searchNetworkNodes(query: string): NetworkGraphNode[] {
+    try {
+      return this.networkGraphEditor.search(query);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Search network failed: ' + this.errorMessage(error));
+      return [];
+    }
+  }
+
+  validateNetworkGraph(): void {
+    try {
+      const nodes = this.networkGraphEditor.listNodes();
+      const isolated = nodes.filter((node) => this.networkGraphEditor.getConnectedEdges(node.id).length === 0);
+      const message = isolated.length === 0
+        ? 'Network validation passed.'
+        : 'Network validation: ' + isolated.length + ' isolated node(s).';
+      this.editorShell.addNotification(isolated.length === 0 ? 'success' : 'warning', message);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Network validation failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+    play(): void {
     try {
       this.playModeController.start();
       this.editorShell.setStatusMessage('Simulation running.');
@@ -839,6 +955,13 @@ export class StudioApplication {
   }
 
   private registerMenuGroups(): void {
+    const viewItems: MenuItem[] = this.editorShell.listPanels().map((panel) => ({
+      id: 'view.toggle-' + panel.id,
+      label: 'Toggle ' + panel.title,
+      action: 'view.toggle-' + panel.id,
+      enabled: true,
+    }));
+
     const groups: MenuGroup[] = [
       {
         id: 'file',
@@ -863,32 +986,7 @@ export class StudioApplication {
       {
         id: 'view',
         label: 'View',
-        items: [
-          {
-            id: 'view.toggle-project-explorer',
-            label: 'Toggle Project Explorer',
-            action: 'view.toggle-project-explorer',
-            enabled: true,
-          },
-          {
-            id: 'view.toggle-inspector',
-            label: 'Toggle Inspector',
-            action: 'view.toggle-inspector',
-            enabled: true,
-          },
-          {
-            id: 'view.toggle-console',
-            label: 'Toggle Console',
-            action: 'view.toggle-console',
-            enabled: true,
-          },
-          {
-            id: 'view.toggle-network-viewport',
-            label: 'Toggle Network Viewport',
-            action: 'view.toggle-network-viewport',
-            enabled: true,
-          },
-        ],
+        items: viewItems,
       },
       {
         id: 'simulation',
@@ -1009,150 +1107,23 @@ export class StudioApplication {
         category: 'Simulation',
         action: () => this.restart(),
       },
-      {
-        id: 'view.toggle-project-explorer',
-        label: 'Toggle Project Explorer',
-        category: 'View',
-        action: () => this.togglePanel('project-explorer'),
-      },
-      {
-        id: 'view.toggle-inspector',
-        label: 'Toggle Inspector',
-        category: 'View',
-        action: () => this.togglePanel('inspector'),
-      },
-      {
-        id: 'view.toggle-console',
-        label: 'Toggle Console',
-        category: 'View',
-        action: () => this.togglePanel('console'),
-      },
-      {
-        id: 'view.toggle-network-viewport',
-        label: 'Toggle Network Viewport',
-        category: 'View',
-        action: () => this.togglePanel('network-viewport'),
-      },
     ];
+
+    for (const panel of this.editorShell.listPanels()) {
+      commands.push({
+        id: 'view.toggle-' + panel.id,
+        label: 'Toggle ' + panel.title,
+        category: 'View',
+        action: () => this.togglePanel(panel.id),
+      });
+    }
 
     for (const command of commands) {
       this.commandPalette.addCommand(command);
     }
   }
 
-  addProjectNode(
-    parentId: string | undefined,
-    type: ProjectNodeType,
-    name: string,
-  ): void {
-    const trimmedName = name.trim();
-    if (!trimmedName) {
-      throw new Error('Project node name is required.');
-    }
-
-    try {
-      const nodeId = `project-node-${Date.now().toString(36)}-${Math.random()
-        .toString(36)
-        .slice(2, 8)}`;
-
-      this.projectExplorer.addNode({
-        id: nodeId,
-        name: trimmedName,
-        type,
-        parentId,
-      });
-
-      this.editorShell.addNotification(
-        'success',
-        `Created ${type} "${trimmedName}".`,
-      );
-    } catch (error) {
-      this.editorShell.addNotification(
-        'error',
-        `Create project node failed: ${this.errorMessage(error)}`,
-      );
-    }
-
-    this.emit();
-  }
-
-  renameProjectNode(nodeId: string, name: string): void {
-    const trimmedName = name.trim();
-    if (!trimmedName) {
-      throw new Error('Project node name is required.');
-    }
-
-    try {
-      this.projectExplorer.renameNode(nodeId, trimmedName);
-      this.editorShell.addNotification(
-        'success',
-        `Renamed project node to "${trimmedName}".`,
-      );
-    } catch (error) {
-      this.editorShell.addNotification(
-        'error',
-        `Rename project node failed: ${this.errorMessage(error)}`,
-      );
-    }
-
-    this.emit();
-  }
-
-  deleteProjectNode(nodeId: string): void {
-    try {
-      this.projectExplorer.removeNode(nodeId);
-      this.editorShell.addNotification(
-        'success',
-        'Project node deleted.',
-      );
-    } catch (error) {
-      this.editorShell.addNotification(
-        'error',
-        `Delete project node failed: ${this.errorMessage(error)}`,
-      );
-    }
-
-    this.emit();
-  }
-
-  duplicateProjectNode(nodeId: string): void {
-    try {
-      const newId = `project-node-${Date.now().toString(36)}-${Math.random()
-        .toString(36)
-        .slice(2, 8)}`;
-      this.projectExplorer.duplicateNode(nodeId, newId);
-      this.editorShell.addNotification(
-        'success',
-        'Project node duplicated.',
-      );
-    } catch (error) {
-      this.editorShell.addNotification(
-        'error',
-        `Duplicate project node failed: ${this.errorMessage(error)}`,
-      );
-    }
-
-    this.emit();
-  }
-
-  moveProjectNode(nodeId: string, newParentId?: string): void {
-    try {
-      this.projectExplorer.moveNode(nodeId, newParentId);
-      this.editorShell.addNotification(
-        'success',
-        'Project node moved.',
-      );
-    } catch (error) {
-      this.editorShell.addNotification(
-        'error',
-        `Move project node failed: ${this.errorMessage(error)}`,
-      );
-    }
-
-    this.emit();
-  }
-
-    private syncProjectExplorer(project: ProjectModel): void {
+  private syncProjectExplorer(project: ProjectModel): void {
     const explorer = new ProjectExplorer();
     const rootId = `project:${project.getId()}`;
 
