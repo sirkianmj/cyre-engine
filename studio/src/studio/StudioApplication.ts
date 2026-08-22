@@ -5,13 +5,18 @@ import {
   DockManager,
   EditorShell,
   Engine,
+  EventTriggerSystem,
   EvidenceGraphEditor,
   Inspector,
+  MissionDesigner,
   MultiSelectionManager,
   NetworkGraphEditor,
+  ObjectiveGraphEditor,
   PlayModeController,
   ProjectExplorer,
   ProjectManager,
+  ScenarioEditor,
+  ScenarioGenerator,
   TimelineEditor,
   WorkspaceManager,
 } from '@cyre/engine';
@@ -25,7 +30,17 @@ import type {
   EditorCommand,
   EditorEvidenceGraphNode,
   EditorEvidenceGraphEdge,
+  EditorEventTriggerRule,
+  EditorEventTriggerActionType,
+  EditorMissionDesignerDesign,
+  EditorMissionDesignerObjective,
+  EditorObjectiveGraphNode,
+  EditorObjectiveGraphNodeStatus,
+  EditorObjectiveGraphEdge,
+  EditorObjectiveGraphEdgeType,
   EditorTimelineEntry,
+  Scenario as ScenarioData,
+  ScenarioGeneratorOptions,
   EditorNotification,
   EditorPanel,
   InspectorTarget,
@@ -83,6 +98,11 @@ export interface StudioSnapshot {
   evidenceGraphNodes: EditorEvidenceGraphNode[];
   evidenceGraphEdges: EditorEvidenceGraphEdge[];
   timelineEntries: EditorTimelineEntry[];
+  currentScenarioData: ScenarioData | null;
+  missionDesign: EditorMissionDesignerDesign;
+  objectiveGraphNodes: EditorObjectiveGraphNode[];
+  objectiveGraphEdges: EditorObjectiveGraphEdge[];
+  eventTriggerRules: EditorEventTriggerRule[];
 }
 
 interface PanelInit {
@@ -114,6 +134,12 @@ export class StudioApplication {
   private readonly attackGraphEditor = new AttackGraphEditor();
   private readonly evidenceGraphEditor = new EvidenceGraphEditor();
   private readonly timelineEditor = new TimelineEditor();
+  private readonly scenarioEditor = new ScenarioEditor();
+  private readonly scenarioGenerator = new ScenarioGenerator();
+  private missionDesigner = new MissionDesigner('default-mission', 'Default Mission');
+  private readonly objectiveGraphEditor = new ObjectiveGraphEditor();
+  private readonly eventTriggerSystem = new EventTriggerSystem();
+  private currentScenarioData: ScenarioData | null = null;
 
   private currentProject: ProjectModel | null = null;
   private activeWorkspaceId: string | null = null;
@@ -847,6 +873,128 @@ export class StudioApplication {
     this.emit();
   }
 
+    createScenario(name: string, description?: string): void {
+    try {
+      this.scenarioEditor.setId('scenario-' + Date.now().toString(36));
+      this.scenarioEditor.setName(name.trim() || 'Untitled Scenario');
+      if (description) this.scenarioEditor.setDescription(description.trim());
+      this.scenarioEditor.setOrganization('Default Organization', 'Technology');
+      this.currentScenarioData = this.scenarioEditor.getData();
+      this.editorShell.addNotification('success', 'Scenario created.');
+    } catch (error) { this.editorShell.addNotification('error', 'Create scenario failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  addScenarioNetworkNode(nodeType: string, nodeName?: string): void {
+    try {
+      this.scenarioEditor.addNetworkNode('node-' + Date.now().toString(36), nodeType, nodeName);
+      this.currentScenarioData = this.scenarioEditor.getData();
+      this.editorShell.addNotification('success', 'Network node added.');
+    } catch (error) { this.editorShell.addNotification('error', 'Add network node failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  addScenarioAsset(name: string, type: string, value: number): void {
+    try {
+      this.scenarioEditor.addAsset('asset-' + Date.now().toString(36), name.trim() || 'Asset', type, value);
+      this.currentScenarioData = this.scenarioEditor.getData();
+      this.editorShell.addNotification('success', 'Asset added.');
+    } catch (error) { this.editorShell.addNotification('error', 'Add asset failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  addScenarioObjective(description: string): void {
+    try {
+      this.scenarioEditor.addObjective('objective-' + Date.now().toString(36), description.trim(), 'primary');
+      this.currentScenarioData = this.scenarioEditor.getData();
+      this.editorShell.addNotification('success', 'Objective added.');
+    } catch (error) { this.editorShell.addNotification('error', 'Add objective failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  buildScenario(): void {
+    try {
+      this.scenarioEditor.build();
+      this.currentScenarioData = this.scenarioEditor.getData();
+      this.editorShell.addNotification('success', 'Scenario validated and built.');
+    } catch (error) { this.editorShell.addNotification('error', 'Scenario build failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  generateScenario(options: ScenarioGeneratorOptions): void {
+    try {
+      this.currentScenarioData = this.scenarioGenerator.generate(options);
+      this.editorShell.addNotification('success', 'Scenario generated.');
+    } catch (error) { this.editorShell.addNotification('error', 'Scenario generation failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  createMissionDesign(name: string): void {
+    try {
+      this.missionDesigner = new MissionDesigner('mission-design-' + Date.now().toString(36), name.trim() || 'New Mission Design');
+      this.editorShell.addNotification('success', 'Mission design created.');
+    } catch (error) { this.editorShell.addNotification('error', 'Create mission design failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  addMissionObjective(description: string, type: string = 'primary'): void {
+    try {
+      const objective: EditorMissionDesignerObjective = {
+        id: 'objective-' + Date.now().toString(36),
+        description: description.trim() || 'New Objective',
+        type: type as EditorMissionDesignerObjective['type'],
+      };
+      this.missionDesigner.addObjective(objective);
+      this.editorShell.addNotification('success', 'Mission objective added.');
+    } catch (error) { this.editorShell.addNotification('error', 'Add mission objective failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  buildMissionDesign(): void {
+    try {
+      this.missionDesigner.build();
+      this.editorShell.addNotification('success', 'Mission design validated.');
+    } catch (error) { this.editorShell.addNotification('error', 'Mission design validation failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  addObjectiveGraphNode(label: string, status: string = 'available'): void {
+    try {
+      const node: EditorObjectiveGraphNode = {
+        id: 'objective-node-' + Date.now().toString(36),
+        label: label.trim() || 'Objective Node',
+        status: status as EditorObjectiveGraphNodeStatus,
+      };
+      this.objectiveGraphEditor.addNode(node);
+      this.editorShell.addNotification('success', 'Objective node added.');
+    } catch (error) { this.editorShell.addNotification('error', 'Add objective node failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  connectObjectiveGraphNodes(sourceId: string, targetId: string, edgeType: string = 'dependency'): void {
+    try {
+      this.objectiveGraphEditor.connect(sourceId, targetId, edgeType as EditorObjectiveGraphEdgeType);
+      this.editorShell.addNotification('success', 'Objective nodes connected.');
+    } catch (error) { this.editorShell.addNotification('error', 'Connect objective nodes failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  addEventTriggerRule(name: string, eventType: string, actionType: string): void {
+    try {
+      const rule: EditorEventTriggerRule = {
+        id: 'rule-' + Date.now().toString(36),
+        name: name.trim() || 'New Rule',
+        condition: { eventType: eventType || 'suspicious-login' },
+
+        actions: [{ actionType: actionType as EditorEventTriggerActionType }],
+        enabled: true,
+      };
+      this.eventTriggerSystem.addRule(rule);
+      this.editorShell.addNotification('success', 'Event trigger rule added.');
+    } catch (error) { this.editorShell.addNotification('error', 'Add trigger rule failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
     play(): void {
     try {
       this.playModeController.start();
@@ -1028,6 +1176,41 @@ export class StudioApplication {
         editorDock: 'bottom',
         dockArea: 'bottom',
         order: 8,
+      },
+      {
+        id: 'scenario-designer',
+        title: 'Scenario Designer',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 9,
+      },
+      {
+        id: 'mission-designer',
+        title: 'Mission Designer',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 10,
+      },
+      {
+        id: 'objective-graph',
+        title: 'Objective Graph',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 11,
+      },
+      {
+        id: 'event-trigger-system',
+        title: 'Event Triggers',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 12,
+      },
+      {
+        id: 'scenario-generator',
+        title: 'Scenario Generator',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 13,
       },
     ];
 
@@ -1445,6 +1628,11 @@ export class StudioApplication {
       evidenceGraphNodes: this.evidenceGraphEditor.listNodes(),
       evidenceGraphEdges: this.evidenceGraphEditor.listEdges(),
       timelineEntries: this.timelineEditor.listEntries(),
+      currentScenarioData: this.currentScenarioData,
+      missionDesign: this.missionDesigner.getDesign(),
+      objectiveGraphNodes: this.objectiveGraphEditor.listNodes(),
+      objectiveGraphEdges: this.objectiveGraphEditor.listEdges(),
+      eventTriggerRules: this.eventTriggerSystem.listRules(),
     };
   }
 

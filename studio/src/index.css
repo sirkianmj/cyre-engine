@@ -2137,3 +2137,76 @@ select {
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
+
+/* ===== AUTHORING PANELS ===== */
+
+.authoring-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  overflow: auto;
+}
+
+.authoring-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+.authoring-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--studio-border);
+}
+
+.authoring-card h4 {
+  margin: 0 0 4px;
+  color: var(--studio-text-secondary);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.authoring-card input,
+.authoring-card select,
+.authoring-grid input,
+.authoring-grid select,
+.authoring-panel .graph-toolbar input,
+.authoring-panel .graph-toolbar select {
+  min-width: 0;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--studio-border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--studio-text);
+  padding: 0 8px;
+  font-size: 11px;
+}
+
+.authoring-card button,
+.authoring-panel .btn {
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--studio-border);
+  color: var(--studio-text-secondary);
+  padding: 0 10px;
+}
+
+.authoring-preview {
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--studio-border);
+  color: var(--studio-text-tertiary);
+  font-size: 10px;
+  line-height: 1.5;
+  overflow: auto;
+  white-space: pre-wrap;
+}

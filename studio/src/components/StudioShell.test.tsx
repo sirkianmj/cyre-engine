@@ -112,3 +112,30 @@ describe('Phase 03: Graph Editors', () => {
     expect(app.getState().timelineEntries.length).toBe(1);
   });
 });
+
+describe('Phase 04: Authoring Tools', () => {
+  it('creates a scenario', () => {
+    const app = new StudioApplication();
+    app.createScenario('Test Scenario');
+    expect(app.getState().currentScenarioData?.name).toBe('Test Scenario');
+  });
+
+  it('adds mission objective', () => {
+    const app = new StudioApplication();
+    app.createMissionDesign('Test Mission');
+    app.addMissionObjective('Find attacker', 'primary');
+    expect(app.getState().missionDesign.objectives.length).toBe(1);
+  });
+
+  it('adds objective graph node', () => {
+    const app = new StudioApplication();
+    app.addObjectiveGraphNode('Objective 1', 'available');
+    expect(app.getState().objectiveGraphNodes.length).toBe(1);
+  });
+
+  it('adds event trigger rule', () => {
+    const app = new StudioApplication();
+    app.addEventTriggerRule('Suspicious Login Alert', 'suspicious-login', 'generate-alert');
+    expect(app.getState().eventTriggerRules.length).toBe(1);
+  });
+});

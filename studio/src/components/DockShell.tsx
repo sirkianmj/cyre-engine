@@ -26,6 +26,7 @@ import type {
 import { useStudio } from '../studio/StudioContext';
 import { Viewport } from './Viewport';
 import { AttackGraphPanel, EvidenceGraphPanel, TimelinePanel } from './CyberGraphPanels';
+import { ScenarioDesignerPanel, MissionDesignerPanel, ObjectiveGraphPanel, EventTriggerPanel, ScenarioGeneratorPanel } from './AuthoringPanels';
 
 const nodeIcons: Record<string, string> = {
   folder: '▾',
@@ -1075,6 +1076,21 @@ function getPanelBody(
 
     case 'timeline-editor':
       return <TimelinePanel />;
+
+    case 'scenario-designer':
+      return <ScenarioDesignerPanel />;
+
+    case 'mission-designer':
+      return <MissionDesignerPanel />;
+
+    case 'objective-graph':
+      return <ObjectiveGraphPanel />;
+
+    case 'event-trigger-system':
+      return <EventTriggerPanel />;
+
+    case 'scenario-generator':
+      return <ScenarioGeneratorPanel />;
 
     default:
       return (

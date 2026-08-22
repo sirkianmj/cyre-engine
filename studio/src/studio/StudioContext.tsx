@@ -109,6 +109,19 @@ export interface StudioContextValue {
   addTimelineEntry: (timestamp: number, label: string, type?: string) => void;
   removeTimelineEntry: (entryId: string) => void;
 
+  createScenario: (name: string, description?: string) => void;
+  addScenarioNetworkNode: (nodeType: string, nodeName?: string) => void;
+  addScenarioAsset: (name: string, type: string, value: number) => void;
+  addScenarioObjective: (description: string) => void;
+  buildScenario: () => void;
+  generateScenario: (options: any) => void;
+  createMissionDesign: (name: string) => void;
+  addMissionObjective: (description: string, type?: string) => void;
+  buildMissionDesign: () => void;
+  addObjectiveGraphNode: (label: string, status?: string) => void;
+  connectObjectiveGraphNodes: (sourceId: string, targetId: string, edgeType?: string) => void;
+  addEventTriggerRule: (name: string, eventType: string, actionType: string) => void;
+
   notify: (
     level: StudioNotificationLevel,
     message: string,
@@ -287,6 +300,42 @@ export function StudioProvider({
 
       removeTimelineEntry: (entryId) =>
         studioApplication.removeTimelineEntry(entryId),
+
+      createScenario: (name, description) =>
+        studioApplication.createScenario(name, description),
+
+      addScenarioNetworkNode: (nodeType, nodeName) =>
+        studioApplication.addScenarioNetworkNode(nodeType, nodeName),
+
+      addScenarioAsset: (name, type, value) =>
+        studioApplication.addScenarioAsset(name, type, value),
+
+      addScenarioObjective: (description) =>
+        studioApplication.addScenarioObjective(description),
+
+      buildScenario: () =>
+        studioApplication.buildScenario(),
+
+      generateScenario: (options) =>
+        studioApplication.generateScenario(options),
+
+      createMissionDesign: (name) =>
+        studioApplication.createMissionDesign(name),
+
+      addMissionObjective: (description, type) =>
+        studioApplication.addMissionObjective(description, type),
+
+      buildMissionDesign: () =>
+        studioApplication.buildMissionDesign(),
+
+      addObjectiveGraphNode: (label, status) =>
+        studioApplication.addObjectiveGraphNode(label, status),
+
+      connectObjectiveGraphNodes: (sourceId, targetId, edgeType) =>
+        studioApplication.connectObjectiveGraphNodes(sourceId, targetId, edgeType),
+
+      addEventTriggerRule: (name, eventType, actionType) =>
+        studioApplication.addEventTriggerRule(name, eventType, actionType),
 
       notify: (level, message) =>
         studioApplication.notify(level, message),
