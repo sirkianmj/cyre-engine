@@ -1,0 +1,17 @@
+{
+  "name": "cyre-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "CYRE cybersecurity game development platform monorepo",
+  "scripts": {
+    "build:engine": "pnpm --filter @cyre/engine build",
+    "test:engine": "pnpm --filter @cyre/engine test",
+    "audit:engine": "pnpm --filter @cyre/engine audit:architecture",
+    "dev:studio": "pnpm --filter @cyre/studio dev",
+    "build:studio": "pnpm --filter @cyre/studio build",
+    "preview:studio": "pnpm --filter @cyre/studio preview",
+    "test:studio": "pnpm --filter @cyre/studio test",
+    "build": "pnpm build:engine && pnpm build:studio",
+    "test": "pnpm test:engine && pnpm test:studio"
+  }
+}

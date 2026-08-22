@@ -1,5 +1,6 @@
 packages:
   - "engine"
+  - "studio"
 
 allowBuilds:
   esbuild: true
