@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import type {
   EditorNotification,
@@ -9,6 +9,8 @@ import type {
 import { useStudio } from '../studio/StudioContext';
 import { Viewport } from './Viewport';
 
+type StudioPhase = 'boot' | 'home' | 'editor';
+
 const nodeIcons: Record<string, string> = {
   folder: '▾',
   scene: '◈',
@@ -16,6 +18,111 @@ const nodeIcons: Record<string, string> = {
   asset: '□',
   scenario: '◇',
 };
+
+function BootScreen(): JSX.Element {
+  return (
+    <div className="studio-phase boot-screen">
+      <div className="boot-mark-wrap">
+        <div className="boot-mark-ring" />
+        <div className="boot-mark">C</div>
+      </div>
+
+      <h1 className="boot-title">CYRE STUDIO</h1>
+      <p className="boot-subtitle">
+        CYBERSECURITY REALITY ENGINE
+      </p>
+
+      <div className="boot-progress">
+        <span />
+      </div>
+
+      <span className="boot-version">v1.0.0</span>
+    </div>
+  );
+}
+
+function HomeScreen({
+  projectTitle,
+  statusMessage,
+  onEnter,
+  onNewProject,
+}: {
+  projectTitle: string;
+  statusMessage: string;
+  onEnter: () => void;
+  onNewProject: () => void;
+}): JSX.Element {
+  return (
+    <div className="studio-phase home-screen">
+      <nav className="home-nav">
+        <div className="home-brand">
+          <div className="home-brand-mark">C</div>
+          <div>
+            <strong>CYRE STUDIO</strong>
+            <span>PROFESSIONAL CYBER DEVELOPMENT</span>
+          </div>
+        </div>
+
+        <button className="btn" onClick={onEnter}>
+          Enter Studio
+        </button>
+      </nav>
+
+      <main className="home-main">
+        <div className="home-hero">
+          <h1>
+            Build the world&apos;s most{' '}
+            <span>advanced cyber simulations.</span>
+          </h1>
+
+          <p>
+            Design networks, missions, attacks, evidence, and
+            training scenarios with a production-grade engine.
+          </p>
+
+          <div className="home-card">
+            <div>
+              <div className="home-card-title">
+                Last project
+              </div>
+              <div className="home-card-name">
+                {projectTitle}
+              </div>
+              <div className="home-card-status">
+                {statusMessage}
+              </div>
+            </div>
+
+            <button
+              className="btn btn-primary"
+              onClick={onEnter}
+            >
+              Continue
+            </button>
+          </div>
+
+          <div className="home-actions">
+            <button
+              className="btn btn-primary"
+              onClick={onNewProject}
+            >
+              New Project
+            </button>
+
+            <button className="btn" onClick={onEnter}>
+              Open Project
+            </button>
+          </div>
+        </div>
+      </main>
+
+      <footer className="home-footer">
+        <span>CYRE ENGINE</span>
+        <span>v1.0.0</span>
+      </footer>
+    </div>
+  );
+}
 
 function ProjectTreeNode({
   node,
@@ -208,6 +315,52 @@ export function StudioShell(): JSX.Element {
     clearNotifications,
   } = useStudio();
 
+  const [phase, setPhase] = useState<StudioPhase>('boot');
+  const [openMenuId, setOpenMenuId] = useState<string | null>(
+    null,
+  );
+  const menuTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setPhase('home');
+    }, 1500);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  const handleMenuOpen = (menuId: string): void => {
+    if (menuTimerRef.current) {
+      window.clearTimeout(menuTimerRef.current);
+      menuTimerRef.current = null;
+    }
+    setOpenMenuId(menuId);
+  };
+
+  const handleMenuCloseSoon = (): void => {
+    if (menuTimerRef.current) {
+      window.clearTimeout(menuTimerRef.current);
+    }
+
+    menuTimerRef.current = window.setTimeout(() => {
+      setOpenMenuId(null);
+      menuTimerRef.current = null;
+    }, 180);
+  };
+
+  const handleMenuTrigger = (menuId: string): void => {
+    setOpenMenuId((current) =>
+      current === menuId ? null : menuId,
+    );
+  };
+
+  const handleMenuAction = (action?: string): void => {
+    if (action) {
+      application.executeCommand(action);
+    }
+    setOpenMenuId(null);
+  };
+
   const simulationLabel = useMemo(() => {
     if (!state.isPlaying) return 'STOPPED';
     if (state.isPaused) return 'PAUSED';
@@ -218,14 +371,29 @@ export function StudioShell(): JSX.Element {
     state.panels.find((panel) => panel.id === panelId)
       ?.isVisible ?? false;
 
-  const handleMenuAction = (action?: string): void => {
-    if (action) {
-      application.executeCommand(action);
-    }
-  };
+  if (phase === 'boot') {
+    return <BootScreen />;
+  }
+
+  if (phase === 'home') {
+    return (
+      <HomeScreen
+        projectTitle={state.projectTitle}
+        statusMessage={state.statusMessage}
+        onEnter={() => setPhase('editor')}
+        onNewProject={() => {
+          application.createProject(
+            'Untitled CYRE Project',
+            'soc-game',
+          );
+          setPhase('editor');
+        }}
+      />
+    );
+  }
 
   return (
-    <div className="cyre-studio">
+    <div className="studio-phase editor-shell">
       <header className="studio-titlebar">
         <div className="brand">
           <div className="brand-mark">C</div>
@@ -250,29 +418,37 @@ export function StudioShell(): JSX.Element {
 
       <nav className="studio-menubar">
         {state.menuGroups.map((group) => (
-          <div key={group.id} className="menu-wrapper">
+          <div
+            key={group.id}
+            className="menu-wrapper"
+            onMouseEnter={() => handleMenuOpen(group.id)}
+            onMouseLeave={handleMenuCloseSoon}
+          >
             <button
               className="menu-trigger"
-              aria-expanded="false"
+              aria-expanded={openMenuId === group.id}
+              onClick={() => handleMenuTrigger(group.id)}
             >
               {group.label}
             </button>
 
-            <div className="menu-dropdown">
-              {group.items.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => handleMenuAction(item.action)}
-                >
-                  <span>{item.label}</span>
-                  {item.shortcut && (
-                    <span className="menu-shortcut">
-                      {item.shortcut}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
+            {openMenuId === group.id && (
+              <div className="menu-dropdown">
+                {group.items.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleMenuAction(item.action)}
+                  >
+                    <span>{item.label}</span>
+                    {item.shortcut && (
+                      <span className="menu-shortcut">
+                        {item.shortcut}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         ))}
 
