@@ -619,7 +619,6 @@ export class StudioApplication {
     this.registerToolbarButtons();
     this.registerCommands();
 
-    this.activeWorkspaceId = null;
   }
 
   private registerMenuGroups(): void {
@@ -1069,7 +1068,11 @@ export class StudioApplication {
       menuGroups: this.editorShell.listMenuGroups(),
       toolbarButtons: this.editorShell.listToolbarButtons(),
       notifications: this.editorShell.listNotifications(),
-      workspaces: this.workspaceManager.listWorkspaces(),
+      workspaces: this.workspaceManager.listWorkspaces().sort((a, b) => {
+      if (a.id === 'editor') return -1;
+      if (b.id === 'editor') return 1;
+      return a.name.localeCompare(b.name);
+    }),
       activeWorkspaceId: this.activeWorkspaceId,
       projectData: this.currentProject
         ? this.currentProject.getData()
