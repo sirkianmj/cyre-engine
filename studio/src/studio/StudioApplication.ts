@@ -12,6 +12,9 @@ import {
 } from '@cyre/engine';
 
 import type {
+  DockArea,
+  DockLayout,
+  DockPanel,
   EditorCommand,
   EditorNotification,
   EditorPanel,
@@ -49,6 +52,9 @@ export interface StudioSnapshot {
   simulationSpeed: number;
   engineState: string;
   commands: EditorCommand[];
+  dockPanels: DockPanel[];
+  maximizedPanelId: string | null;
+  activePanelId: string | null;
 }
 
 interface PanelInit {
@@ -189,11 +195,168 @@ export class StudioApplication {
   togglePanel(panelId: string): void {
     try {
       const panel = this.editorShell.getPanel(panelId);
-      this.editorShell.setPanelVisible(panelId, !panel.isVisible);
+      this.setPanelVisible(panelId, !panel.isVisible);
     } catch (error) {
       this.editorShell.addNotification(
         'error',
         `Panel toggle failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  setPanelVisible(panelId: string, visible: boolean): void {
+    try {
+      this.editorShell.setPanelVisible(panelId, visible);
+      this.dockManager.setPanelVisible(panelId, visible);
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Panel visibility change failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  dockPanel(panelId: string, area: DockArea): void {
+    try {
+      this.dockManager.dockPanel(panelId, area);
+      if (this.editorShell.getPanel(panelId)) {
+        this.editorShell.setPanelDockPosition(
+          panelId,
+          this.toEditorDockPosition(area),
+        );
+      }
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Dock panel failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  undockPanel(panelId: string): void {
+    try {
+      this.dockManager.undockPanel(panelId);
+      if (this.editorShell.getPanel(panelId)) {
+        this.editorShell.setPanelDockPosition(panelId, 'floating');
+      }
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Undock panel failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  movePanel(panelId: string, area: DockArea): void {
+    try {
+      this.dockManager.movePanel(panelId, area);
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Move panel failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  resizePanel(panelId: string, size: number): void {
+    try {
+      this.dockManager.resizePanel(panelId, size);
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Resize panel failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  setActivePanel(panelId: string): void {
+    try {
+      this.dockManager.setActivePanel(panelId);
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Activate panel failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  maximizePanel(panelId: string): void {
+    try {
+      this.dockManager.maximizePanel(panelId);
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Maximize panel failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  restorePanel(): void {
+    try {
+      this.dockManager.restorePanel();
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Restore panel failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  tabPanels(panelIds: string[]): void {
+    try {
+      this.dockManager.tabPanels(panelIds);
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Tab panels failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  untabPanels(panelIds: string[]): void {
+    try {
+      this.dockManager.untabPanels(panelIds);
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Untab panels failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  getDockLayout(): DockLayout {
+    return this.dockManager.getLayout();
+  }
+
+  restoreDockLayout(layout: DockLayout): void {
+    try {
+      this.dockManager.restoreLayout(layout);
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Restore layout failed: ${this.errorMessage(error)}`,
       );
     }
 
@@ -657,6 +820,21 @@ export class StudioApplication {
     return `${slug}-${Date.now().toString(36)}`;
   }
 
+  private toEditorDockPosition(
+    area: DockArea,
+  ): EditorPanel['dockPosition'] {
+    switch (area) {
+      case 'left':
+      case 'right':
+      case 'top':
+      case 'bottom':
+      case 'center':
+        return area;
+      default:
+        return 'center';
+    }
+  }
+
   private computeSnapshot(): StudioSnapshot {
     const playState = this.playModeController.getState();
 
@@ -682,6 +860,11 @@ export class StudioApplication {
       simulationSpeed: this.playModeController.getSpeed(),
       engineState: this.engine.getState(),
       commands: this.commandPalette.listCommands(),
+      dockPanels: this.dockManager.listPanels(),
+      maximizedPanelId:
+        this.dockManager.getMaximizedPanelId() ?? null,
+      activePanelId:
+        this.dockManager.getActivePanelId() ?? null,
     };
   }
 

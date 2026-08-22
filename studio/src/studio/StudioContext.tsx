@@ -7,6 +7,11 @@ import {
 
 import type { ReactNode } from 'react';
 
+import type {
+  DockArea,
+  DockLayout,
+} from '@cyre/engine';
+
 import {
   StudioApplication,
 } from './StudioApplication';
@@ -26,7 +31,20 @@ export interface StudioContextValue {
   state: StudioSnapshot;
 
   togglePanel: (panelId: string) => void;
+  setPanelVisible: (panelId: string, visible: boolean) => void;
   setWorkspace: (workspaceId: string) => void;
+
+  dockPanel: (panelId: string, area: DockArea) => void;
+  undockPanel: (panelId: string) => void;
+  movePanel: (panelId: string, area: DockArea) => void;
+  resizePanel: (panelId: string, size: number) => void;
+  setActivePanel: (panelId: string) => void;
+  maximizePanel: (panelId: string) => void;
+  restorePanel: () => void;
+  tabPanels: (panelIds: string[]) => void;
+  untabPanels: (panelIds: string[]) => void;
+  getDockLayout: () => DockLayout;
+  restoreDockLayout: (layout: DockLayout) => void;
 
   notify: (
     level: StudioNotificationLevel,
@@ -74,8 +92,44 @@ export function StudioProvider({
       togglePanel: (panelId) =>
         studioApplication.togglePanel(panelId),
 
+      setPanelVisible: (panelId, visible) =>
+        studioApplication.setPanelVisible(panelId, visible),
+
       setWorkspace: (workspaceId) =>
         studioApplication.setWorkspace(workspaceId),
+
+      dockPanel: (panelId, area) =>
+        studioApplication.dockPanel(panelId, area),
+
+      undockPanel: (panelId) =>
+        studioApplication.undockPanel(panelId),
+
+      movePanel: (panelId, area) =>
+        studioApplication.movePanel(panelId, area),
+
+      resizePanel: (panelId, size) =>
+        studioApplication.resizePanel(panelId, size),
+
+      setActivePanel: (panelId) =>
+        studioApplication.setActivePanel(panelId),
+
+      maximizePanel: (panelId) =>
+        studioApplication.maximizePanel(panelId),
+
+      restorePanel: () =>
+        studioApplication.restorePanel(),
+
+      tabPanels: (panelIds) =>
+        studioApplication.tabPanels(panelIds),
+
+      untabPanels: (panelIds) =>
+        studioApplication.untabPanels(panelIds),
+
+      getDockLayout: () =>
+        studioApplication.getDockLayout(),
+
+      restoreDockLayout: (layout) =>
+        studioApplication.restoreDockLayout(layout),
 
       notify: (level, message) =>
         studioApplication.notify(level, message),
