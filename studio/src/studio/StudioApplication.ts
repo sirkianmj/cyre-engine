@@ -260,13 +260,25 @@ export class StudioApplication {
 
   setWorkspace(workspaceId: string): void {
     if (!this.workspaceManager.hasWorkspace(workspaceId)) {
-      this.editorShell.addNotification('warning', 'Workspace "' + workspaceId + '" does not exist.');
+      this.editorShell.addNotification(
+        'warning',
+        'Workspace "' + workspaceId + '" does not exist.',
+      );
       this.emit();
       return;
     }
 
-    this.activeWorkspaceId = workspaceId;
-    this.editorShell.setStatusMessage('Workspace: ' + workspaceId);
+    try {
+      this.workspaceManager.activateWorkspace(workspaceId, this.dockManager);
+      this.activeWorkspaceId = workspaceId;
+      this.editorShell.setStatusMessage('Workspace: ' + workspaceId);
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        'Workspace activation failed: ' + this.errorMessage(error),
+      );
+    }
+
     this.emit();
   }
 

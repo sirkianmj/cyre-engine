@@ -1956,3 +1956,19 @@ select {
   color: var(--studio-text-tertiary);
   font-size: 11px;
 }
+
+/* ===== WORKSPACE TAB VISIBILITY ===== */
+
+.workspace-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: visible;
+}
+
+.workspace-tabs button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
