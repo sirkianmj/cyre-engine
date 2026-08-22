@@ -10,6 +10,7 @@ import type { ReactNode } from 'react';
 import type {
   DockArea,
   DockLayout,
+  NetworkGraphNode,
   ProjectNodeType,
   SelectionItem,
 } from '@cyre/engine';
@@ -81,6 +82,23 @@ export interface StudioContextValue {
     x?: number,
     y?: number,
   ) => void;
+
+  moveNetworkNode: (
+    nodeId: string,
+    x: number,
+    y: number,
+  ) => void;
+  connectNetworkNodes: (
+    sourceId: string,
+    targetId: string,
+    edgeType?: string,
+  ) => void;
+  removeNetworkNode: (nodeId: string) => void;
+  removeNetworkEdge: (edgeId: string) => void;
+  searchNetworkNodes: (
+    query: string,
+  ) => NetworkGraphNode[];
+  validateNetworkGraph: () => void;
 
   notify: (
     level: StudioNotificationLevel,
@@ -218,6 +236,24 @@ export function StudioProvider({
 
       addNetworkNodeFromPalette: (itemId, x, y) =>
         studioApplication.addNetworkNodeFromPalette(itemId, x, y),
+
+      moveNetworkNode: (nodeId, x, y) =>
+        studioApplication.moveNetworkNode(nodeId, x, y),
+
+      connectNetworkNodes: (sourceId, targetId, edgeType) =>
+        studioApplication.connectNetworkNodes(sourceId, targetId, edgeType),
+
+      removeNetworkNode: (nodeId) =>
+        studioApplication.removeNetworkNode(nodeId),
+
+      removeNetworkEdge: (edgeId) =>
+        studioApplication.removeNetworkEdge(edgeId),
+
+      searchNetworkNodes: (query) =>
+        studioApplication.searchNetworkNodes(query),
+
+      validateNetworkGraph: () =>
+        studioApplication.validateNetworkGraph(),
 
       notify: (level, message) =>
         studioApplication.notify(level, message),
