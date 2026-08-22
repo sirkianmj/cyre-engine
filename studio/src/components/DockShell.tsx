@@ -1,10 +1,13 @@
 import {
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 
 import type {
   DragEvent,
+  MouseEvent as ReactMouseEvent,
   PointerEvent as ReactPointerEvent,
   ReactNode,
 } from 'react';
@@ -17,6 +20,7 @@ import type {
   NetworkGraphEdge,
   NetworkGraphNode,
   ProjectNode,
+  ProjectNodeType,
 } from '@cyre/engine';
 
 import { useStudio } from '../studio/StudioContext';
@@ -30,6 +34,71 @@ const nodeIcons: Record<string, string> = {
   scenario: '◇',
 };
 
+interface ContextMenuItem {
+  label: string;
+  danger?: boolean;
+  action: () => void;
+}
+
+interface ContextMenuState {
+  x: number;
+  y: number;
+  items: ContextMenuItem[];
+}
+
+function ContextMenu({
+  menu,
+  onClose,
+}: {
+  menu: ContextMenuState | null;
+  onClose: () => void;
+}): JSX.Element | null {
+  useEffect(() => {
+    if (!menu) return;
+
+    const close = (): void => onClose();
+    const keyClose = (event: KeyboardEvent): void => {
+      if (event.key === 'Escape') onClose();
+    };
+
+    window.addEventListener('pointerdown', close);
+    window.addEventListener('keydown', keyClose);
+
+    return () => {
+      window.removeEventListener('pointerdown', close);
+      window.removeEventListener('keydown', keyClose);
+    };
+  }, [menu, onClose]);
+
+  if (!menu) return null;
+
+  return (
+    <div
+      className="context-menu"
+      style={{
+        left: `${menu.x}px`,
+        top: `${menu.y}px`,
+      }}
+      onPointerDown={(event) => event.stopPropagation()}
+    >
+      {menu.items.map((item) => (
+        <button
+          key={item.label}
+          className={`context-menu-item ${
+            item.danger ? 'danger' : ''
+          }`}
+          onClick={() => {
+            item.action();
+            onClose();
+          }}
+        >
+          {item.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 interface PanelChromeProps {
   panel: DockPanel;
   active: boolean;
@@ -41,6 +110,10 @@ interface PanelChromeProps {
   onDragStart: (event: DragEvent<HTMLElement>) => void;
   onMoveHandlePointerDown?: (
     event: ReactPointerEvent<HTMLElement>,
+  ) => void;
+  onContextMenu?: (
+    event: ReactMouseEvent<HTMLElement>,
+    panel: DockPanel,
   ) => void;
   children: ReactNode;
 }
@@ -55,6 +128,7 @@ function PanelChrome({
   onMaximize,
   onDragStart,
   onMoveHandlePointerDown,
+  onContextMenu,
   children,
 }: PanelChromeProps): JSX.Element {
   return (
@@ -63,6 +137,10 @@ function PanelChrome({
         maximized ? 'maximized' : ''
       }`}
       onMouseDown={onActivate}
+      onContextMenu={(event) => {
+        event.preventDefault();
+        onContextMenu?.(event, panel);
+      }}
     >
       <header
         className="dock-panel-header"
@@ -102,14 +180,6 @@ function PanelChrome({
             draggable={false}
             className="dock-action"
             title="Float"
-            onMouseDown={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
-            onPointerDown={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
@@ -124,14 +194,6 @@ function PanelChrome({
             draggable={false}
             className="dock-action"
             title={maximized ? 'Restore' : 'Maximize'}
-            onMouseDown={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
-            onPointerDown={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
@@ -146,14 +208,6 @@ function PanelChrome({
             draggable={false}
             className="dock-action"
             title="Close"
-            onMouseDown={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
-            onPointerDown={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-            }}
             onClick={(event) => {
               event.preventDefault();
               event.stopPropagation();
@@ -175,12 +229,26 @@ interface ProjectTreeNodeProps {
   nodes: ProjectNode[];
   depth: number;
   selectedNodeId: string | null;
+  expandedIds: Set<string>;
+  onToggleExpand: (nodeId: string) => void;
   onSelect: (nodeId: string) => void;
   onCreateChild: (parentId: string) => void;
   onRename: (nodeId: string) => void;
   onDuplicate: (nodeId: string) => void;
   onDelete: (nodeId: string) => void;
-  onDragMove: (nodeId: string) => void;
+  onMoveToRoot: (nodeId: string) => void;
+  onDragStart: (
+    event: DragEvent<HTMLElement>,
+    nodeId: string,
+  ) => void;
+  onDropOnNode: (
+    event: DragEvent<HTMLElement>,
+    nodeId: string,
+  ) => void;
+  onContextMenu: (
+    event: ReactMouseEvent<HTMLElement>,
+    node: ProjectNode,
+  ) => void;
 }
 
 function ProjectTreeNode({
@@ -188,46 +256,55 @@ function ProjectTreeNode({
   nodes,
   depth,
   selectedNodeId,
+  expandedIds,
+  onToggleExpand,
   onSelect,
   onCreateChild,
   onRename,
   onDuplicate,
   onDelete,
-  onDragMove,
+  onMoveToRoot,
+  onDragStart,
+  onDropOnNode,
+  onContextMenu,
 }: ProjectTreeNodeProps): JSX.Element {
-  const [expanded, setExpanded] = useState(true);
   const [hovered, setHovered] = useState(false);
   const children = nodes.filter(
     (child) => child.parentId === node.id,
   );
+  const expanded = expandedIds.has(node.id);
 
   return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div>
       <div
         className={`tree-row ${
           selectedNodeId === node.id ? 'selected' : ''
-        }`}
-        style={{ paddingLeft: `${depth * 12 + 6}px` }}
+        } ${node.type === 'folder' ? 'is-folder' : ''}`}
+        style={{ paddingLeft: `${depth * 14 + 8}px` }}
         draggable
-        onDragStart={(event) => {
-          event.dataTransfer.setData(
-            'text/plain',
-            `project-node:${node.id}`,
-          );
-          event.dataTransfer.effectAllowed = 'move';
-          onDragMove(node.id);
+        onDragStart={(event) => onDragStart(event, node.id)}
+        onDragOver={(event) => {
+          event.preventDefault();
+          event.dataTransfer.dropEffect = 'move';
         }}
+        onDrop={(event) => onDropOnNode(event, node.id)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         onClick={() => onSelect(node.id)}
+        onContextMenu={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          onContextMenu(event, node);
+        }}
       >
         <button
           type="button"
           className="tree-expander"
           onClick={(event) => {
             event.stopPropagation();
-            setExpanded(!expanded);
+            if (children.length > 0) {
+              onToggleExpand(node.id);
+            }
           }}
         >
           {children.length > 0
@@ -302,12 +379,17 @@ function ProjectTreeNode({
             nodes={nodes}
             depth={depth + 1}
             selectedNodeId={selectedNodeId}
+            expandedIds={expandedIds}
+            onToggleExpand={onToggleExpand}
             onSelect={onSelect}
             onCreateChild={onCreateChild}
             onRename={onRename}
             onDuplicate={onDuplicate}
             onDelete={onDelete}
-            onDragMove={onDragMove}
+            onMoveToRoot={onMoveToRoot}
+            onDragStart={onDragStart}
+            onDropOnNode={onDropOnNode}
+            onContextMenu={onContextMenu}
           />
         ))}
     </div>
@@ -325,7 +407,6 @@ function ProjectTree({
     deleteProjectNode,
     duplicateProjectNode,
     moveProjectNode,
-    notify,
   } = useStudio();
 
   const [selectedNodeId, setSelectedNodeId] = useState<
@@ -333,74 +414,62 @@ function ProjectTree({
   >(null);
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<
-    ProjectNode['type'] | 'all'
+    ProjectNodeType | 'all'
   >('all');
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(
+    () => new Set(nodes.filter((node) => !node.parentId).map((node) => node.id)),
+  );
   const [editingNodeId, setEditingNodeId] = useState<
     string | null
   >(null);
   const [editingName, setEditingName] = useState('');
-  const [draggedNodeId, setDraggedNodeId] = useState<
-    string | null
-  >(null);
-  const [dropTargetId, setDropTargetId] = useState<
-    string | undefined
-  >(undefined);
+  const [contextMenu, setContextMenu] =
+    useState<ContextMenuState | null>(null);
 
   const filteredNodes = nodes.filter((node) => {
     const matchesType =
       filterType === 'all' || node.type === filterType;
     const query = search.trim().toLowerCase();
     const matchesSearch =
-      query === '' || node.name.toLowerCase().includes(query);
+      query === '' ||
+      node.name.toLowerCase().includes(query) ||
+      node.id.toLowerCase().includes(query);
     return matchesType && matchesSearch;
   });
 
   const roots = filteredNodes.filter((node) => !node.parentId);
 
-  const getChildren = (parentId: string): ProjectNode[] =>
-    filteredNodes.filter(
-      (node) => node.parentId === parentId,
-    );
+  const toggleExpand = (nodeId: string): void => {
+    setExpandedIds((current) => {
+      const next = new Set(current);
+      if (next.has(nodeId)) {
+        next.delete(nodeId);
+      } else {
+        next.add(nodeId);
+      }
+      return next;
+    });
+  };
 
-  const renderTree = (parentId?: string): JSX.Element => {
-    const list = parentId
-      ? getChildren(parentId)
-      : roots;
+  const createNode = (
+    parentId: string | undefined,
+    type: ProjectNodeType,
+    title: string,
+  ): void => {
+    const name = window.prompt(title);
+    if (!name || !name.trim()) return;
+    addProjectNode(parentId, type, name.trim());
 
-    return (
-      <>
-        {list.map((node) => (
-          <ProjectTreeNode
-            key={node.id}
-            node={node}
-            nodes={filteredNodes}
-            depth={0}
-            selectedNodeId={selectedNodeId}
-            onSelect={setSelectedNodeId}
-            onCreateChild={(id) => {
-              const childName = window.prompt('Child name:');
-              if (childName) {
-                addProjectNode(id, 'folder', childName);
-              }
-            }}
-            onRename={(id) => {
-              setEditingNodeId(id);
-              const current = nodes.find((n) => n.id === id);
-              setEditingName(current?.name ?? '');
-            }}
-            onDuplicate={(id) => {
-              duplicateProjectNode(id);
-            }}
-            onDelete={(id) => {
-              if (window.confirm('Delete this node?')) {
-                deleteProjectNode(id);
-              }
-            }}
-            onDragMove={(id) => setDraggedNodeId(id)}
-          />
-        ))}
-      </>
-    );
+    if (parentId) {
+      setExpandedIds((current) => new Set(current).add(parentId));
+    }
+  };
+
+  const startEditing = (nodeId: string): void => {
+    const node = nodes.find((entry) => entry.id === nodeId);
+    if (!node) return;
+    setEditingNodeId(nodeId);
+    setEditingName(node.name);
   };
 
   const finishEditing = (): void => {
@@ -411,20 +480,118 @@ function ProjectTree({
     }
   };
 
-  const handleDrop = (
-    event: React.DragEvent<HTMLDivElement>,
-    targetParentId?: string,
+  const confirmDelete = (nodeId: string): void => {
+    if (!window.confirm('Delete this project node?')) return;
+    deleteProjectNode(nodeId);
+  };
+
+  const handleDragStart = (
+    event: DragEvent<HTMLElement>,
+    nodeId: string,
+  ): void => {
+    event.dataTransfer.setData(
+      'application/x-cyre-project-node',
+      nodeId,
+    );
+    event.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDropOnNode = (
+    event: DragEvent<HTMLElement>,
+    targetNodeId: string,
   ): void => {
     event.preventDefault();
-    const data = event.dataTransfer.getData('text/plain');
-    if (!data.startsWith('project-node:')) return;
+    const nodeId = event.dataTransfer.getData(
+      'application/x-cyre-project-node',
+    );
+    if (!nodeId || nodeId === targetNodeId) return;
+    moveProjectNode(nodeId, targetNodeId);
+  };
 
-    const nodeId = data.slice('project-node:'.length);
-    if (nodeId === targetParentId) return;
+  const handleDropOnRoot = (
+    event: DragEvent<HTMLDivElement>,
+  ): void => {
+    event.preventDefault();
+    const nodeId = event.dataTransfer.getData(
+      'application/x-cyre-project-node',
+    );
+    if (!nodeId) return;
+    moveProjectNode(nodeId, undefined);
+  };
 
-    moveProjectNode(nodeId, targetParentId);
-    setDraggedNodeId(null);
-    setDropTargetId(undefined);
+  const openNodeContextMenu = (
+    event: ReactMouseEvent<HTMLElement>,
+    node: ProjectNode,
+  ): void => {
+    setSelectedNodeId(node.id);
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      items: [
+        ...(node.type === 'folder'
+          ? [
+              {
+                label: 'New Subfolder',
+                action: () =>
+                  createNode(
+                    node.id,
+                    'folder',
+                    'Folder name:',
+                  ),
+              },
+              {
+                label: 'New Scene',
+                action: () =>
+                  createNode(
+                    node.id,
+                    'scene',
+                    'Scene name:',
+                  ),
+              },
+              {
+                label: 'New Mission',
+                action: () =>
+                  createNode(
+                    node.id,
+                    'mission',
+                    'Mission name:',
+                  ),
+              },
+              {
+                label: 'New Asset',
+                action: () =>
+                  createNode(
+                    node.id,
+                    'asset',
+                    'Asset name:',
+                  ),
+              },
+            ]
+          : []),
+        {
+          label: 'Rename',
+          action: () => startEditing(node.id),
+        },
+        {
+          label: 'Duplicate',
+          action: () => duplicateProjectNode(node.id),
+        },
+        ...(node.parentId
+          ? [
+              {
+                label: 'Move to Root',
+                action: () =>
+                  moveProjectNode(node.id, undefined),
+              },
+            ]
+          : []),
+        {
+          label: 'Delete',
+          danger: true,
+          action: () => confirmDelete(node.id),
+        },
+      ],
+    });
   };
 
   return (
@@ -433,14 +600,14 @@ function ProjectTree({
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search…"
+          placeholder="Search project…"
         />
 
         <select
           value={filterType}
           onChange={(event) =>
             setFilterType(
-              event.target.value as ProjectNode['type'] | 'all',
+              event.target.value as ProjectNodeType | 'all',
             )
           }
         >
@@ -452,29 +619,59 @@ function ProjectTree({
           <option value="scenario">Scenarios</option>
         </select>
 
-        <button
-          type="button"
-          onClick={() => {
-            const name = window.prompt('Folder name:');
-            if (name) {
-              addProjectNode(undefined, 'folder', name);
+        <div className="project-toolbar-buttons">
+          <button
+            type="button"
+            title="New Folder"
+            onClick={() =>
+              createNode(undefined, 'folder', 'Folder name:')
             }
-          }}
-        >
-          + Folder
-        </button>
+          >
+            + Folder
+          </button>
+
+          <button
+            type="button"
+            title="New Scene"
+            onClick={() =>
+              createNode(undefined, 'scene', 'Scene name:')
+            }
+          >
+            + Scene
+          </button>
+
+          <button
+            type="button"
+            title="New Mission"
+            onClick={() =>
+              createNode(undefined, 'mission', 'Mission name:')
+            }
+          >
+            + Mission
+          </button>
+
+          <button
+            type="button"
+            title="New Asset"
+            onClick={() =>
+              createNode(undefined, 'asset', 'Asset name:')
+            }
+          >
+            + Asset
+          </button>
+        </div>
       </div>
 
       {editingNodeId && (
         <div className="project-rename-bar">
           <input
             value={editingName}
-            onChange={(event) => setEditingName(event.target.value)}
+            onChange={(event) =>
+              setEditingName(event.target.value)
+            }
             autoFocus
             onKeyDown={(event) => {
-              if (event.key === 'Enter') {
-                finishEditing();
-              }
+              if (event.key === 'Enter') finishEditing();
               if (event.key === 'Escape') {
                 setEditingNodeId(null);
                 setEditingName('');
@@ -489,16 +686,39 @@ function ProjectTree({
 
       <div
         className="tree"
-        onDragOver={(event) => {
-          event.preventDefault();
-          setDropTargetId(undefined);
-        }}
-        onDrop={(event) => handleDrop(event, undefined)}
+        onDragOver={(event) => event.preventDefault()}
+        onDrop={handleDropOnRoot}
       >
-        {editingNodeId
-          ? renderTree()
-          : renderTree()}
+        {roots.map((node) => (
+          <ProjectTreeNode
+            key={node.id}
+            node={node}
+            nodes={filteredNodes}
+            depth={0}
+            selectedNodeId={selectedNodeId}
+            expandedIds={expandedIds}
+            onToggleExpand={toggleExpand}
+            onSelect={setSelectedNodeId}
+            onCreateChild={(parentId) =>
+              createNode(parentId, 'folder', 'Folder name:')
+            }
+            onRename={startEditing}
+            onDuplicate={duplicateProjectNode}
+            onDelete={confirmDelete}
+            onMoveToRoot={(nodeId) =>
+              moveProjectNode(nodeId, undefined)
+            }
+            onDragStart={handleDragStart}
+            onDropOnNode={handleDropOnNode}
+            onContextMenu={openNodeContextMenu}
+          />
+        ))}
       </div>
+
+      <ContextMenu
+        menu={contextMenu}
+        onClose={() => setContextMenu(null)}
+      />
     </div>
   );
 }
@@ -509,9 +729,7 @@ function InspectorBody({
   target: InspectorTarget | null;
 }): JSX.Element {
   if (!target) {
-    return (
-      <div className="inspector-empty">No selection</div>
-    );
+    return <div className="inspector-empty">No selection</div>;
   }
 
   const categories = Array.from(
@@ -649,6 +867,10 @@ interface DockZoneProps {
   onFloat: (panelId: string) => void;
   onMaximize: (panelId: string) => void;
   onRestore: () => void;
+  onPanelContextMenu: (
+    event: ReactMouseEvent<HTMLElement>,
+    panel: DockPanel,
+  ) => void;
   renderBody: (panelId: string) => JSX.Element;
 }
 
@@ -666,6 +888,7 @@ function DockZone({
   onFloat,
   onMaximize,
   onRestore,
+  onPanelContextMenu,
   renderBody,
 }: DockZoneProps): JSX.Element {
   const visiblePanels = panels.filter(
@@ -713,10 +936,7 @@ function DockZone({
             group[0];
 
           return (
-            <div
-              key={group[0].id}
-              className="dock-group"
-            >
+            <div key={group[0].id} className="dock-group">
               {group.length > 1 && (
                 <div className="dock-tabs">
                   {group.map((panel) => (
@@ -741,9 +961,7 @@ function DockZone({
                 maximized={
                   maximizedPanelId === activeGroupPanel.id
                 }
-                onActivate={() =>
-                  onActivate(activeGroupPanel.id)
-                }
+                onActivate={() => onActivate(activeGroupPanel.id)}
                 onClose={() => onClose(activeGroupPanel.id)}
                 onFloat={() => onFloat(activeGroupPanel.id)}
                 onMaximize={() => {
@@ -756,6 +974,7 @@ function DockZone({
                 onDragStart={(event) =>
                   onDragStart(activeGroupPanel.id, event)
                 }
+                onContextMenu={onPanelContextMenu}
               >
                 {renderBody(activeGroupPanel.id)}
               </PanelChrome>
@@ -778,6 +997,8 @@ export function DockShell(): JSX.Element {
     restorePanel,
     saveDockLayout,
     loadDockLayout,
+    addProjectNode,
+    clearNotifications,
   } = useStudio();
 
   const [draggedPanelId, setDraggedPanelId] = useState<
@@ -789,6 +1010,8 @@ export function DockShell(): JSX.Element {
   const [floatingPositions, setFloatingPositions] = useState<
     Record<string, { x: number; y: number }>
   >({});
+  const [panelContextMenu, setPanelContextMenu] =
+    useState<ContextMenuState | null>(null);
 
   const defaultFloatingPositions = [
     { x: 80, y: 80 },
@@ -923,6 +1146,77 @@ export function DockShell(): JSX.Element {
     }
   };
 
+  const openPanelContextMenu = (
+    event: ReactMouseEvent<HTMLElement>,
+    panel: DockPanel,
+  ): void => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const items: ContextMenuItem[] = [
+      {
+        label: panel.floating ? 'Dock to Center' : 'Float',
+        action: () =>
+          panel.floating
+            ? dockPanel(panel.id, 'center')
+            : undockPanel(panel.id),
+      },
+      {
+        label:
+          state.maximizedPanelId === panel.id
+            ? 'Restore'
+            : 'Maximize',
+        action: () =>
+          state.maximizedPanelId === panel.id
+            ? restorePanel()
+            : maximizePanel(panel.id),
+      },
+      {
+        label: 'Close',
+        danger: true,
+        action: () => handleClosePanel(panel.id),
+      },
+    ];
+
+    if (panel.id === 'project-explorer') {
+      items.unshift(
+        {
+          label: 'New Folder',
+          action: () =>
+            addProjectNode(undefined, 'folder', 'New Folder'),
+        },
+        {
+          label: 'New Scene',
+          action: () =>
+            addProjectNode(undefined, 'scene', 'New Scene'),
+        },
+        {
+          label: 'New Mission',
+          action: () =>
+            addProjectNode(undefined, 'mission', 'New Mission'),
+        },
+        {
+          label: 'New Asset',
+          action: () =>
+            addProjectNode(undefined, 'asset', 'New Asset'),
+        },
+      );
+    }
+
+    if (panel.id === 'console') {
+      items.unshift({
+        label: 'Clear Notifications',
+        action: () => clearNotifications(),
+      });
+    }
+
+    setPanelContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      items,
+    });
+  };
+
   const zoneProps = {
     activePanelId: state.activePanelId,
     maximizedPanelId: state.maximizedPanelId,
@@ -935,6 +1229,7 @@ export function DockShell(): JSX.Element {
     onFloat: undockPanel,
     onMaximize: maximizePanel,
     onRestore: restorePanel,
+    onPanelContextMenu: openPanelContextMenu,
     renderBody,
   };
 
@@ -957,6 +1252,7 @@ export function DockShell(): JSX.Element {
             onDragStart={(event) =>
               handleDragStart(maximizedPanel.id, event)
             }
+            onContextMenu={openPanelContextMenu}
           >
             {renderBody(maximizedPanel.id)}
           </PanelChrome>
@@ -1055,10 +1351,7 @@ export function DockShell(): JSX.Element {
       </div>
 
       {floatingPanels.map((panel, index) => {
-        const position = getFloatingPosition(
-          panel.id,
-          index,
-        );
+        const position = getFloatingPosition(panel.id, index);
 
         return (
           <div
@@ -1082,12 +1375,18 @@ export function DockShell(): JSX.Element {
               onMoveHandlePointerDown={(event) =>
                 startFloatingDrag(panel.id, event)
               }
+              onContextMenu={openPanelContextMenu}
             >
               {renderBody(panel.id)}
             </PanelChrome>
           </div>
         );
       })}
+
+      <ContextMenu
+        menu={panelContextMenu}
+        onClose={() => setPanelContextMenu(null)}
+      />
     </div>
   );
 }
