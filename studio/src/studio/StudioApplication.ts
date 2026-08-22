@@ -314,15 +314,69 @@ export class StudioApplication {
 
   setInspectorPropertyValue(key: string, value: unknown): void {
     try {
-      this.inspector.setPropertyValue(key, value);
-      this.editorShell.addNotification('success', `Updated inspector property ${key}.`);
-    } catch (error) {
-      this.editorShell.addNotification('error', `Update inspector property failed: ${this.errorMessage(error)}`);
-    }
-    this.emit();
-  }
+      const targetId = this.inspector.getSelectedTargetId();
+      if (!targetId) {
+        throw new Error('No inspector target selected.');
+      }
 
-  resetInspectorProperty(key: string): void {
+      this.inspector.setPropertyValue(key, value);
+
+      const projectNode = this.projectExplorer.listNodes().find(
+        (node) => node.id === targetId,
+      );
+
+      if (projectNode) {
+        if (key === 'name') {
+          this.projectExplorer.renameNode(targetId, String(value));
+          this.editorShell.addNotification('success', 'Updated project node ' + key + '.');
+        } else {
+          this.editorShell.addNotification('warning', 'Project property "' + key + '" is read-only.');
+        }
+
+        this.selectProjectNode(targetId);
+        return;
+      }
+
+      const networkNode = this.networkGraphEditor.listNodes().find(
+        (node) => node.id === targetId,
+      );
+
+      if (networkNode) {
+        if (key === 'label') {
+          const edges = this.networkGraphEditor.getConnectedEdges(targetId);
+          const updatedNode = { ...networkNode, label: String(value) };
+
+          this.networkGraphEditor.removeNode(targetId);
+          this.networkGraphEditor.addNode(updatedNode);
+
+          for (const edge of edges) {
+            try {
+              this.networkGraphEditor.addEdge(edge);
+            } catch (edgeError) {
+              // Edge may already exist in a different representation.
+            }
+          }
+        } else if (key === 'subnet') {
+          this.networkGraphEditor.setSubnet(targetId, String(value));
+        } else if (key === 'zone') {
+          this.networkGraphEditor.setZone(targetId, String(value));
+        } else if (key === 'group') {
+          this.networkGraphEditor.setGroup(targetId, String(value));
+        } else {
+          this.editorShell.addNotification('warning', 'Network property "' + key + '" is read-only.');
+        }
+
+        this.selectNetworkNode(targetId);
+        return;
+      }
+
+      this.editorShell.addNotification('warning', 'Selected target "' + targetId + '" is not editable.');
+      this.emit();
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Update inspector property failed: ' + this.errorMessage(error));
+      this.emit();
+    }
+  }  resetInspectorProperty(key: string): void {
     try {
       this.inspector.resetProperty(key);
       this.editorShell.addNotification('success', `Reset inspector property ${key}.`);
