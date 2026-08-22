@@ -249,6 +249,9 @@ interface ProjectTreeNodeProps {
     event: ReactMouseEvent<HTMLElement>,
     node: ProjectNode,
   ) => void;
+  dropTargetId: string | null;
+  onDragOverNode: (nodeId: string) => void;
+  onDragLeaveNode: (nodeId: string) => void;
 }
 
 function ProjectTreeNode({
@@ -267,6 +270,9 @@ function ProjectTreeNode({
   onDragStart,
   onDropOnNode,
   onContextMenu,
+  dropTargetId,
+  onDragOverNode,
+  onDragLeaveNode,
 }: ProjectTreeNodeProps): JSX.Element {
   const [hovered, setHovered] = useState(false);
   const children = nodes.filter(
@@ -279,13 +285,22 @@ function ProjectTreeNode({
       <div
         className={`tree-row ${
           selectedNodeId === node.id ? 'selected' : ''
-        } ${node.type === 'folder' ? 'is-folder' : ''}`}
+        } ${node.type === 'folder' ? 'is-folder' : ''} ${
+          dropTargetId === node.id ? 'drop-target' : ''
+        }`}
         style={{ paddingLeft: `${depth * 14 + 8}px` }}
         draggable
         onDragStart={(event) => onDragStart(event, node.id)}
         onDragOver={(event) => {
           event.preventDefault();
+          event.stopPropagation();
           event.dataTransfer.dropEffect = 'move';
+          onDragOverNode(node.id);
+        }}
+        onDragLeave={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          onDragLeaveNode(node.id);
         }}
         onDrop={(event) => onDropOnNode(event, node.id)}
         onMouseEnter={() => setHovered(true)}
@@ -425,6 +440,9 @@ function ProjectTree({
   const [editingName, setEditingName] = useState('');
   const [contextMenu, setContextMenu] =
     useState<ContextMenuState | null>(null);
+  const [dropTargetId, setDropTargetId] = useState<
+    string | null
+  >(null);
 
   const filteredNodes = nodes.filter((node) => {
     const matchesType =
@@ -501,11 +519,26 @@ function ProjectTree({
     targetNodeId: string,
   ): void => {
     event.preventDefault();
+    event.stopPropagation();
+
     const nodeId = event.dataTransfer.getData(
       'application/x-cyre-project-node',
     );
     if (!nodeId || nodeId === targetNodeId) return;
-    moveProjectNode(nodeId, targetNodeId);
+
+    const targetNode = nodes.find(
+      (entry) => entry.id === targetNodeId,
+    );
+
+    if (!targetNode) return;
+
+    if (targetNode.type === 'folder') {
+      moveProjectNode(nodeId, targetNodeId);
+    } else {
+      moveProjectNode(nodeId, targetNode.parentId);
+    }
+
+    setDropTargetId(null);
   };
 
   const handleDropOnRoot = (
@@ -517,6 +550,7 @@ function ProjectTree({
     );
     if (!nodeId) return;
     moveProjectNode(nodeId, undefined);
+    setDropTargetId(null);
   };
 
   const openNodeContextMenu = (
@@ -711,6 +745,7 @@ function ProjectTree({
             onDragStart={handleDragStart}
             onDropOnNode={handleDropOnNode}
             onContextMenu={openNodeContextMenu}
+            dropTargetId={dropTargetId}
           />
         ))}
       </div>
@@ -999,6 +1034,7 @@ export function DockShell(): JSX.Element {
     loadDockLayout,
     addProjectNode,
     clearNotifications,
+    clearInspectorSelection,
   } = useStudio();
 
   const [draggedPanelId, setDraggedPanelId] = useState<
@@ -1201,6 +1237,13 @@ export function DockShell(): JSX.Element {
             addProjectNode(undefined, 'asset', 'New Asset'),
         },
       );
+    }
+
+    if (panel.id === 'inspector') {
+      items.unshift({
+        label: 'Clear Selection',
+        action: () => clearInspectorSelection(),
+      });
     }
 
     if (panel.id === 'console') {

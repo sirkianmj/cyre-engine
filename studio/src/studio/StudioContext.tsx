@@ -74,6 +74,7 @@ export interface StudioContextValue {
   ) => void;
 
   clearNotifications: () => void;
+  clearInspectorSelection: () => void;
 
   play: () => void;
   pause: () => void;
@@ -185,6 +186,9 @@ export function StudioProvider({
 
       clearNotifications: () =>
         studioApplication.clearNotifications(),
+
+      clearInspectorSelection: () =>
+        studioApplication.clearInspectorSelection(),
 
       play: () => studioApplication.play(),
       pause: () => studioApplication.pause(),

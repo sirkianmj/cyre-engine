@@ -1615,3 +1615,9 @@ select {
 .project-toolbar-buttons button {
   white-space: nowrap;
 }
+
+
+.tree-row.drop-target {
+  background: rgba(91, 170, 255, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(91, 170, 255, 0.45);
+}

@@ -246,7 +246,24 @@ export class StudioApplication {
     this.emit();
   }
 
-  togglePanel(panelId: string): void {
+  clearInspectorSelection(): void {
+    try {
+      this.inspector.clearSelection();
+      this.editorShell.addNotification(
+        'success',
+        'Inspector selection cleared.',
+      );
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Clear inspector selection failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+    togglePanel(panelId: string): void {
     try {
       const panel = this.editorShell.getPanel(panelId);
       this.setPanelVisible(panelId, !panel.isVisible);
