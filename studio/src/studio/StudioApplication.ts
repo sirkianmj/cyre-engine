@@ -32,6 +32,11 @@ import type {
 
 type PlayModeState = ReturnType<PlayModeController['getState']>;
 
+export interface DockLayoutSummary {
+  id: string;
+  name: string;
+}
+
 export interface StudioSnapshot {
   projectTitle: string;
   statusMessage: string;
@@ -55,6 +60,7 @@ export interface StudioSnapshot {
   dockPanels: DockPanel[];
   maximizedPanelId: string | null;
   activePanelId: string | null;
+  savedDockLayouts: DockLayoutSummary[];
 }
 
 interface PanelInit {
@@ -85,6 +91,63 @@ export class StudioApplication {
   private currentProject: ProjectModel | null = null;
   private activeWorkspaceId: string | null = null;
   private lastSerializedProject: string | null = null;
+
+  private readonly defaultDockAreas = new Map<string, DockArea>();
+  private dockLayoutStorageKeyFor(workspaceId: string | null): string {
+    return `cyre.studio.dockLayouts.${workspaceId ?? 'global'}`;
+  }
+
+  private get currentDockLayoutStorageKey(): string {
+    return this.dockLayoutStorageKeyFor(this.activeWorkspaceId);
+  }
+
+  private getActiveWorkspaceLayout(): DockLayout | null {
+    try {
+      const key = `${this.currentDockLayoutStorageKey}.active`;
+      const raw = window.localStorage.getItem(key);
+      if (!raw) {
+        return null;
+      }
+      return JSON.parse(raw) as DockLayout;
+    } catch {
+      return null;
+    }
+  }
+
+  private setActiveWorkspaceLayout(layout: DockLayout): void {
+    try {
+      const key = `${this.currentDockLayoutStorageKey}.active`;
+      window.localStorage.setItem(key, JSON.stringify(layout));
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Failed to persist active layout: ${this.errorMessage(error)}`,
+      );
+    }
+  }
+
+  private restoreActiveWorkspaceLayout(workspaceId: string): void {
+    this.activeWorkspaceId = workspaceId;
+
+    const activeLayout = this.getActiveWorkspaceLayout();
+    if (activeLayout) {
+      try {
+        this.dockManager.restoreLayout(activeLayout);
+        this.editorShell.setStatusMessage(
+          `Workspace: ${workspaceId} (custom layout)`,
+        );
+        return;
+      } catch (error) {
+        this.editorShell.addNotification(
+          'error',
+          `Restoring saved layout failed: ${this.errorMessage(error)}`,
+        );
+      }
+    }
+
+    this.workspaceManager.activateWorkspace(workspaceId, this.dockManager);
+    this.editorShell.setStatusMessage(`Workspace: ${workspaceId}`);
+  }
 
   private readonly listeners = new Set<() => void>();
   private snapshot: StudioSnapshot | null = null;
@@ -178,17 +241,7 @@ export class StudioApplication {
       return;
     }
 
-    try {
-      this.workspaceManager.activateWorkspace(workspaceId, this.dockManager);
-      this.activeWorkspaceId = workspaceId;
-      this.editorShell.setStatusMessage(`Workspace: ${workspaceId}`);
-    } catch (error) {
-      this.editorShell.addNotification(
-        'error',
-        `Workspace activation failed: ${this.errorMessage(error)}`,
-      );
-    }
-
+    this.restoreActiveWorkspaceLayout(workspaceId);
     this.emit();
   }
 
@@ -210,6 +263,14 @@ export class StudioApplication {
     try {
       this.editorShell.setPanelVisible(panelId, visible);
       this.dockManager.setPanelVisible(panelId, visible);
+
+      if (visible) {
+        const dockPanel = this.dockManager.getPanel(panelId);
+        if (dockPanel.floating) {
+          const defaultArea = this.defaultDockAreas.get(panelId) ?? 'center';
+          this.dockManager.dockPanel(panelId, defaultArea);
+        }
+      }
     } catch (error) {
       this.editorShell.addNotification(
         'error',
@@ -535,6 +596,8 @@ export class StudioApplication {
         order: panel.order,
         visible: true,
       });
+
+      this.defaultDockAreas.set(panel.id, panel.dockArea);
     }
 
     this.registerMenuGroups();
@@ -825,6 +888,147 @@ export class StudioApplication {
     return `${slug}-${Date.now().toString(36)}`;
   }
 
+  saveDockLayout(name: string): void {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      throw new Error('Layout name is required.');
+    }
+
+    try {
+      const namedKey = `${this.currentDockLayoutStorageKey}.named`;
+      const raw = window.localStorage.getItem(namedKey);
+      const layouts = raw
+        ? (JSON.parse(raw) as Record<string, DockLayout>)
+        : {};
+
+      const layout = this.dockManager.getLayout();
+      layouts[trimmedName] = layout;
+
+      window.localStorage.setItem(
+        namedKey,
+        JSON.stringify(layouts),
+      );
+
+      this.setActiveWorkspaceLayout(layout);
+
+      this.editorShell.addNotification(
+        'success',
+        `Layout "${trimmedName}" saved.`,
+      );
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Save layout failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  listDockLayouts(): DockLayoutSummary[] {
+    try {
+      const namedKey = `${this.currentDockLayoutStorageKey}.named`;
+      const raw = window.localStorage.getItem(namedKey);
+      if (!raw) {
+        return [];
+      }
+
+      const layouts = JSON.parse(raw) as Record<string, DockLayout>;
+      return Object.entries(layouts).map(([name]) => ({
+        id: name,
+        name,
+      }));
+    } catch {
+      return [];
+    }
+  }
+
+  loadDockLayout(name: string): void {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      throw new Error('Layout name is required.');
+    }
+
+    try {
+      const namedKey = `${this.currentDockLayoutStorageKey}.named`;
+      const raw = window.localStorage.getItem(namedKey);
+      if (!raw) {
+        throw new Error('No saved layouts found.');
+      }
+
+      const layouts = JSON.parse(raw) as Record<string, DockLayout>;
+      const layout = layouts[trimmedName];
+
+      if (!layout) {
+        throw new Error(
+          `Layout "${trimmedName}" does not exist.`,
+        );
+      }
+
+      this.dockManager.restoreLayout(layout);
+      this.setActiveWorkspaceLayout(layout);
+
+      this.editorShell.addNotification(
+        'success',
+        `Layout "${trimmedName}" loaded.`,
+      );
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Load layout failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
+  deleteDockLayout(name: string): void {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      throw new Error('Layout name is required.');
+    }
+
+    try {
+      const namedKey = `${this.currentDockLayoutStorageKey}.named`;
+      const raw = window.localStorage.getItem(namedKey);
+      if (!raw) {
+        throw new Error('No saved layouts found.');
+      }
+
+      const layouts = JSON.parse(raw) as Record<string, DockLayout>;
+      if (!layouts[trimmedName]) {
+        throw new Error(
+          `Layout "${trimmedName}" does not exist.`,
+        );
+      }
+
+      delete layouts[trimmedName];
+      window.localStorage.setItem(namedKey, JSON.stringify(layouts));
+
+      const activeLayout = this.getActiveWorkspaceLayout();
+      if (
+        activeLayout &&
+        JSON.stringify(activeLayout) === JSON.stringify(layouts[trimmedName])
+      ) {
+        window.localStorage.removeItem(
+          `${this.currentDockLayoutStorageKey}.active`,
+        );
+      }
+
+      this.editorShell.addNotification(
+        'success',
+        `Layout "${trimmedName}" deleted.`,
+      );
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Delete layout failed: ${this.errorMessage(error)}`,
+      );
+    }
+
+    this.emit();
+  }
+
   private toEditorDockPosition(
     area: DockArea,
   ): EditorPanel['dockPosition'] {
@@ -870,6 +1074,7 @@ export class StudioApplication {
         this.dockManager.getMaximizedPanelId() ?? null,
       activePanelId:
         this.dockManager.getActivePanelId() ?? null,
+      savedDockLayouts: this.listDockLayouts(),
     };
   }
 
