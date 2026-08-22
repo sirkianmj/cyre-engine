@@ -292,7 +292,7 @@ export function StudioShell(): JSX.Element {
 
       <nav className="studio-menubar" ref={menuRef}>
         {state.menuGroups.map((group) => (
-          <div key={group.id} className="menu-wrapper">
+          <div key={group.id} className="menu-wrapper" onMouseEnter={() => setOpenMenuId(group.id)} onMouseLeave={() => setOpenMenuId(null)}>
             <button
               className="menu-trigger"
               aria-expanded={openMenuId === group.id}
