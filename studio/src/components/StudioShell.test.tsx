@@ -92,3 +92,23 @@ describe('Phase 01: Inspector / Palette / Multi-Selection', () => {
     )?.value).toBe('Renamed Node');
   });
 });
+
+describe('Phase 03: Graph Editors', () => {
+  it('adds attack graph node', () => {
+    const app = new StudioApplication();
+    app.addAttackGraphNode('Initial Access', 'hidden');
+    expect(app.getState().attackGraphNodes.length).toBe(1);
+  });
+
+  it('adds evidence graph node', () => {
+    const app = new StudioApplication();
+    app.addEvidenceGraphNode('Suspicious Login', 'alert');
+    expect(app.getState().evidenceGraphNodes.length).toBe(1);
+  });
+
+  it('adds timeline entry', () => {
+    const app = new StudioApplication();
+    app.addTimelineEntry(1, 'Investigation Start', 'phase');
+    expect(app.getState().timelineEntries.length).toBe(1);
+  });
+});
