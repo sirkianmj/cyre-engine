@@ -1,76 +1,34 @@
 :root {
-
-  --cyre-bg:
-    #080b12;
-
-  --cyre-panel:
-    rgba(18,24,36,0.78);
-
-  --cyre-panel-solid:
-    #111827;
-
-  --cyre-border:
-    rgba(255,255,255,0.08);
-
-  --cyre-border-hover:
-    rgba(255,255,255,0.18);
-
-  --cyre-text:
-    #f5f7fb;
-
-  --cyre-text-muted:
-    #9ca3af;
-
-  --cyre-blue:
-    #4da3ff;
-
-  --cyre-green:
-    #4ade80;
-
-  --cyre-danger:
-    #fb7185;
-
-  --cyre-radius:
-    14px;
-
-  --cyre-shadow:
-    0 20px 60px rgba(0,0,0,.35);
-
+  --cyre-bg: #070a12;
+  --cyre-panel: rgba(16, 22, 34, 0.88);
+  --cyre-panel-solid: #101826;
+  --cyre-border: rgba(255, 255, 255, 0.08);
+  --cyre-border-hover: rgba(255, 255, 255, 0.18);
+  --cyre-text: #f5f7fb;
+  --cyre-text-muted: #8f9bb3;
+  --cyre-blue: #4da3ff;
+  --cyre-green: #4ade80;
+  --cyre-danger: #fb7185;
+  --cyre-radius: 16px;
+  --cyre-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
 }
-
 
 *,
 *::before,
 *::after {
-
-  box-sizing:border-box;
-
+  box-sizing: border-box;
 }
-
 
 html,
 body,
 #root {
-
-  width:100%;
-  height:100%;
-
-  margin:0;
-
-  overflow:hidden;
-
-  background:
-    radial-gradient(
-      circle at top,
-      #162033,
-      var(--cyre-bg)
-    );
-
-  color:var(--cyre-text);
-
-
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: #070a12;
+  color: var(--cyre-text);
   font-family:
-
     -apple-system,
     BlinkMacSystemFont,
     "SF Pro Display",
@@ -78,530 +36,636 @@ body,
     Inter,
     system-ui,
     sans-serif;
-
 }
 
-
-
-/*
-=========================
- CYRE APPLICATION ROOT
-=========================
-*/
-
-
-.cyre-app {
-
-  width:100%;
-  height:100%;
-
-  display:flex;
-
-  flex-direction:column;
-
+button {
+  border: none;
+  outline: none;
+  font-family: inherit;
+  cursor: pointer;
 }
 
+select {
+  background: #0b111c;
+  color: var(--cyre-text);
+  border: 1px solid var(--cyre-border);
+  border-radius: 8px;
+  padding: 5px 8px;
+  font-size: 12px;
+}
 
+/* ===== APPLICATION ROOT ===== */
 
-/*
-=========================
- GLASS PANELS
-=========================
-*/
-
-
-.cyre-panel {
-
+.cyre-studio {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background:
-    var(--cyre-panel);
-
-  border:
-
-    1px solid
-    var(--cyre-border);
-
-
-  backdrop-filter:
-
-    blur(20px);
-
-
-  -webkit-backdrop-filter:
-
-    blur(20px);
-
-
-  box-shadow:
-
-    var(--cyre-shadow);
-
-
-  border-radius:
-
-    var(--cyre-radius);
-
+    radial-gradient(
+      circle at top center,
+      rgba(25, 45, 75, 0.45),
+      transparent 40%
+    ),
+    var(--cyre-bg);
+  color: var(--cyre-text);
 }
 
+/* ===== TITLE BAR ===== */
 
-
-/*
-=========================
- MENU BAR
-=========================
-*/
-
-
-.cyre-menu-bar {
-
-  height:42px;
-
-  display:flex;
-
-  align-items:center;
-
-  padding:
-
-    0 14px;
-
-
-  gap:8px;
-
-
-  background:
-
-    rgba(10,15,25,.9);
-
-
-  border-bottom:
-
-    1px solid
-    var(--cyre-border);
-
+.studio-titlebar {
+  flex: 0 0 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 14px;
+  background: rgba(8, 11, 18, 0.94);
+  border-bottom: 1px solid var(--cyre-border);
 }
 
-
-
-.cyre-menu-item {
-
-  padding:
-
-    6px 12px;
-
-
-  border-radius:8px;
-
-
-  color:
-
-    var(--cyre-text-muted);
-
-
-  cursor:pointer;
-
-
-  transition:.2s;
-
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-
-.cyre-menu-item:hover {
-
-  background:
-
-    rgba(255,255,255,.08);
-
-
-  color:white;
-
+.brand-mark {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #1e3b66, #0a84ff);
+  font-weight: 800;
+  font-size: 14px;
+  color: white;
+  box-shadow: 0 0 18px rgba(10, 132, 255, 0.35);
 }
 
-
-
-/*
-=========================
- TOOLBAR
-=========================
-*/
-
-
-.cyre-toolbar {
-
-  height:52px;
-
-  display:flex;
-
-  align-items:center;
-
-  gap:8px;
-
-  padding:
-
-    0 14px;
-
-
-  border-bottom:
-
-    1px solid
-    var(--cyre-border);
-
-
+.brand strong {
+  display: block;
+  font-size: 14px;
+  letter-spacing: 0.04em;
 }
 
-
-
-.cyre-tool-button {
-
-
-  width:34px;
-
-  height:34px;
-
-
-  display:flex;
-
-  align-items:center;
-
-  justify-content:center;
-
-
-  border-radius:10px;
-
-
-  background:
-
-    rgba(255,255,255,.06);
-
-
-  color:white;
-
-
-  cursor:pointer;
-
-
-  transition:
-
-    transform .18s ease,
-    background .18s ease;
-
-
+.brand span {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--cyre-text-muted);
 }
 
-
-
-.cyre-tool-button:hover {
-
-
-  background:
-
-    rgba(77,163,255,.25);
-
-
-  transform:
-
-    translateY(-2px);
-
+.project-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--cyre-text-muted);
 }
 
-
-
-/*
-=========================
- EDITOR LAYOUT
-=========================
-*/
-
-
-.cyre-editor {
-
-  flex:1;
-
-  display:grid;
-
-
-  grid-template-columns:
-
-    260px
-    minmax(400px,1fr)
-    320px;
-
-
-  grid-template-rows:
-
-    1fr
-    220px;
-
-
-  gap:8px;
-
-
-  padding:8px;
-
+.project-title .saved {
+  color: var(--cyre-green);
 }
 
+.title-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
+.title-actions button {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--cyre-text);
+  font-size: 12px;
+}
 
-/*
-=========================
- PANELS
-=========================
-*/
+/* ===== MENU BAR ===== */
 
+.studio-menubar {
+  flex: 0 0 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 10px;
+  background: rgba(10, 14, 24, 0.94);
+  border-bottom: 1px solid var(--cyre-border);
+}
 
-.cyre-explorer,
-.cyre-inspector,
-.cyre-console,
+.menu-wrapper {
+  position: relative;
+}
+
+.menu-trigger {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--cyre-text-muted);
+  font-size: 12px;
+}
+
+.menu-trigger:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--cyre-text);
+}
+
+.menu-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 100;
+  min-width: 220px;
+  padding: 6px;
+  border-radius: 12px;
+  background: var(--cyre-panel-solid);
+  border: 1px solid var(--cyre-border);
+  box-shadow: var(--cyre-shadow);
+}
+
+.menu-wrapper:hover .menu-dropdown,
+.menu-wrapper:focus-within .menu-dropdown {
+  display: block;
+}
+
+.menu-dropdown button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--cyre-text);
+  font-size: 12px;
+  text-align: left;
+}
+
+.menu-dropdown button:hover {
+  background: rgba(77, 163, 255, 0.16);
+}
+
+.menu-shortcut {
+  color: var(--cyre-text-muted);
+  font-size: 11px;
+}
+
+.menu-spacer {
+  flex: 1;
+}
+
+.engine-state {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--cyre-text-muted);
+}
+
+.engine-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyre-green);
+  box-shadow: 0 0 10px var(--cyre-green);
+}
+
+/* ===== TOOLBAR ===== */
+
+.studio-toolbar {
+  flex: 0 0 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px;
+  background: rgba(8, 11, 18, 0.92);
+  border-bottom: 1px solid var(--cyre-border);
+}
+
+.transport {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.transport button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--cyre-text);
+  font-size: 13px;
+}
+
+.transport button.active {
+  background: rgba(77, 163, 255, 0.25);
+}
+
+.transport button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 6px;
+  font-size: 11px;
+  color: var(--cyre-text-muted);
+}
+
+.workspace-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.workspace-tabs button {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--cyre-text-muted);
+  font-size: 12px;
+}
+
+.workspace-tabs button.active {
+  background: rgba(77, 163, 255, 0.18);
+  color: var(--cyre-text);
+}
+
+.toolbar-status {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--cyre-text-muted);
+}
+
+.toolbar-status .running {
+  color: var(--cyre-green);
+}
+
+.toolbar-status .paused {
+  color: #fbbf24;
+}
+
+.toolbar-status .stopped {
+  color: var(--cyre-text-muted);
+}
+
+/* ===== MAIN LAYOUT ===== */
+
+.studio-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr) 320px;
+  gap: 8px;
+  padding: 8px;
+  overflow: hidden;
+}
+
+.layout-panel {
+  min-height: 0;
+  height: 100%;
+  background: var(--cyre-panel);
+  border: 1px solid var(--cyre-border);
+  border-radius: var(--cyre-radius);
+  overflow: hidden;
+  box-shadow: var(--cyre-shadow);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.project-panel,
+.inspector-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.studio-center {
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.workspace-header {
+  flex: 0 0 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  background: var(--cyre-panel);
+  border: 1px solid var(--cyre-border);
+  border-radius: var(--cyre-radius);
+}
+
+.workspace-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--cyre-blue);
+}
+
+.workspace-header h1 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.workspace-content {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  background: rgba(8, 12, 20, 0.55);
+  border: 1px solid var(--cyre-border);
+  border-radius: var(--cyre-radius);
+}
+
+/* ===== VIEWPORT ===== */
+
 .cyre-viewport {
-
-
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background:
-
-    var(--cyre-panel);
-
-
-  border:
-
-    1px solid
-    var(--cyre-border);
-
-
-  border-radius:
-
-    var(--cyre-radius);
-
-
-  overflow:hidden;
-
-
+    radial-gradient(
+      circle at center,
+      rgba(40, 80, 130, 0.18),
+      transparent 60%
+    ),
+    #080c14;
 }
 
-
-
-/*
-=========================
- VIEWPORT
-=========================
-*/
-
-
-.cyre-viewport {
-
-
-  position:relative;
-
-
-  min-height:400px;
-
-
+.cyre-viewport svg {
+  width: 100%;
+  height: 100%;
 }
 
+.viewport-empty {
+  flex-direction: column;
+  gap: 8px;
+  color: var(--cyre-text-muted);
+}
 
+.network-edge {
+  stroke: rgba(77, 163, 255, 0.3);
+  stroke-width: 2;
+}
 
-/*
-=========================
- CONSOLE
-=========================
-*/
+.network-node circle {
+  fill: rgba(77, 163, 255, 0.14);
+  stroke: rgba(77, 163, 255, 0.85);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 10px rgba(77, 163, 255, 0.25));
+}
 
+.network-node text {
+  fill: var(--cyre-text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.network-node .node-meta {
+  fill: var(--cyre-text-muted);
+  font-size: 10px;
+  font-weight: 400;
+}
+
+/* ===== PANEL HEADER ===== */
+
+.panel-header {
+  flex: 0 0 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--cyre-border);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--cyre-text-muted);
+}
+
+.panel-header strong {
+  color: var(--cyre-text);
+  font-size: 12px;
+  letter-spacing: 0;
+}
+
+/* ===== PROJECT TREE ===== */
+
+.tree {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px;
+}
+
+.tree-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--cyre-text-muted);
+  font-size: 12px;
+  text-align: left;
+}
+
+.tree-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--cyre-text);
+}
+
+/* ===== INSPECTOR ===== */
+
+.inspector-empty {
+  padding: 20px;
+  color: var(--cyre-text-muted);
+  text-align: center;
+}
+
+.inspector-section {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.section-title {
+  margin-bottom: 8px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--cyre-text-muted);
+}
+
+.property-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 12px;
+}
+
+.property-row span {
+  color: var(--cyre-text-muted);
+}
+
+.property-row strong {
+  color: var(--cyre-text);
+  font-weight: 600;
+  text-align: right;
+}
+
+/* ===== CONSOLE ===== */
 
 .cyre-console {
+  flex: 0 0 180px;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--cyre-panel);
+  border: 1px solid var(--cyre-border);
+  border-radius: var(--cyre-radius);
+}
 
+.cyre-console .panel-header {
+  background: rgba(255, 255, 255, 0.02);
+}
 
-  grid-column:
-
-    1 / 4;
-
-
-  overflow:auto;
-
-
-  padding:
-
-    12px;
-
-
+.console-output {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 10px 14px;
   font-family:
-
     "SFMono-Regular",
     Menlo,
     Monaco,
     monospace;
-
-
-  font-size:
-
-    13px;
-
-
+  font-size: 12px;
 }
 
-
-
-/*
-=========================
- SCROLLBARS
-=========================
-*/
-
-
-::-webkit-scrollbar {
-
-  width:8px;
-
+.console-empty {
+  color: var(--cyre-text-muted);
 }
 
-
-::-webkit-scrollbar-track {
-
-  background:
-
-    transparent;
-
+.console-line {
+  display: flex;
+  gap: 10px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
-
-::-webkit-scrollbar-thumb {
-
-
-  background:
-
-    rgba(255,255,255,.15);
-
-
-  border-radius:
-
-    20px;
-
+.console-line span {
+  color: var(--cyre-text-muted);
 }
 
-
-
-/*
-=========================
- BUTTON SYSTEM
-=========================
-*/
-
-
-button {
-
-
-  border:none;
-
-
-  outline:none;
-
-
-  font-family:inherit;
-
-
+.console-line strong {
+  min-width: 58px;
+  font-size: 10px;
 }
 
-
-
-button:hover {
-
-  filter:
-
-    brightness(1.15);
-
+.console-info strong {
+  color: var(--cyre-blue);
 }
 
-
-
-button:active {
-
-  transform:
-
-    scale(.96);
-
+.console-success strong {
+  color: var(--cyre-green);
 }
 
-
-
-/*
-=========================
- RESPONSIVE
-=========================
-*/
-
-
-@media(max-width:1100px){
-
-
-.cyre-editor {
-
-grid-template-columns:
-
-220px
-1fr;
-
-
+.console-warning strong {
+  color: #fbbf24;
 }
 
-
-.cyre-inspector {
-
-display:none;
-
+.console-error strong {
+  color: var(--cyre-danger);
 }
 
+/* ===== STATUS BAR ===== */
 
+.studio-statusbar {
+  flex: 0 0 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: rgba(8, 11, 18, 0.94);
+  border-top: 1px solid var(--cyre-border);
+  font-size: 11px;
+  color: var(--cyre-text-muted);
 }
 
-
-
-@media(max-width:700px){
-
-
-.cyre-editor {
-
-
-grid-template-columns:
-
-1fr;
-
-
+.status-online {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cyre-green);
+  box-shadow: 0 0 10px var(--cyre-green);
 }
 
-
-.cyre-explorer {
-
-display:none;
-
+.status-center {
+  display: flex;
+  gap: 12px;
 }
 
+/* ===== RESPONSIVE ===== */
 
+@media (max-width: 1100px) {
+  .studio-layout {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .inspector-panel {
+    display: none;
+  }
+
+  .studio-center {
+    grid-column: 2;
+  }
 }
 
+@media (max-width: 700px) {
+  .studio-layout {
+    grid-template-columns: 1fr;
+  }
 
-.cyre-viewport {
+  .project-panel {
+    display: none;
+  }
 
-  width:100%;
-  height:100%;
+  .studio-center {
+    grid-column: 1;
+  }
 
-  display:block;
-
-  background:
-    radial-gradient(
-      circle at center,
-      rgba(40,80,130,.18),
-      transparent 60%
-    ),
-    #080c14;
-
+  .cyre-console {
+    flex-basis: 160px;
+    height: 160px;
+  }
 }
-
-
-.workspace-content {
-
-  flex:1;
-
-  min-height:0;
-
-  position:relative;
-
-  overflow:hidden;
-
-}
-
-

@@ -64,7 +64,7 @@ function ProjectExplorerPanel({
   const roots = nodes.filter((node) => !node.parentId);
 
   return (
-    <aside className="layout-panel project-panel">
+    <aside className="project-panel">
       <div className="panel-header">
         <span>PROJECT</span>
       </div>
@@ -90,7 +90,7 @@ function InspectorPanel({
 }): JSX.Element {
   if (!target) {
     return (
-      <aside className="layout-panel inspector-panel">
+      <aside className="inspector-panel">
         <div className="panel-header">
           <span>INSPECTOR</span>
         </div>
