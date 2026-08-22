@@ -1,15 +1,18 @@
 import {
+  AttackGraphEditor,
   CommandPalette,
   CyberEntityPalette,
   DockManager,
   EditorShell,
   Engine,
+  EvidenceGraphEditor,
   Inspector,
   MultiSelectionManager,
   NetworkGraphEditor,
   PlayModeController,
   ProjectExplorer,
   ProjectManager,
+  TimelineEditor,
   WorkspaceManager,
 } from '@cyre/engine';
 
@@ -17,7 +20,12 @@ import type {
   DockArea,
   DockLayout,
   DockPanel,
+  EditorAttackGraphNode,
+  EditorAttackGraphEdge,
   EditorCommand,
+  EditorEvidenceGraphNode,
+  EditorEvidenceGraphEdge,
+  EditorTimelineEntry,
   EditorNotification,
   EditorPanel,
   InspectorTarget,
@@ -70,6 +78,11 @@ export interface StudioSnapshot {
   selectionCount: number;
   entityPaletteItems: CyberEntityPaletteItem[];
   entityPaletteCategories: string[];
+  attackGraphNodes: EditorAttackGraphNode[];
+  attackGraphEdges: EditorAttackGraphEdge[];
+  evidenceGraphNodes: EditorEvidenceGraphNode[];
+  evidenceGraphEdges: EditorEvidenceGraphEdge[];
+  timelineEntries: EditorTimelineEntry[];
 }
 
 interface PanelInit {
@@ -98,6 +111,9 @@ export class StudioApplication {
   private networkGraphEditor = new NetworkGraphEditor();
   private readonly cyberEntityPalette = new CyberEntityPalette();
   private readonly multiSelectionManager = new MultiSelectionManager();
+  private readonly attackGraphEditor = new AttackGraphEditor();
+  private readonly evidenceGraphEditor = new EvidenceGraphEditor();
+  private readonly timelineEditor = new TimelineEditor();
 
   private currentProject: ProjectModel | null = null;
   private activeWorkspaceId: string | null = null;
@@ -745,6 +761,80 @@ export class StudioApplication {
     this.emit();
   }
 
+    addAttackGraphNode(label: string, status: string = 'hidden', stage?: string): void {
+    try {
+      const node: EditorAttackGraphNode = {
+        id: 'attack-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+        label: label.trim() || 'Attack Node',
+        status: status as EditorAttackGraphNode['status'],
+        stage: stage || undefined,
+      };
+      this.attackGraphEditor.addNode(node);
+      this.editorShell.addNotification('success', 'Attack node added.');
+    } catch (error) { this.editorShell.addNotification('error', 'Add attack node failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  connectAttackGraphNodes(sourceId: string, targetId: string): void {
+    try { this.attackGraphEditor.connect(sourceId, targetId); this.editorShell.addNotification('success', 'Attack nodes connected.'); }
+    catch (error) { this.editorShell.addNotification('error', 'Connect attack nodes failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  removeAttackGraphNode(nodeId: string): void {
+    try { this.attackGraphEditor.removeNode(nodeId); this.editorShell.addNotification('success', 'Attack node removed.'); }
+    catch (error) { this.editorShell.addNotification('error', 'Remove attack node failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  addEvidenceGraphNode(label: string, type: string = 'evidence'): void {
+    try {
+      const node: EditorEvidenceGraphNode = {
+        id: 'evidence-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+        label: label.trim() || 'Evidence Node',
+        type: type as EditorEvidenceGraphNode['type'],
+        timestamp: Date.now(),
+      };
+      this.evidenceGraphEditor.addNode(node);
+      this.editorShell.addNotification('success', 'Evidence node added.');
+    } catch (error) { this.editorShell.addNotification('error', 'Add evidence node failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  connectEvidenceGraphNodes(sourceId: string, targetId: string, relationType: string = 'references'): void {
+    try {
+      this.evidenceGraphEditor.connect(sourceId, targetId, relationType as EditorEvidenceGraphEdge['type']);
+      this.editorShell.addNotification('success', 'Evidence nodes connected.');
+    } catch (error) { this.editorShell.addNotification('error', 'Connect evidence nodes failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  removeEvidenceGraphNode(nodeId: string): void {
+    try { this.evidenceGraphEditor.removeNode(nodeId); this.editorShell.addNotification('success', 'Evidence node removed.'); }
+    catch (error) { this.editorShell.addNotification('error', 'Remove evidence node failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  addTimelineEntry(timestamp: number, label: string, type: string = 'event'): void {
+    try {
+      const entry: EditorTimelineEntry = {
+        id: 'timeline-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+        timestamp,
+        label: label.trim() || 'Timeline Entry',
+        type: type as EditorTimelineEntry['type'],
+      };
+      this.timelineEditor.addEntry(entry);
+      this.editorShell.addNotification('success', 'Timeline entry added.');
+    } catch (error) { this.editorShell.addNotification('error', 'Add timeline entry failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  removeTimelineEntry(entryId: string): void {
+    try { this.timelineEditor.removeEntry(entryId); this.editorShell.addNotification('success', 'Timeline entry removed.'); }
+    catch (error) { this.editorShell.addNotification('error', 'Remove timeline entry failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
     play(): void {
     try {
       this.playModeController.start();
@@ -905,6 +995,27 @@ export class StudioApplication {
         editorDock: 'left',
         dockArea: 'left',
         order: 5,
+      },
+      {
+        id: 'attack-graph',
+        title: 'Attack Graph',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 6,
+      },
+      {
+        id: 'evidence-graph',
+        title: 'Evidence Graph',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 7,
+      },
+      {
+        id: 'timeline-editor',
+        title: 'Timeline',
+        editorDock: 'bottom',
+        dockArea: 'bottom',
+        order: 8,
       },
     ];
 
@@ -1317,6 +1428,11 @@ export class StudioApplication {
       selectionCount: this.multiSelectionManager.getSelectionCount(),
       entityPaletteItems: this.cyberEntityPalette.listItems(),
       entityPaletteCategories: this.cyberEntityPalette.listCategories(),
+      attackGraphNodes: this.attackGraphEditor.listNodes(),
+      attackGraphEdges: this.attackGraphEditor.listEdges(),
+      evidenceGraphNodes: this.evidenceGraphEditor.listNodes(),
+      evidenceGraphEdges: this.evidenceGraphEditor.listEdges(),
+      timelineEntries: this.timelineEditor.listEntries(),
     };
   }
 

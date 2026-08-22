@@ -100,6 +100,15 @@ export interface StudioContextValue {
   ) => NetworkGraphNode[];
   validateNetworkGraph: () => void;
 
+  addAttackGraphNode: (label: string, status?: string, stage?: string) => void;
+  connectAttackGraphNodes: (sourceId: string, targetId: string) => void;
+  removeAttackGraphNode: (nodeId: string) => void;
+  addEvidenceGraphNode: (label: string, type?: string) => void;
+  connectEvidenceGraphNodes: (sourceId: string, targetId: string, relationType?: string) => void;
+  removeEvidenceGraphNode: (nodeId: string) => void;
+  addTimelineEntry: (timestamp: number, label: string, type?: string) => void;
+  removeTimelineEntry: (entryId: string) => void;
+
   notify: (
     level: StudioNotificationLevel,
     message: string,
@@ -254,6 +263,30 @@ export function StudioProvider({
 
       validateNetworkGraph: () =>
         studioApplication.validateNetworkGraph(),
+
+      addAttackGraphNode: (label, status, stage) =>
+        studioApplication.addAttackGraphNode(label, status, stage),
+
+      connectAttackGraphNodes: (sourceId, targetId) =>
+        studioApplication.connectAttackGraphNodes(sourceId, targetId),
+
+      removeAttackGraphNode: (nodeId) =>
+        studioApplication.removeAttackGraphNode(nodeId),
+
+      addEvidenceGraphNode: (label, type) =>
+        studioApplication.addEvidenceGraphNode(label, type),
+
+      connectEvidenceGraphNodes: (sourceId, targetId, relationType) =>
+        studioApplication.connectEvidenceGraphNodes(sourceId, targetId, relationType),
+
+      removeEvidenceGraphNode: (nodeId) =>
+        studioApplication.removeEvidenceGraphNode(nodeId),
+
+      addTimelineEntry: (timestamp, label, type) =>
+        studioApplication.addTimelineEntry(timestamp, label, type),
+
+      removeTimelineEntry: (entryId) =>
+        studioApplication.removeTimelineEntry(entryId),
 
       notify: (level, message) =>
         studioApplication.notify(level, message),

@@ -25,6 +25,7 @@ import type {
 
 import { useStudio } from '../studio/StudioContext';
 import { Viewport } from './Viewport';
+import { AttackGraphPanel, EvidenceGraphPanel, TimelinePanel } from './CyberGraphPanels';
 
 const nodeIcons: Record<string, string> = {
   folder: '▾',
@@ -1065,6 +1066,15 @@ function getPanelBody(
 
     case 'entity-palette':
       return <EntityPalettePanel />;
+
+    case 'attack-graph':
+      return <AttackGraphPanel />;
+
+    case 'evidence-graph':
+      return <EvidenceGraphPanel />;
+
+    case 'timeline-editor':
+      return <TimelinePanel />;
 
     default:
       return (
