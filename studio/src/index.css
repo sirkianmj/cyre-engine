@@ -1852,3 +1852,17 @@ select {
   background: rgba(255, 255, 255, 0.08);
   color: var(--studio-text);
 }
+
+
+.network-node .node-shape {
+  fill: rgba(91, 170, 255, 0.13);
+  stroke: rgba(91, 170, 255, 0.85);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 10px rgba(91, 170, 255, 0.25));
+  transition: fill 180ms ease, stroke 180ms ease;
+}
+
+.network-node:hover .node-shape {
+  fill: rgba(91, 170, 255, 0.22);
+  stroke: #80c0ff;
+}

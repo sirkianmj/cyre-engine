@@ -263,7 +263,34 @@ export function Viewport({
 
   const filteredNodeIds = new Set(filteredNodes.map((node) => node.id));
 
-  const renderMinimap = (): JSX.Element => {
+  const renderNodeShape = (node: NetworkGraphNode): JSX.Element => {
+    switch (node.type) {
+      case 'router':
+        return <rect className="node-shape" x={-30} y={-26} width={60} height={52} rx={8} />;
+      case 'firewall':
+        return <polygon className="node-shape" points="0,-34 34,0 0,34 -34,0" />;
+      case 'database':
+        return (
+          <g className="node-shape">
+            <ellipse cx="0" cy="-30" rx="32" ry="8" />
+            <path d="M -32 -30 L -32 30 A 32 8 0 0 0 32 30 L 32 -30" />
+            <ellipse cx="0" cy="30" rx="32" ry="8" />
+          </g>
+        );
+      case 'server':
+        return <rect className="node-shape" x={-32} y={-28} width={64} height={56} rx={6} />;
+      case 'client':
+        return <rect className="node-shape" x={-26} y={-22} width={52} height={44} rx={4} />;
+      case 'service':
+        return <circle className="node-shape" r={28} />;
+      case 'network':
+        return <polygon className="node-shape" points="0,-30 26,-15 26,15 0,30 -26,15 -26,-15" />;
+      default:
+        return <rect className="node-shape" x={-32} y={-28} width={64} height={56} rx={10} />;
+    }
+  };
+
+    const renderMinimap = (): JSX.Element => {
     const allPositions = Array.from(nodePositions.values());
     if (allPositions.length === 0) return <></>;
 
@@ -403,7 +430,7 @@ export function Viewport({
                       handleNodeContextMenu(event, node.id)
                     }
                   >
-                    <circle r="32" />
+                    {renderNodeShape(node)}
                     <text y="-10" textAnchor="middle">
                       {node.label}
                     </text>

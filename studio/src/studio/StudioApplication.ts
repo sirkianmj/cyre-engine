@@ -244,10 +244,7 @@ export class StudioApplication {
 
   setWorkspace(workspaceId: string): void {
     if (!this.workspaceManager.hasWorkspace(workspaceId)) {
-      this.editorShell.addNotification(
-        'warning',
-        'Workspace "' + workspaceId + '" does not exist.',
-      );
+      this.editorShell.addNotification('warning', 'Workspace "' + workspaceId + '" does not exist.');
       this.emit();
       return;
     }
@@ -964,60 +961,18 @@ export class StudioApplication {
 
     const groups: MenuGroup[] = [
       {
-        id: 'file',
-        label: 'File',
-        items: [
-          {
-            id: 'project.new',
-            label: 'New Project',
-            action: 'project.new',
-            shortcut: 'Cmd+N',
-            enabled: true,
-          },
-          {
-            id: 'project.save',
-            label: 'Save Project',
-            action: 'project.save',
-            shortcut: 'Cmd+S',
-            enabled: true,
-          },
+        id: 'file', label: 'File', items: [
+          { id: 'project.new', label: 'New Project', action: 'project.new', shortcut: 'Cmd+N', enabled: true },
+          { id: 'project.save', label: 'Save Project', action: 'project.save', shortcut: 'Cmd+S', enabled: true },
         ],
       },
+      { id: 'view', label: 'View', items: viewItems },
       {
-        id: 'view',
-        label: 'View',
-        items: viewItems,
-      },
-      {
-        id: 'simulation',
-        label: 'Simulation',
-        items: [
-          {
-            id: 'simulation.play',
-            label: 'Play',
-            action: 'simulation.play',
-            shortcut: 'F6',
-            enabled: true,
-          },
-          {
-            id: 'simulation.pause',
-            label: 'Pause',
-            action: 'simulation.pause',
-            shortcut: 'F7',
-            enabled: true,
-          },
-          {
-            id: 'simulation.stop',
-            label: 'Stop',
-            action: 'simulation.stop',
-            enabled: true,
-          },
-          {
-            id: 'simulation.restart',
-            label: 'Restart',
-            action: 'simulation.restart',
-            enabled: true,
-          },
+        id: 'simulation', label: 'Simulation', items: [
+          { id: 'simulation.play', label: 'Play', action: 'simulation.play', shortcut: 'F6', enabled: true },
+          { id: 'simulation.pause', label: 'Pause', action: 'simulation.pause', shortcut: 'F7', enabled: true },
+          { id: 'simulation.stop', label: 'Stop', action: 'simulation.stop', enabled: true },
+          { id: 'simulation.restart', label: 'Restart', action: 'simulation.restart', enabled: true },
         ],
       },
     ];
@@ -1066,47 +1021,12 @@ export class StudioApplication {
 
   private registerCommands(): void {
     const commands: EditorCommand[] = [
-      {
-        id: 'project.new',
-        label: 'New Project',
-        category: 'Project',
-        shortcut: 'Cmd+N',
-        action: () => this.createProject(),
-      },
-      {
-        id: 'project.save',
-        label: 'Save Project',
-        category: 'Project',
-        shortcut: 'Cmd+S',
-        action: () => this.saveProject(),
-      },
-      {
-        id: 'simulation.play',
-        label: 'Play Simulation',
-        category: 'Simulation',
-        shortcut: 'F6',
-        action: () => this.play(),
-      },
-      {
-        id: 'simulation.pause',
-        label: 'Pause Simulation',
-        category: 'Simulation',
-        shortcut: 'F7',
-        action: () => this.pause(),
-      },
-      {
-        id: 'simulation.stop',
-        label: 'Stop Simulation',
-        category: 'Simulation',
-        shortcut: 'F8',
-        action: () => this.stop(),
-      },
-      {
-        id: 'simulation.restart',
-        label: 'Restart Simulation',
-        category: 'Simulation',
-        action: () => this.restart(),
-      },
+      { id: 'project.new', label: 'New Project', category: 'Project', shortcut: 'Cmd+N', action: () => this.createProject() },
+      { id: 'project.save', label: 'Save Project', category: 'Project', shortcut: 'Cmd+S', action: () => this.saveProject() },
+      { id: 'simulation.play', label: 'Play Simulation', category: 'Simulation', shortcut: 'F6', action: () => this.play() },
+      { id: 'simulation.pause', label: 'Pause Simulation', category: 'Simulation', shortcut: 'F7', action: () => this.pause() },
+      { id: 'simulation.stop', label: 'Stop Simulation', category: 'Simulation', shortcut: 'F8', action: () => this.stop() },
+      { id: 'simulation.restart', label: 'Restart Simulation', category: 'Simulation', action: () => this.restart() },
     ];
 
     for (const panel of this.editorShell.listPanels()) {
