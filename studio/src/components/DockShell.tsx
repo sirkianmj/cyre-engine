@@ -42,6 +42,9 @@ interface PanelChromeProps {
   onHeaderPointerDown?: (
     event: ReactPointerEvent<HTMLElement>,
   ) => void;
+  onMoveHandlePointerDown?: (
+    event: ReactPointerEvent<HTMLElement>,
+  ) => void;
   children: ReactNode;
 }
 
@@ -55,6 +58,7 @@ function PanelChrome({
   onMaximize,
   onDragStart,
   onHeaderPointerDown,
+  onMoveHandlePointerDown,
   children,
 }: PanelChromeProps): JSX.Element {
   return (
@@ -66,13 +70,22 @@ function PanelChrome({
     >
       <header
         className="dock-panel-header"
-        draggable={!onHeaderPointerDown}
-        onDragStart={
-          onHeaderPointerDown ? undefined : onDragStart
-        }
+        draggable
+        onDragStart={onDragStart}
         onPointerDown={onHeaderPointerDown}
       >
-        <span className="dock-panel-title">{panel.title}</span>
+        <span className="dock-panel-title">
+          {onMoveHandlePointerDown && (
+            <span
+              className="dock-panel-move-handle"
+              title="Drag to move"
+              onPointerDown={onMoveHandlePointerDown}
+            >
+              ✥
+            </span>
+          )}
+          {panel.title}
+        </span>
 
         <div
           className="dock-panel-actions"
@@ -80,25 +93,46 @@ function PanelChrome({
           onPointerDown={(event) => event.stopPropagation()}
         >
           <button
+            type="button"
             className="dock-action"
             title="Float"
-            onClick={onFloat}
+            onClick={(event) => {
+              event.stopPropagation();
+              onFloat();
+            }}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+            }}
           >
             ⧉
           </button>
 
           <button
+            type="button"
             className="dock-action"
             title={maximized ? 'Restore' : 'Maximize'}
-            onClick={onMaximize}
+            onClick={(event) => {
+              event.stopPropagation();
+              onMaximize();
+            }}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+            }}
           >
             {maximized ? '❐' : '□'}
           </button>
 
           <button
+            type="button"
             className="dock-action"
             title="Close"
-            onClick={onClose}
+            onClick={(event) => {
+              event.stopPropagation();
+              onClose();
+            }}
+            onPointerDown={(event) => {
+              event.stopPropagation();
+            }}
           >
             ×
           </button>
@@ -329,6 +363,7 @@ interface DockZoneProps {
     panelId: string,
     event: DragEvent<HTMLElement>,
   ) => void;
+  onDragOverArea?: (area: DockArea) => void;
   onDropPanel: (
     area: DockArea,
     event: DragEvent<HTMLElement>,
@@ -348,6 +383,7 @@ function DockZone({
   maximizedPanelId,
   dragOverArea,
   onDragStart,
+  onDragOverArea,
   onDropPanel,
   onActivate,
   onClose,
@@ -388,6 +424,7 @@ function DockZone({
       onDragOver={(event) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
+        onDragOverArea?.(area);
       }}
       onDrop={(event) => onDropPanel(area, event)}
     >
@@ -463,6 +500,8 @@ export function DockShell(): JSX.Element {
     setPanelVisible,
     maximizePanel,
     restorePanel,
+    saveDockLayout,
+    loadDockLayout,
   } = useStudio();
 
   const [draggedPanelId, setDraggedPanelId] = useState<
@@ -599,6 +638,7 @@ export function DockShell(): JSX.Element {
     draggedPanelId,
     dragOverArea,
     onDragStart: handleDragStart,
+    onDragOverArea: setDragOverArea,
     onDropPanel: handleDropPanel,
     onActivate: setActivePanel,
     onClose: (panelId: string) =>
@@ -640,6 +680,36 @@ export function DockShell(): JSX.Element {
 
   return (
     <div className="dock-root">
+      <div className="dock-layout-toolbar">
+        <button
+          onClick={() => {
+            const name = window.prompt('Save layout as:');
+            if (name) {
+              saveDockLayout(name);
+            }
+          }}
+        >
+          Save Layout
+        </button>
+
+        <select
+          value=""
+          onChange={(event) => {
+            if (event.target.value) {
+              loadDockLayout(event.target.value);
+              event.target.value = '';
+            }
+          }}
+        >
+          <option value="">Load Layout…</option>
+          {(state.savedDockLayouts ?? []).map((layout) => (
+            <option key={layout.id} value={layout.id}>
+              {layout.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {panelsInArea('top').length > 0 && (
         <div className="dock-top">
           <DockZone
@@ -722,7 +792,8 @@ export function DockShell(): JSX.Element {
               onDragStart={(event) =>
                 handleDragStart(panel.id, event)
               }
-              onHeaderPointerDown={(event) =>
+              onHeaderPointerDown={undefined}
+              onMoveHandlePointerDown={(event) =>
                 startFloatingDrag(panel.id, event)
               }
             >

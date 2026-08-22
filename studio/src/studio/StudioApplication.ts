@@ -600,7 +600,22 @@ export class StudioApplication {
       this.defaultDockAreas.set(panel.id, panel.dockArea);
     }
 
-    this.registerMenuGroups();
+    // Add a stable default editor workspace so the user can always return
+    this.workspaceManager.addCustomWorkspace({
+      id: 'editor',
+      name: 'Editor',
+      panelLayouts: [
+        { id: 'project-explorer', title: 'Project Explorer', area: 'left', order: 1, visible: true },
+        { id: 'network-viewport', title: 'Network Viewport', area: 'center', order: 2, visible: true },
+        { id: 'inspector', title: 'Inspector', area: 'right', order: 3, visible: true },
+        { id: 'console', title: 'Console', area: 'bottom', order: 4, visible: true },
+      ],
+    });
+
+    this.activeWorkspaceId = 'editor';
+    this.workspaceManager.activateWorkspace('editor', this.dockManager);
+
+        this.registerMenuGroups();
     this.registerToolbarButtons();
     this.registerCommands();
 
