@@ -2210,3 +2210,66 @@ select {
   overflow: auto;
   white-space: pre-wrap;
 }
+
+/* ===== LIVE PANELS ===== */
+
+.live-panel {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.live-snapshot {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.live-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--studio-text-secondary);
+  font-size: 12px;
+}
+
+.live-meta strong {
+  color: var(--studio-text);
+}
+
+.live-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.live-stat {
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--studio-border);
+}
+
+.live-stat span {
+  display: block;
+  color: var(--studio-text-tertiary);
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.live-stat strong {
+  color: var(--studio-text);
+  font-size: 18px;
+}
+
+.graph-empty {
+  padding: 20px;
+  text-align: center;
+  color: var(--studio-text-tertiary);
+  font-size: 12px;
+}

@@ -122,6 +122,14 @@ export interface StudioContextValue {
   connectObjectiveGraphNodes: (sourceId: string, targetId: string, edgeType?: string) => void;
   addEventTriggerRule: (name: string, eventType: string, actionType: string) => void;
 
+  captureLiveSimulation: () => void;
+  recordLiveEvent: (
+    type: string,
+    source?: string,
+    data?: Record<string, unknown>,
+  ) => void;
+  clearLiveEvents: () => void;
+
   notify: (
     level: StudioNotificationLevel,
     message: string,
@@ -354,6 +362,15 @@ export function StudioProvider({
 
       setSimulationSpeed: (speed) =>
         studioApplication.setSimulationSpeed(speed),
+
+      captureLiveSimulation: () =>
+        studioApplication.captureLiveSimulation(),
+
+      recordLiveEvent: (type, source, data) =>
+        studioApplication.recordLiveEvent(type as any, source, data),
+
+      clearLiveEvents: () =>
+        studioApplication.clearLiveEvents(),
 
       executeCommand: (commandId) =>
         studioApplication.executeCommand(commandId),

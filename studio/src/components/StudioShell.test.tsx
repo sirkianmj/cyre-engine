@@ -139,3 +139,18 @@ describe('Phase 04: Authoring Tools', () => {
     expect(app.getState().eventTriggerRules.length).toBe(1);
   });
 });
+
+describe('Phase 05: Live Simulation', () => {
+  it('records a live event', () => {
+    const app = new StudioApplication();
+    app.recordLiveEvent('alert_acknowledged', 'alert-1');
+    expect(app.getState().liveSimulationEvents.length).toBe(1);
+  });
+
+  it('clears live events', () => {
+    const app = new StudioApplication();
+    app.recordLiveEvent('evidence_viewed', 'evidence-1');
+    app.clearLiveEvents();
+    expect(app.getState().liveSimulationEvents.length).toBe(0);
+  });
+});

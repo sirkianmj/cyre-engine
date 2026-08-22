@@ -8,6 +8,8 @@ import {
   EventTriggerSystem,
   EvidenceGraphEditor,
   Inspector,
+  LiveEventStream,
+  LiveSimulationInspector,
   MissionDesigner,
   MultiSelectionManager,
   NetworkGraphEditor,
@@ -34,26 +36,29 @@ import type {
   EditorEventTriggerActionType,
   EditorMissionDesignerDesign,
   EditorMissionDesignerObjective,
+  EditorNotification,
   EditorObjectiveGraphNode,
   EditorObjectiveGraphNodeStatus,
   EditorObjectiveGraphEdge,
   EditorObjectiveGraphEdgeType,
-  EditorTimelineEntry,
-  Scenario as ScenarioData,
-  ScenarioGeneratorOptions,
-  EditorNotification,
   EditorPanel,
+  EditorTimelineEntry,
   InspectorTarget,
+  LiveEventType,
+  LiveSimulationEvent,
+  LiveSimulationSnapshot,
   MenuGroup,
   MenuItem,
   NetworkGraphEdge,
   NetworkGraphNode,
-  SelectionItem,
-  CyberEntityPaletteItem,
   ProjectData,
   ProjectModel,
   ProjectNode,
   ProjectNodeType,
+  SelectionItem,
+  CyberEntityPaletteItem,
+  Scenario as ScenarioData,
+  ScenarioGeneratorOptions,
   ToolbarButton,
   WorkspaceDefinition,
 } from '@cyre/engine';
@@ -103,6 +108,8 @@ export interface StudioSnapshot {
   objectiveGraphNodes: EditorObjectiveGraphNode[];
   objectiveGraphEdges: EditorObjectiveGraphEdge[];
   eventTriggerRules: EditorEventTriggerRule[];
+  liveSimulationSnapshot: LiveSimulationSnapshot | null;
+  liveSimulationEvents: LiveSimulationEvent[];
 }
 
 interface PanelInit {
@@ -140,6 +147,10 @@ export class StudioApplication {
   private readonly objectiveGraphEditor = new ObjectiveGraphEditor();
   private readonly eventTriggerSystem = new EventTriggerSystem();
   private currentScenarioData: ScenarioData | null = null;
+  private readonly liveSimulationInspector = new LiveSimulationInspector();
+  private readonly liveEventStream = new LiveEventStream();
+
+  private liveSimulationSnapshot: LiveSimulationSnapshot | null = null;
 
   private currentProject: ProjectModel | null = null;
   private activeWorkspaceId: string | null = null;
@@ -995,6 +1006,34 @@ export class StudioApplication {
     this.emit();
   }
 
+    captureLiveSimulation(): void {
+    try {
+      const runner = this.playModeController.getMissionRunner();
+      this.liveSimulationSnapshot = this.liveSimulationInspector.capture(runner);
+      this.editorShell.addNotification('success', 'Live simulation snapshot captured.');
+    } catch (error) {
+      this.liveSimulationSnapshot = null;
+      this.editorShell.addNotification('warning', 'Live capture unavailable: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  recordLiveEvent(type: LiveEventType, source?: string, data?: Record<string, unknown>): void {
+    try {
+      this.liveEventStream.publish(type, source, data);
+      this.editorShell.addNotification('success', 'Live event recorded.');
+    } catch (error) { this.editorShell.addNotification('error', 'Record live event failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
+  clearLiveEvents(): void {
+    try {
+      this.liveEventStream.clear();
+      this.editorShell.addNotification('success', 'Live events cleared.');
+    } catch (error) { this.editorShell.addNotification('error', 'Clear live events failed: ' + this.errorMessage(error)); }
+    this.emit();
+  }
+
     play(): void {
     try {
       this.playModeController.start();
@@ -1211,6 +1250,20 @@ export class StudioApplication {
         editorDock: 'center',
         dockArea: 'center',
         order: 13,
+      },
+      {
+        id: 'live-inspector',
+        title: 'Live Inspector',
+        editorDock: 'right',
+        dockArea: 'right',
+        order: 14,
+      },
+      {
+        id: 'live-events',
+        title: 'Live Events',
+        editorDock: 'bottom',
+        dockArea: 'bottom',
+        order: 15,
       },
     ];
 
@@ -1584,7 +1637,16 @@ export class StudioApplication {
     }
   }
 
-  private computeSnapshot(): StudioSnapshot {
+  private tryCaptureLiveSimulation(): LiveSimulationSnapshot | null {
+    try {
+      const runner = this.playModeController.getMissionRunner();
+      return this.liveSimulationInspector.capture(runner);
+    } catch {
+      return null;
+    }
+  }
+
+    private computeSnapshot(): StudioSnapshot {
     const playState = this.playModeController.getState();
 
     return {
@@ -1633,6 +1695,8 @@ export class StudioApplication {
       objectiveGraphNodes: this.objectiveGraphEditor.listNodes(),
       objectiveGraphEdges: this.objectiveGraphEditor.listEdges(),
       eventTriggerRules: this.eventTriggerSystem.listRules(),
+      liveSimulationSnapshot: this.tryCaptureLiveSimulation(),
+      liveSimulationEvents: this.liveEventStream.listHistory(),
     };
   }
 

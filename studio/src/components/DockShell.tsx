@@ -26,6 +26,7 @@ import type {
 import { useStudio } from '../studio/StudioContext';
 import { Viewport } from './Viewport';
 import { AttackGraphPanel, EvidenceGraphPanel, TimelinePanel } from './CyberGraphPanels';
+import { LiveInspectorPanel, LiveEventsPanel } from './LivePanels';
 import { ScenarioDesignerPanel, MissionDesignerPanel, ObjectiveGraphPanel, EventTriggerPanel, ScenarioGeneratorPanel } from './AuthoringPanels';
 
 const nodeIcons: Record<string, string> = {
@@ -1091,6 +1092,12 @@ function getPanelBody(
 
     case 'scenario-generator':
       return <ScenarioGeneratorPanel />;
+
+    case 'live-inspector':
+      return <LiveInspectorPanel />;
+
+    case 'live-events':
+      return <LiveEventsPanel />;
 
     default:
       return (
