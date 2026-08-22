@@ -56,3 +56,39 @@ describe('StudioApplication', () => {
     expect(() => application.setSimulationSpeed(Number.NaN)).toThrow();
   });
 });
+
+describe('Phase 01: Inspector / Palette / Multi-Selection', () => {
+  it('creates a network node from entity palette', () => {
+    const application = new StudioApplication();
+
+    application.addNetworkNodeFromPalette('server', 100, 120);
+    const state = application.getState();
+
+    expect(state.networkNodes.length).toBeGreaterThan(0);
+    expect(state.networkNodes[0].type).toBe('server');
+    expect(state.inspectorTarget?.id).toBe(state.networkNodes[0].id);
+  });
+
+  it('selects a project node into inspector', () => {
+    const application = new StudioApplication();
+    const projectNodeId = application.getState().projectExplorerNodes[0].id;
+
+    application.selectProjectNode(projectNodeId);
+    const state = application.getState();
+
+    expect(state.inspectorTarget?.id).toBe(projectNodeId);
+    expect(state.selectionCount).toBe(1);
+  });
+
+  it('updates inspector property value', () => {
+    const application = new StudioApplication();
+    const projectNodeId = application.getState().projectExplorerNodes[0].id;
+
+    application.selectProjectNode(projectNodeId);
+    application.setInspectorPropertyValue('name', 'Renamed Node');
+
+    expect(application.getState().inspectorTarget?.properties.find(
+      (property) => property.key === 'name',
+    )?.value).toBe('Renamed Node');
+  });
+});

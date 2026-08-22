@@ -7,6 +7,18 @@ import {
 
 import type { ReactNode } from 'react';
 
+import type {
+  DockArea,
+  DockLayout,
+  NetworkGraphNode,
+  ProjectNodeType,
+  SelectionItem,
+} from '@cyre/engine';
+
+import type {
+  DockLayoutSummary,
+} from './StudioApplication';
+
 import {
   StudioApplication,
 } from './StudioApplication';
@@ -26,7 +38,67 @@ export interface StudioContextValue {
   state: StudioSnapshot;
 
   togglePanel: (panelId: string) => void;
+  setPanelVisible: (panelId: string, visible: boolean) => void;
   setWorkspace: (workspaceId: string) => void;
+
+  dockPanel: (panelId: string, area: DockArea) => void;
+  undockPanel: (panelId: string) => void;
+  movePanel: (panelId: string, area: DockArea) => void;
+  resizePanel: (panelId: string, size: number) => void;
+  setActivePanel: (panelId: string) => void;
+  maximizePanel: (panelId: string) => void;
+  restorePanel: () => void;
+  tabPanels: (panelIds: string[]) => void;
+  untabPanels: (panelIds: string[]) => void;
+  getDockLayout: () => DockLayout;
+  restoreDockLayout: (layout: DockLayout) => void;
+
+  addProjectNode: (
+    parentId: string | undefined,
+    type: ProjectNodeType,
+    name: string,
+  ) => void;
+  renameProjectNode: (nodeId: string, name: string) => void;
+  deleteProjectNode: (nodeId: string) => void;
+  duplicateProjectNode: (nodeId: string) => void;
+  moveProjectNode: (
+    nodeId: string,
+    newParentId?: string,
+  ) => void;
+  saveDockLayout: (name: string) => void;
+  listDockLayouts: () => DockLayoutSummary[];
+  loadDockLayout: (name: string) => void;
+  deleteDockLayout: (name: string) => void;
+
+  selectProjectNode: (nodeId: string) => void;
+  selectNetworkNode: (nodeId: string) => void;
+  toggleSelection: (item: SelectionItem) => void;
+  clearMultiSelection: () => void;
+  setInspectorPropertyValue: (key: string, value: unknown) => void;
+  resetInspectorProperty: (key: string) => void;
+  resetInspectorProperties: () => void;
+  addNetworkNodeFromPalette: (
+    itemId: string,
+    x?: number,
+    y?: number,
+  ) => void;
+
+  moveNetworkNode: (
+    nodeId: string,
+    x: number,
+    y: number,
+  ) => void;
+  connectNetworkNodes: (
+    sourceId: string,
+    targetId: string,
+    edgeType?: string,
+  ) => void;
+  removeNetworkNode: (nodeId: string) => void;
+  removeNetworkEdge: (edgeId: string) => void;
+  searchNetworkNodes: (
+    query: string,
+  ) => NetworkGraphNode[];
+  validateNetworkGraph: () => void;
 
   notify: (
     level: StudioNotificationLevel,
@@ -34,6 +106,7 @@ export interface StudioContextValue {
   ) => void;
 
   clearNotifications: () => void;
+  clearInspectorSelection: () => void;
 
   play: () => void;
   pause: () => void;
@@ -74,14 +147,122 @@ export function StudioProvider({
       togglePanel: (panelId) =>
         studioApplication.togglePanel(panelId),
 
+      setPanelVisible: (panelId, visible) =>
+        studioApplication.setPanelVisible(panelId, visible),
+
       setWorkspace: (workspaceId) =>
         studioApplication.setWorkspace(workspaceId),
+
+      dockPanel: (panelId, area) =>
+        studioApplication.dockPanel(panelId, area),
+
+      undockPanel: (panelId) =>
+        studioApplication.undockPanel(panelId),
+
+      movePanel: (panelId, area) =>
+        studioApplication.movePanel(panelId, area),
+
+      resizePanel: (panelId, size) =>
+        studioApplication.resizePanel(panelId, size),
+
+      setActivePanel: (panelId) =>
+        studioApplication.setActivePanel(panelId),
+
+      maximizePanel: (panelId) =>
+        studioApplication.maximizePanel(panelId),
+
+      restorePanel: () =>
+        studioApplication.restorePanel(),
+
+      tabPanels: (panelIds) =>
+        studioApplication.tabPanels(panelIds),
+
+      untabPanels: (panelIds) =>
+        studioApplication.untabPanels(panelIds),
+
+      getDockLayout: () =>
+        studioApplication.getDockLayout(),
+
+      restoreDockLayout: (layout) =>
+        studioApplication.restoreDockLayout(layout),
+
+      addProjectNode: (parentId, type, name) =>
+        studioApplication.addProjectNode(parentId, type, name),
+
+      renameProjectNode: (nodeId, name) =>
+        studioApplication.renameProjectNode(nodeId, name),
+
+      deleteProjectNode: (nodeId) =>
+        studioApplication.deleteProjectNode(nodeId),
+
+      duplicateProjectNode: (nodeId) =>
+        studioApplication.duplicateProjectNode(nodeId),
+
+      moveProjectNode: (nodeId, newParentId) =>
+        studioApplication.moveProjectNode(nodeId, newParentId),
+
+      saveDockLayout: (name) =>
+        studioApplication.saveDockLayout(name),
+
+      listDockLayouts: () =>
+        studioApplication.listDockLayouts(),
+
+      loadDockLayout: (name) =>
+        studioApplication.loadDockLayout(name),
+
+      deleteDockLayout: (name) =>
+        studioApplication.deleteDockLayout(name),
+
+      selectProjectNode: (nodeId) =>
+        studioApplication.selectProjectNode(nodeId),
+
+      selectNetworkNode: (nodeId) =>
+        studioApplication.selectNetworkNode(nodeId),
+
+      toggleSelection: (item) =>
+        studioApplication.toggleSelection(item),
+
+      clearMultiSelection: () =>
+        studioApplication.clearMultiSelection(),
+
+      setInspectorPropertyValue: (key, value) =>
+        studioApplication.setInspectorPropertyValue(key, value),
+
+      resetInspectorProperty: (key) =>
+        studioApplication.resetInspectorProperty(key),
+
+      resetInspectorProperties: () =>
+        studioApplication.resetInspectorProperties(),
+
+      addNetworkNodeFromPalette: (itemId, x, y) =>
+        studioApplication.addNetworkNodeFromPalette(itemId, x, y),
+
+      moveNetworkNode: (nodeId, x, y) =>
+        studioApplication.moveNetworkNode(nodeId, x, y),
+
+      connectNetworkNodes: (sourceId, targetId, edgeType) =>
+        studioApplication.connectNetworkNodes(sourceId, targetId, edgeType),
+
+      removeNetworkNode: (nodeId) =>
+        studioApplication.removeNetworkNode(nodeId),
+
+      removeNetworkEdge: (edgeId) =>
+        studioApplication.removeNetworkEdge(edgeId),
+
+      searchNetworkNodes: (query) =>
+        studioApplication.searchNetworkNodes(query),
+
+      validateNetworkGraph: () =>
+        studioApplication.validateNetworkGraph(),
 
       notify: (level, message) =>
         studioApplication.notify(level, message),
 
       clearNotifications: () =>
         studioApplication.clearNotifications(),
+
+      clearInspectorSelection: () =>
+        studioApplication.clearInspectorSelection(),
 
       play: () => studioApplication.play(),
       pause: () => studioApplication.pause(),
