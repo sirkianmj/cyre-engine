@@ -1,9 +1,4 @@
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useMemo, useState } from 'react';
 
 import type {
   EditorNotification,
@@ -213,11 +208,6 @@ export function StudioShell(): JSX.Element {
     clearNotifications,
   } = useStudio();
 
-  const [openMenuId, setOpenMenuId] = useState<string | null>(
-    null,
-  );
-  const menuRef = useRef<HTMLDivElement | null>(null);
-
   const simulationLabel = useMemo(() => {
     if (!state.isPlaying) return 'STOPPED';
     if (state.isPaused) return 'PAUSED';
@@ -228,42 +218,10 @@ export function StudioShell(): JSX.Element {
     state.panels.find((panel) => panel.id === panelId)
       ?.isVisible ?? false;
 
-  useEffect(() => {
-    const handlePointerDown = (event: PointerEvent): void => {
-      if (
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
-      ) {
-        setOpenMenuId(null);
-      }
-    };
-
-    const handleKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === 'Escape') {
-        setOpenMenuId(null);
-      }
-    };
-
-    window.addEventListener('pointerdown', handlePointerDown);
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('pointerdown', handlePointerDown);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
-
-  const handleMenuTrigger = (menuId: string): void => {
-    setOpenMenuId((current) =>
-      current === menuId ? null : menuId,
-    );
-  };
-
   const handleMenuAction = (action?: string): void => {
     if (action) {
       application.executeCommand(action);
     }
-    setOpenMenuId(null);
   };
 
   return (
@@ -290,34 +248,31 @@ export function StudioShell(): JSX.Element {
         </div>
       </header>
 
-      <nav className="studio-menubar" ref={menuRef}>
+      <nav className="studio-menubar">
         {state.menuGroups.map((group) => (
-          <div key={group.id} className="menu-wrapper" onMouseEnter={() => setOpenMenuId(group.id)} onMouseLeave={() => setOpenMenuId(null)}>
+          <div key={group.id} className="menu-wrapper">
             <button
               className="menu-trigger"
-              aria-expanded={openMenuId === group.id}
-              onClick={() => handleMenuTrigger(group.id)}
+              aria-expanded="false"
             >
               {group.label}
             </button>
 
-            {openMenuId === group.id && (
-              <div className="menu-dropdown">
-                {group.items.map((item) => (
-                  <button
-                    key={item.id}
-                    onClick={() => handleMenuAction(item.action)}
-                  >
-                    <span>{item.label}</span>
-                    {item.shortcut && (
-                      <span className="menu-shortcut">
-                        {item.shortcut}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-            )}
+            <div className="menu-dropdown">
+              {group.items.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => handleMenuAction(item.action)}
+                >
+                  <span>{item.label}</span>
+                  {item.shortcut && (
+                    <span className="menu-shortcut">
+                      {item.shortcut}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         ))}
 
