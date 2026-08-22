@@ -541,14 +541,7 @@ export class StudioApplication {
     this.registerToolbarButtons();
     this.registerCommands();
 
-    const firstWorkspace = this.workspaceManager.listWorkspaces()[0];
-    if (firstWorkspace) {
-      this.activeWorkspaceId = firstWorkspace.id;
-      this.workspaceManager.activateWorkspace(
-        firstWorkspace.id,
-        this.dockManager,
-      );
-    }
+    this.activeWorkspaceId = null;
   }
 
   private registerMenuGroups(): void {
@@ -593,6 +586,12 @@ export class StudioApplication {
             id: 'view.toggle-console',
             label: 'Toggle Console',
             action: 'view.toggle-console',
+            enabled: true,
+          },
+          {
+            id: 'view.toggle-network-viewport',
+            label: 'Toggle Network Viewport',
+            action: 'view.toggle-network-viewport',
             enabled: true,
           },
         ],
@@ -733,6 +732,12 @@ export class StudioApplication {
         label: 'Toggle Console',
         category: 'View',
         action: () => this.togglePanel('console'),
+      },
+      {
+        id: 'view.toggle-network-viewport',
+        label: 'Toggle Network Viewport',
+        category: 'View',
+        action: () => this.togglePanel('network-viewport'),
       },
     ];
 
