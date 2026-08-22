@@ -39,9 +39,6 @@ interface PanelChromeProps {
   onFloat: () => void;
   onMaximize: () => void;
   onDragStart: (event: DragEvent<HTMLElement>) => void;
-  onHeaderPointerDown?: (
-    event: ReactPointerEvent<HTMLElement>,
-  ) => void;
   onMoveHandlePointerDown?: (
     event: ReactPointerEvent<HTMLElement>,
   ) => void;
@@ -57,7 +54,6 @@ function PanelChrome({
   onFloat,
   onMaximize,
   onDragStart,
-  onHeaderPointerDown,
   onMoveHandlePointerDown,
   children,
 }: PanelChromeProps): JSX.Element {
@@ -72,7 +68,6 @@ function PanelChrome({
         className="dock-panel-header"
         draggable
         onDragStart={onDragStart}
-        onPointerDown={onHeaderPointerDown}
       >
         <span className="dock-panel-title">
           {onMoveHandlePointerDown && (
@@ -89,19 +84,36 @@ function PanelChrome({
 
         <div
           className="dock-panel-actions"
-          onMouseDown={(event) => event.stopPropagation()}
-          onPointerDown={(event) => event.stopPropagation()}
+          onMouseDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onDragStart={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
         >
           <button
             type="button"
+            draggable={false}
             className="dock-action"
             title="Float"
-            onClick={(event) => {
+            onMouseDown={(event) => {
+              event.preventDefault();
               event.stopPropagation();
-              onFloat();
             }}
             onPointerDown={(event) => {
+              event.preventDefault();
               event.stopPropagation();
+            }}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onFloat();
             }}
           >
             ⧉
@@ -109,14 +121,21 @@ function PanelChrome({
 
           <button
             type="button"
+            draggable={false}
             className="dock-action"
             title={maximized ? 'Restore' : 'Maximize'}
-            onClick={(event) => {
+            onMouseDown={(event) => {
+              event.preventDefault();
               event.stopPropagation();
-              onMaximize();
             }}
             onPointerDown={(event) => {
+              event.preventDefault();
               event.stopPropagation();
+            }}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onMaximize();
             }}
           >
             {maximized ? '❐' : '□'}
@@ -124,14 +143,21 @@ function PanelChrome({
 
           <button
             type="button"
+            draggable={false}
             className="dock-action"
             title="Close"
-            onClick={(event) => {
+            onMouseDown={(event) => {
+              event.preventDefault();
               event.stopPropagation();
-              onClose();
             }}
             onPointerDown={(event) => {
+              event.preventDefault();
               event.stopPropagation();
+            }}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onClose();
             }}
           >
             ×
@@ -167,6 +193,7 @@ function ProjectTreeNode({
   return (
     <div>
       <button
+        type="button"
         className={`tree-item ${
           selectedNodeId === node.id ? 'selected' : ''
         }`}
@@ -357,7 +384,6 @@ interface DockZoneProps {
   panels: DockPanel[];
   activePanelId: string | null;
   maximizedPanelId: string | null;
-  draggedPanelId: string | null;
   dragOverArea: DockArea | null;
   onDragStart: (
     panelId: string,
@@ -521,6 +547,20 @@ export function DockShell(): JSX.Element {
     { x: 440, y: 380 },
   ];
 
+  const panelsInArea = (area: DockArea): DockPanel[] =>
+    state.dockPanels
+      .filter(
+        (panel) =>
+          panel.area === area &&
+          !panel.floating &&
+          panel.visible,
+      )
+      .sort((a, b) => a.order - b.order);
+
+  const floatingPanels = state.dockPanels.filter(
+    (panel) => panel.floating && panel.visible,
+  );
+
   const getFloatingPosition = (
     panelId: string,
     index: number,
@@ -538,6 +578,7 @@ export function DockShell(): JSX.Element {
     event: ReactPointerEvent<HTMLElement>,
   ): void => {
     event.preventDefault();
+    event.stopPropagation();
 
     const startX = event.clientX;
     const startY = event.clientY;
@@ -574,20 +615,6 @@ export function DockShell(): JSX.Element {
     window.addEventListener('pointermove', onPointerMove);
     window.addEventListener('pointerup', onPointerUp);
   };
-
-  const panelsInArea = (area: DockArea): DockPanel[] =>
-    state.dockPanels
-      .filter(
-        (panel) =>
-          panel.area === area &&
-          !panel.floating &&
-          panel.visible,
-      )
-      .sort((a, b) => a.order - b.order);
-
-  const floatingPanels = state.dockPanels.filter(
-    (panel) => panel.floating && panel.visible,
-  );
 
   const renderBody = (panelId: string): JSX.Element =>
     getPanelBody(panelId, state);
@@ -632,17 +659,29 @@ export function DockShell(): JSX.Element {
     setDragOverArea(null);
   };
 
+  const handleClosePanel = (panelId: string): void => {
+    setPanelVisible(panelId, false);
+
+    const nextActive = state.dockPanels.find(
+      (panel) =>
+        panel.visible &&
+        panel.id !== panelId,
+    );
+
+    if (nextActive) {
+      setActivePanel(nextActive.id);
+    }
+  };
+
   const zoneProps = {
     activePanelId: state.activePanelId,
     maximizedPanelId: state.maximizedPanelId,
-    draggedPanelId,
     dragOverArea,
     onDragStart: handleDragStart,
     onDragOverArea: setDragOverArea,
     onDropPanel: handleDropPanel,
     onActivate: setActivePanel,
-    onClose: (panelId: string) =>
-      setPanelVisible(panelId, false),
+    onClose: handleClosePanel,
     onFloat: undockPanel,
     onMaximize: maximizePanel,
     onRestore: restorePanel,
@@ -662,9 +701,7 @@ export function DockShell(): JSX.Element {
             active
             maximized
             onActivate={() => setActivePanel(maximizedPanel.id)}
-            onClose={() =>
-              setPanelVisible(maximizedPanel.id, false)
-            }
+            onClose={() => handleClosePanel(maximizedPanel.id)}
             onFloat={() => undockPanel(maximizedPanel.id)}
             onMaximize={() => restorePanel()}
             onDragStart={(event) =>
@@ -786,13 +823,12 @@ export function DockShell(): JSX.Element {
               active={state.activePanelId === panel.id}
               maximized={false}
               onActivate={() => setActivePanel(panel.id)}
-              onClose={() => setPanelVisible(panel.id, false)}
+              onClose={() => handleClosePanel(panel.id)}
               onFloat={() => undockPanel(panel.id)}
               onMaximize={() => maximizePanel(panel.id)}
               onDragStart={(event) =>
                 handleDragStart(panel.id, event)
               }
-              onHeaderPointerDown={undefined}
               onMoveHandlePointerDown={(event) =>
                 startFloatingDrag(panel.id, event)
               }

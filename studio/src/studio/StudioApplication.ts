@@ -603,7 +603,7 @@ export class StudioApplication {
     // Add a stable default editor workspace so the user can always return
     this.workspaceManager.addCustomWorkspace({
       id: 'editor',
-      name: 'Editor',
+      name: 'Main',
       panelLayouts: [
         { id: 'project-explorer', title: 'Project Explorer', area: 'left', order: 1, visible: true },
         { id: 'network-viewport', title: 'Network Viewport', area: 'center', order: 2, visible: true },
