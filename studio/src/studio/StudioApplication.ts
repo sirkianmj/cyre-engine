@@ -13,6 +13,11 @@ import {
   LiveEventStream,
   LiveSimulationInspector,
   MissionDesigner,
+  MotionSystem,
+  UIThemeManager,
+  UxAuditSystem,
+  VisualDesignAuditSystem,
+  AccessibilityController,
   ReplayRecorder,
   ReplayStudio,
   MultiSelectionManager,
@@ -54,6 +59,9 @@ import type {
   MenuGroup,
   ReplayBookmark,
   ReplayEvent,
+  UIThemeDefinition,
+  UxAuditReport,
+  VisualDesignAuditReport,
   MenuItem,
   NetworkGraphEdge,
   NetworkGraphNode,
@@ -126,6 +134,14 @@ export interface StudioSnapshot {
   replayEvents: ReplayEvent[];
   replayCurrentIndex: number;
   replayBookmarks: ReplayBookmark[];
+
+  uiThemes: UIThemeDefinition[];
+  activeThemeId: string;
+  motionReduced: boolean;
+  motionDurationMs: number;
+  accessibilitySettings: Record<string, unknown>;
+  uxAuditReport: UxAuditReport | null;
+  visualDesignAuditReport: VisualDesignAuditReport | null;
 }
 
 interface PanelInit {
@@ -169,6 +185,13 @@ export class StudioApplication {
   private readonly debugInspector = new DebugInspector();
   private readonly replayStudio = new ReplayStudio();
   private readonly replayRecorder = new ReplayRecorder();
+  private readonly uiThemeManager = new UIThemeManager();
+  private readonly motionSystem = new MotionSystem();
+  private readonly accessibilityController = new AccessibilityController({
+    motionSystem: this.motionSystem,
+  });
+  private uxAuditReport: UxAuditReport | null = null;
+  private visualDesignAuditReport: VisualDesignAuditReport | null = null;
   private debugSnapshot: {
     state: string;
     breakpointCount: number;
@@ -1200,6 +1223,83 @@ export class StudioApplication {
     }
   }
 
+    activateTheme(themeId: string): void {
+    try {
+      this.uiThemeManager.activateTheme(themeId);
+      this.editorShell.addNotification('success', 'Theme activated: ' + themeId);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Activate theme failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  setReduceMotion(enabled: boolean): void {
+    try {
+      this.motionSystem.setReduceMotion(enabled);
+      this.accessibilityController.setReduceMotion(enabled);
+      this.editorShell.addNotification('success', 'Motion reduction ' + (enabled ? 'enabled' : 'disabled'));
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Set reduce motion failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  setMotionDuration(durationMs: number): void {
+    try {
+      this.motionSystem.setDuration(durationMs);
+      this.editorShell.addNotification('success', 'Motion duration updated.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Set motion duration failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  setFontSizeScale(scale: number): void {
+    try {
+      this.accessibilityController.setFontSizeScale(scale);
+      this.editorShell.addNotification('success', 'Font size scale updated.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Set font size scale failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  setHighContrast(enabled: boolean): void {
+    try {
+      this.accessibilityController.setHighContrast(enabled);
+      this.editorShell.addNotification('success', 'High contrast ' + (enabled ? 'enabled' : 'disabled'));
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Set high contrast failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  runUxAudit(): void {
+    try {
+      const audit = new UxAuditSystem({
+        motion: this.motionSystem,
+      });
+      this.uxAuditReport = audit.audit();
+      this.editorShell.addNotification('success', 'UX audit completed.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'UX audit failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  runVisualDesignAudit(): void {
+    try {
+      const audit = new VisualDesignAuditSystem({
+        themeManager: this.uiThemeManager,
+      });
+      this.visualDesignAuditReport = audit.audit();
+      this.editorShell.addNotification('success', 'Visual design audit completed.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Visual design audit failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
     play(): void {
     try {
       this.playModeController.start();
@@ -1444,6 +1544,13 @@ export class StudioApplication {
         editorDock: 'bottom',
         dockArea: 'bottom',
         order: 17,
+      },
+      {
+        id: 'presentation-panel',
+        title: 'Presentation',
+        editorDock: 'right',
+        dockArea: 'right',
+        order: 18,
       },
     ];
 
@@ -1881,6 +1988,13 @@ export class StudioApplication {
       replayEvents: this.replayStudio.listEvents(),
       replayCurrentIndex: this.replayStudio.getCurrentIndex(),
       replayBookmarks: this.replayStudio.listBookmarks(),
+      uiThemes: this.uiThemeManager.listThemes(),
+      activeThemeId: this.uiThemeManager.getActiveThemeId(),
+      motionReduced: this.motionSystem.isMotionReduced(),
+      motionDurationMs: this.motionSystem.getDurationMs(),
+      accessibilitySettings: this.accessibilityController.getSettings(),
+      uxAuditReport: this.uxAuditReport,
+      visualDesignAuditReport: this.visualDesignAuditReport,
     };
   }
 

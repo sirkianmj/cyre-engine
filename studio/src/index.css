@@ -2279,3 +2279,43 @@ select {
 .graph-node-row.selected {
   background: rgba(91, 170, 255, 0.16);
 }
+
+/* ===== PRESENTATION ===== */
+
+.authoring-panel h4 {
+  margin: 0 0 6px;
+  color: var(--studio-text-secondary);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.authoring-card label {
+  display: block;
+  color: var(--studio-text-tertiary);
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.authoring-card input[type='range'] {
+  width: 100%;
+}
+
+/* ===== PRESENTATION ===== */
+
+.authoring-panel h4 {
+  margin: 0 0 6px;
+  color: var(--studio-text-secondary);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.authoring-card label {
+  display: block;
+  color: var(--studio-text-tertiary);
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.authoring-card input[type='range'] {
+  width: 100%;
+}

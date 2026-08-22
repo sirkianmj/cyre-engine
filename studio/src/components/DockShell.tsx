@@ -28,6 +28,7 @@ import { Viewport } from './Viewport';
 import { AttackGraphPanel, EvidenceGraphPanel, TimelinePanel } from './CyberGraphPanels';
 import { LiveInspectorPanel, LiveEventsPanel } from './LivePanels';
 import { DebuggerPanel, ReplayPanel } from './DebugReplayPanels';
+import { PresentationPanel } from './PresentationPanel';
 import { ScenarioDesignerPanel, MissionDesignerPanel, ObjectiveGraphPanel, EventTriggerPanel, ScenarioGeneratorPanel } from './AuthoringPanels';
 
 const nodeIcons: Record<string, string> = {
@@ -1105,6 +1106,9 @@ function getPanelBody(
 
     case 'replay-panel':
       return <ReplayPanel />;
+
+    case 'presentation-panel':
+      return <PresentationPanel />;
 
     default:
       return (

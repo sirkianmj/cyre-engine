@@ -15,15 +15,12 @@ import type {
   SelectionItem,
 } from '@cyre/engine';
 
-import type {
-  DockLayoutSummary,
-} from './StudioApplication';
-
 import {
   StudioApplication,
 } from './StudioApplication';
 
 import type {
+  DockLayoutSummary,
   StudioSnapshot,
 } from './StudioApplication';
 
@@ -52,6 +49,10 @@ export interface StudioContextValue {
   untabPanels: (panelIds: string[]) => void;
   getDockLayout: () => DockLayout;
   restoreDockLayout: (layout: DockLayout) => void;
+  saveDockLayout: (name: string) => void;
+  listDockLayouts: () => DockLayoutSummary[];
+  loadDockLayout: (name: string) => void;
+  deleteDockLayout: (name: string) => void;
 
   addProjectNode: (
     parentId: string | undefined,
@@ -61,14 +62,7 @@ export interface StudioContextValue {
   renameProjectNode: (nodeId: string, name: string) => void;
   deleteProjectNode: (nodeId: string) => void;
   duplicateProjectNode: (nodeId: string) => void;
-  moveProjectNode: (
-    nodeId: string,
-    newParentId?: string,
-  ) => void;
-  saveDockLayout: (name: string) => void;
-  listDockLayouts: () => DockLayoutSummary[];
-  loadDockLayout: (name: string) => void;
-  deleteDockLayout: (name: string) => void;
+  moveProjectNode: (nodeId: string, newParentId?: string) => void;
 
   selectProjectNode: (nodeId: string) => void;
   selectNetworkNode: (nodeId: string) => void;
@@ -77,17 +71,14 @@ export interface StudioContextValue {
   setInspectorPropertyValue: (key: string, value: unknown) => void;
   resetInspectorProperty: (key: string) => void;
   resetInspectorProperties: () => void;
+  clearInspectorSelection: () => void;
+
   addNetworkNodeFromPalette: (
     itemId: string,
     x?: number,
     y?: number,
   ) => void;
-
-  moveNetworkNode: (
-    nodeId: string,
-    x: number,
-    y: number,
-  ) => void;
+  moveNetworkNode: (nodeId: string, x: number, y: number) => void;
   connectNetworkNodes: (
     sourceId: string,
     targetId: string,
@@ -95,17 +86,35 @@ export interface StudioContextValue {
   ) => void;
   removeNetworkNode: (nodeId: string) => void;
   removeNetworkEdge: (edgeId: string) => void;
-  searchNetworkNodes: (
-    query: string,
-  ) => NetworkGraphNode[];
+  searchNetworkNodes: (query: string) => NetworkGraphNode[];
   validateNetworkGraph: () => void;
+
+  notify: (
+    level: StudioNotificationLevel,
+    message: string,
+  ) => void;
+  clearNotifications: () => void;
+
+  play: () => void;
+  pause: () => void;
+  resume: () => void;
+  stop: () => void;
+  restart: () => void;
+  setSimulationSpeed: (speed: number) => void;
+  executeCommand: (commandId: string) => void;
 
   addAttackGraphNode: (label: string, status?: string, stage?: string) => void;
   connectAttackGraphNodes: (sourceId: string, targetId: string) => void;
   removeAttackGraphNode: (nodeId: string) => void;
+
   addEvidenceGraphNode: (label: string, type?: string) => void;
-  connectEvidenceGraphNodes: (sourceId: string, targetId: string, relationType?: string) => void;
+  connectEvidenceGraphNodes: (
+    sourceId: string,
+    targetId: string,
+    relationType?: string,
+  ) => void;
   removeEvidenceGraphNode: (nodeId: string) => void;
+
   addTimelineEntry: (timestamp: number, label: string, type?: string) => void;
   removeTimelineEntry: (entryId: string) => void;
 
@@ -115,12 +124,23 @@ export interface StudioContextValue {
   addScenarioObjective: (description: string) => void;
   buildScenario: () => void;
   generateScenario: (options: any) => void;
+
   createMissionDesign: (name: string) => void;
   addMissionObjective: (description: string, type?: string) => void;
   buildMissionDesign: () => void;
+
   addObjectiveGraphNode: (label: string, status?: string) => void;
-  connectObjectiveGraphNodes: (sourceId: string, targetId: string, edgeType?: string) => void;
-  addEventTriggerRule: (name: string, eventType: string, actionType: string) => void;
+  connectObjectiveGraphNodes: (
+    sourceId: string,
+    targetId: string,
+    edgeType?: string,
+  ) => void;
+
+  addEventTriggerRule: (
+    name: string,
+    eventType: string,
+    actionType: string,
+  ) => void;
 
   captureLiveSimulation: () => void;
   recordLiveEvent: (
@@ -144,21 +164,13 @@ export interface StudioContextValue {
   addReplayBookmark: (label: string) => void;
   gotoReplayBookmark: (bookmarkId: string) => void;
 
-  notify: (
-    level: StudioNotificationLevel,
-    message: string,
-  ) => void;
-
-  clearNotifications: () => void;
-  clearInspectorSelection: () => void;
-
-  play: () => void;
-  pause: () => void;
-  resume: () => void;
-  stop: () => void;
-  restart: () => void;
-  setSimulationSpeed: (speed: number) => void;
-  executeCommand: (commandId: string) => void;
+  activateTheme: (themeId: string) => void;
+  setReduceMotion: (enabled: boolean) => void;
+  setMotionDuration: (durationMs: number) => void;
+  setFontSizeScale: (scale: number) => void;
+  setHighContrast: (enabled: boolean) => void;
+  runUxAudit: () => void;
+  runVisualDesignAudit: () => void;
 }
 
 const studioApplication = new StudioApplication();
@@ -188,242 +200,112 @@ export function StudioProvider({
       application: studioApplication,
       state: snapshot,
 
-      togglePanel: (panelId) =>
-        studioApplication.togglePanel(panelId),
+      togglePanel: (panelId) => studioApplication.togglePanel(panelId),
+      setPanelVisible: (panelId, visible) => studioApplication.setPanelVisible(panelId, visible),
+      setWorkspace: (workspaceId) => studioApplication.setWorkspace(workspaceId),
 
-      setPanelVisible: (panelId, visible) =>
-        studioApplication.setPanelVisible(panelId, visible),
+      dockPanel: (panelId, area) => studioApplication.dockPanel(panelId, area),
+      undockPanel: (panelId) => studioApplication.undockPanel(panelId),
+      movePanel: (panelId, area) => studioApplication.movePanel(panelId, area),
+      resizePanel: (panelId, size) => studioApplication.resizePanel(panelId, size),
+      setActivePanel: (panelId) => studioApplication.setActivePanel(panelId),
+      maximizePanel: (panelId) => studioApplication.maximizePanel(panelId),
+      restorePanel: () => studioApplication.restorePanel(),
+      tabPanels: (panelIds) => studioApplication.tabPanels(panelIds),
+      untabPanels: (panelIds) => studioApplication.untabPanels(panelIds),
+      getDockLayout: () => studioApplication.getDockLayout(),
+      restoreDockLayout: (layout) => studioApplication.restoreDockLayout(layout),
+      saveDockLayout: (name) => studioApplication.saveDockLayout(name),
+      listDockLayouts: () => studioApplication.listDockLayouts(),
+      loadDockLayout: (name) => studioApplication.loadDockLayout(name),
+      deleteDockLayout: (name) => studioApplication.deleteDockLayout(name),
 
-      setWorkspace: (workspaceId) =>
-        studioApplication.setWorkspace(workspaceId),
+      addProjectNode: (parentId, type, name) => studioApplication.addProjectNode(parentId, type, name),
+      renameProjectNode: (nodeId, name) => studioApplication.renameProjectNode(nodeId, name),
+      deleteProjectNode: (nodeId) => studioApplication.deleteProjectNode(nodeId),
+      duplicateProjectNode: (nodeId) => studioApplication.duplicateProjectNode(nodeId),
+      moveProjectNode: (nodeId, newParentId) => studioApplication.moveProjectNode(nodeId, newParentId),
 
-      dockPanel: (panelId, area) =>
-        studioApplication.dockPanel(panelId, area),
+      selectProjectNode: (nodeId) => studioApplication.selectProjectNode(nodeId),
+      selectNetworkNode: (nodeId) => studioApplication.selectNetworkNode(nodeId),
+      toggleSelection: (item) => studioApplication.toggleSelection(item),
+      clearMultiSelection: () => studioApplication.clearMultiSelection(),
+      setInspectorPropertyValue: (key, value) => studioApplication.setInspectorPropertyValue(key, value),
+      resetInspectorProperty: (key) => studioApplication.resetInspectorProperty(key),
+      resetInspectorProperties: () => studioApplication.resetInspectorProperties(),
+      clearInspectorSelection: () => studioApplication.clearInspectorSelection(),
 
-      undockPanel: (panelId) =>
-        studioApplication.undockPanel(panelId),
+      addNetworkNodeFromPalette: (itemId, x, y) => studioApplication.addNetworkNodeFromPalette(itemId, x, y),
+      moveNetworkNode: (nodeId, x, y) => studioApplication.moveNetworkNode(nodeId, x, y),
+      connectNetworkNodes: (sourceId, targetId, edgeType) => studioApplication.connectNetworkNodes(sourceId, targetId, edgeType),
+      removeNetworkNode: (nodeId) => studioApplication.removeNetworkNode(nodeId),
+      removeNetworkEdge: (edgeId) => studioApplication.removeNetworkEdge(edgeId),
+      searchNetworkNodes: (query) => studioApplication.searchNetworkNodes(query),
+      validateNetworkGraph: () => studioApplication.validateNetworkGraph(),
 
-      movePanel: (panelId, area) =>
-        studioApplication.movePanel(panelId, area),
-
-      resizePanel: (panelId, size) =>
-        studioApplication.resizePanel(panelId, size),
-
-      setActivePanel: (panelId) =>
-        studioApplication.setActivePanel(panelId),
-
-      maximizePanel: (panelId) =>
-        studioApplication.maximizePanel(panelId),
-
-      restorePanel: () =>
-        studioApplication.restorePanel(),
-
-      tabPanels: (panelIds) =>
-        studioApplication.tabPanels(panelIds),
-
-      untabPanels: (panelIds) =>
-        studioApplication.untabPanels(panelIds),
-
-      getDockLayout: () =>
-        studioApplication.getDockLayout(),
-
-      restoreDockLayout: (layout) =>
-        studioApplication.restoreDockLayout(layout),
-
-      addProjectNode: (parentId, type, name) =>
-        studioApplication.addProjectNode(parentId, type, name),
-
-      renameProjectNode: (nodeId, name) =>
-        studioApplication.renameProjectNode(nodeId, name),
-
-      deleteProjectNode: (nodeId) =>
-        studioApplication.deleteProjectNode(nodeId),
-
-      duplicateProjectNode: (nodeId) =>
-        studioApplication.duplicateProjectNode(nodeId),
-
-      moveProjectNode: (nodeId, newParentId) =>
-        studioApplication.moveProjectNode(nodeId, newParentId),
-
-      saveDockLayout: (name) =>
-        studioApplication.saveDockLayout(name),
-
-      listDockLayouts: () =>
-        studioApplication.listDockLayouts(),
-
-      loadDockLayout: (name) =>
-        studioApplication.loadDockLayout(name),
-
-      deleteDockLayout: (name) =>
-        studioApplication.deleteDockLayout(name),
-
-      selectProjectNode: (nodeId) =>
-        studioApplication.selectProjectNode(nodeId),
-
-      selectNetworkNode: (nodeId) =>
-        studioApplication.selectNetworkNode(nodeId),
-
-      toggleSelection: (item) =>
-        studioApplication.toggleSelection(item),
-
-      clearMultiSelection: () =>
-        studioApplication.clearMultiSelection(),
-
-      setInspectorPropertyValue: (key, value) =>
-        studioApplication.setInspectorPropertyValue(key, value),
-
-      resetInspectorProperty: (key) =>
-        studioApplication.resetInspectorProperty(key),
-
-      resetInspectorProperties: () =>
-        studioApplication.resetInspectorProperties(),
-
-      addNetworkNodeFromPalette: (itemId, x, y) =>
-        studioApplication.addNetworkNodeFromPalette(itemId, x, y),
-
-      moveNetworkNode: (nodeId, x, y) =>
-        studioApplication.moveNetworkNode(nodeId, x, y),
-
-      connectNetworkNodes: (sourceId, targetId, edgeType) =>
-        studioApplication.connectNetworkNodes(sourceId, targetId, edgeType),
-
-      removeNetworkNode: (nodeId) =>
-        studioApplication.removeNetworkNode(nodeId),
-
-      removeNetworkEdge: (edgeId) =>
-        studioApplication.removeNetworkEdge(edgeId),
-
-      searchNetworkNodes: (query) =>
-        studioApplication.searchNetworkNodes(query),
-
-      validateNetworkGraph: () =>
-        studioApplication.validateNetworkGraph(),
-
-      addAttackGraphNode: (label, status, stage) =>
-        studioApplication.addAttackGraphNode(label, status, stage),
-
-      connectAttackGraphNodes: (sourceId, targetId) =>
-        studioApplication.connectAttackGraphNodes(sourceId, targetId),
-
-      removeAttackGraphNode: (nodeId) =>
-        studioApplication.removeAttackGraphNode(nodeId),
-
-      addEvidenceGraphNode: (label, type) =>
-        studioApplication.addEvidenceGraphNode(label, type),
-
-      connectEvidenceGraphNodes: (sourceId, targetId, relationType) =>
-        studioApplication.connectEvidenceGraphNodes(sourceId, targetId, relationType),
-
-      removeEvidenceGraphNode: (nodeId) =>
-        studioApplication.removeEvidenceGraphNode(nodeId),
-
-      addTimelineEntry: (timestamp, label, type) =>
-        studioApplication.addTimelineEntry(timestamp, label, type),
-
-      removeTimelineEntry: (entryId) =>
-        studioApplication.removeTimelineEntry(entryId),
-
-      createScenario: (name, description) =>
-        studioApplication.createScenario(name, description),
-
-      addScenarioNetworkNode: (nodeType, nodeName) =>
-        studioApplication.addScenarioNetworkNode(nodeType, nodeName),
-
-      addScenarioAsset: (name, type, value) =>
-        studioApplication.addScenarioAsset(name, type, value),
-
-      addScenarioObjective: (description) =>
-        studioApplication.addScenarioObjective(description),
-
-      buildScenario: () =>
-        studioApplication.buildScenario(),
-
-      generateScenario: (options) =>
-        studioApplication.generateScenario(options),
-
-      createMissionDesign: (name) =>
-        studioApplication.createMissionDesign(name),
-
-      addMissionObjective: (description, type) =>
-        studioApplication.addMissionObjective(description, type),
-
-      buildMissionDesign: () =>
-        studioApplication.buildMissionDesign(),
-
-      addObjectiveGraphNode: (label, status) =>
-        studioApplication.addObjectiveGraphNode(label, status),
-
-      connectObjectiveGraphNodes: (sourceId, targetId, edgeType) =>
-        studioApplication.connectObjectiveGraphNodes(sourceId, targetId, edgeType),
-
-      addEventTriggerRule: (name, eventType, actionType) =>
-        studioApplication.addEventTriggerRule(name, eventType, actionType),
-
-      notify: (level, message) =>
-        studioApplication.notify(level, message),
-
-      clearNotifications: () =>
-        studioApplication.clearNotifications(),
-
-      clearInspectorSelection: () =>
-        studioApplication.clearInspectorSelection(),
+      notify: (level, message) => studioApplication.notify(level, message),
+      clearNotifications: () => studioApplication.clearNotifications(),
 
       play: () => studioApplication.play(),
       pause: () => studioApplication.pause(),
       resume: () => studioApplication.resume(),
       stop: () => studioApplication.stop(),
       restart: () => studioApplication.restart(),
+      setSimulationSpeed: (speed) => studioApplication.setSimulationSpeed(speed),
+      executeCommand: (commandId) => studioApplication.executeCommand(commandId),
 
-      setSimulationSpeed: (speed) =>
-        studioApplication.setSimulationSpeed(speed),
+      addAttackGraphNode: (label, status, stage) => studioApplication.addAttackGraphNode(label, status, stage),
+      connectAttackGraphNodes: (sourceId, targetId) => studioApplication.connectAttackGraphNodes(sourceId, targetId),
+      removeAttackGraphNode: (nodeId) => studioApplication.removeAttackGraphNode(nodeId),
 
-      captureLiveSimulation: () =>
-        studioApplication.captureLiveSimulation(),
+      addEvidenceGraphNode: (label, type) => studioApplication.addEvidenceGraphNode(label, type),
+      connectEvidenceGraphNodes: (sourceId, targetId, relationType) => studioApplication.connectEvidenceGraphNodes(sourceId, targetId, relationType),
+      removeEvidenceGraphNode: (nodeId) => studioApplication.removeEvidenceGraphNode(nodeId),
 
-      recordLiveEvent: (type, source, data) =>
-        studioApplication.recordLiveEvent(type as any, source, data),
+      addTimelineEntry: (timestamp, label, type) => studioApplication.addTimelineEntry(timestamp, label, type),
+      removeTimelineEntry: (entryId) => studioApplication.removeTimelineEntry(entryId),
 
-      clearLiveEvents: () =>
-        studioApplication.clearLiveEvents(),
+      createScenario: (name, description) => studioApplication.createScenario(name, description),
+      addScenarioNetworkNode: (nodeType, nodeName) => studioApplication.addScenarioNetworkNode(nodeType, nodeName),
+      addScenarioAsset: (name, type, value) => studioApplication.addScenarioAsset(name, type, value),
+      addScenarioObjective: (description) => studioApplication.addScenarioObjective(description),
+      buildScenario: () => studioApplication.buildScenario(),
+      generateScenario: (options) => studioApplication.generateScenario(options),
 
-      startDebugger: () =>
-        studioApplication.startDebugger(),
+      createMissionDesign: (name) => studioApplication.createMissionDesign(name),
+      addMissionObjective: (description, type) => studioApplication.addMissionObjective(description, type),
+      buildMissionDesign: () => studioApplication.buildMissionDesign(),
 
-      pauseDebugger: () =>
-        studioApplication.pauseDebugger(),
+      addObjectiveGraphNode: (label, status) => studioApplication.addObjectiveGraphNode(label, status),
+      connectObjectiveGraphNodes: (sourceId, targetId, edgeType) => studioApplication.connectObjectiveGraphNodes(sourceId, targetId, edgeType),
 
-      resumeDebugger: () =>
-        studioApplication.resumeDebugger(),
+      addEventTriggerRule: (name, eventType, actionType) => studioApplication.addEventTriggerRule(name, eventType, actionType),
 
-      stopDebugger: () =>
-        studioApplication.stopDebugger(),
+      captureLiveSimulation: () => studioApplication.captureLiveSimulation(),
+      recordLiveEvent: (type, source, data) => studioApplication.recordLiveEvent(type as any, source, data),
+      clearLiveEvents: () => studioApplication.clearLiveEvents(),
 
-      refreshDebuggerSnapshot: () =>
-        studioApplication.refreshDebuggerSnapshot(),
+      startDebugger: () => studioApplication.startDebugger(),
+      pauseDebugger: () => studioApplication.pauseDebugger(),
+      resumeDebugger: () => studioApplication.resumeDebugger(),
+      stopDebugger: () => studioApplication.stopDebugger(),
+      refreshDebuggerSnapshot: () => studioApplication.refreshDebuggerSnapshot(),
 
-      recordReplayEvent: (type, data) =>
-        studioApplication.recordReplayEvent(type, data),
+      recordReplayEvent: (type, data) => studioApplication.recordReplayEvent(type, data),
+      stepReplay: () => studioApplication.stepReplay(),
+      playReplay: () => studioApplication.playReplay(),
+      stopReplay: () => studioApplication.stopReplay(),
+      jumpReplay: (index) => studioApplication.jumpReplay(index),
+      addReplayBookmark: (label) => studioApplication.addReplayBookmark(label),
+      gotoReplayBookmark: (bookmarkId) => studioApplication.gotoReplayBookmark(bookmarkId),
 
-      stepReplay: () =>
-        studioApplication.stepReplay(),
-
-      playReplay: () =>
-        studioApplication.playReplay(),
-
-      stopReplay: () =>
-        studioApplication.stopReplay(),
-
-      jumpReplay: (index) =>
-        studioApplication.jumpReplay(index),
-
-      addReplayBookmark: (label) =>
-        studioApplication.addReplayBookmark(label),
-
-      gotoReplayBookmark: (bookmarkId) =>
-        studioApplication.gotoReplayBookmark(bookmarkId),
-
-      executeCommand: (commandId) =>
-        studioApplication.executeCommand(commandId),
+      activateTheme: (themeId) => studioApplication.activateTheme(themeId),
+      setReduceMotion: (enabled) => studioApplication.setReduceMotion(enabled),
+      setMotionDuration: (durationMs) => studioApplication.setMotionDuration(durationMs),
+      setFontSizeScale: (scale) => studioApplication.setFontSizeScale(scale),
+      setHighContrast: (enabled) => studioApplication.setHighContrast(enabled),
+      runUxAudit: () => studioApplication.runUxAudit(),
+      runVisualDesignAudit: () => studioApplication.runVisualDesignAudit(),
     }),
     [snapshot],
   );
