@@ -11,6 +11,7 @@ import type {
   DockArea,
   DockLayout,
   ProjectNodeType,
+  SelectionItem,
 } from '@cyre/engine';
 
 import type {
@@ -67,6 +68,19 @@ export interface StudioContextValue {
   listDockLayouts: () => DockLayoutSummary[];
   loadDockLayout: (name: string) => void;
   deleteDockLayout: (name: string) => void;
+
+  selectProjectNode: (nodeId: string) => void;
+  selectNetworkNode: (nodeId: string) => void;
+  toggleSelection: (item: SelectionItem) => void;
+  clearMultiSelection: () => void;
+  setInspectorPropertyValue: (key: string, value: unknown) => void;
+  resetInspectorProperty: (key: string) => void;
+  resetInspectorProperties: () => void;
+  addNetworkNodeFromPalette: (
+    itemId: string,
+    x?: number,
+    y?: number,
+  ) => void;
 
   notify: (
     level: StudioNotificationLevel,
@@ -180,6 +194,30 @@ export function StudioProvider({
 
       deleteDockLayout: (name) =>
         studioApplication.deleteDockLayout(name),
+
+      selectProjectNode: (nodeId) =>
+        studioApplication.selectProjectNode(nodeId),
+
+      selectNetworkNode: (nodeId) =>
+        studioApplication.selectNetworkNode(nodeId),
+
+      toggleSelection: (item) =>
+        studioApplication.toggleSelection(item),
+
+      clearMultiSelection: () =>
+        studioApplication.clearMultiSelection(),
+
+      setInspectorPropertyValue: (key, value) =>
+        studioApplication.setInspectorPropertyValue(key, value),
+
+      resetInspectorProperty: (key) =>
+        studioApplication.resetInspectorProperty(key),
+
+      resetInspectorProperties: () =>
+        studioApplication.resetInspectorProperties(),
+
+      addNetworkNodeFromPalette: (itemId, x, y) =>
+        studioApplication.addNetworkNodeFromPalette(itemId, x, y),
 
       notify: (level, message) =>
         studioApplication.notify(level, message),

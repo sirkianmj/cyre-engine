@@ -405,6 +405,9 @@ function ProjectTreeNode({
             onDragStart={onDragStart}
             onDropOnNode={onDropOnNode}
             onContextMenu={onContextMenu}
+            dropTargetId={dropTargetId}
+            onDragOverNode={onDragOverNode}
+            onDragLeaveNode={onDragLeaveNode}
           />
         ))}
     </div>
@@ -422,6 +425,7 @@ function ProjectTree({
     deleteProjectNode,
     duplicateProjectNode,
     moveProjectNode,
+    selectProjectNode,
   } = useStudio();
 
   const [selectedNodeId, setSelectedNodeId] = useState<
@@ -732,7 +736,10 @@ function ProjectTree({
             selectedNodeId={selectedNodeId}
             expandedIds={expandedIds}
             onToggleExpand={toggleExpand}
-            onSelect={setSelectedNodeId}
+            onSelect={(id) => {
+              setSelectedNodeId(id);
+              selectProjectNode(id);
+            }}
             onCreateChild={(parentId) =>
               createNode(parentId, 'folder', 'Folder name:')
             }
@@ -746,6 +753,8 @@ function ProjectTree({
             onDropOnNode={handleDropOnNode}
             onContextMenu={openNodeContextMenu}
             dropTargetId={dropTargetId}
+            onDragOverNode={setDropTargetId}
+            onDragLeaveNode={() => setDropTargetId(null)}
           />
         ))}
       </div>
@@ -758,11 +767,95 @@ function ProjectTree({
   );
 }
 
+function EntityPalettePanel(): JSX.Element {
+  const { state, addNetworkNodeFromPalette } = useStudio();
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState<string>('all');
+
+  const items = state.entityPaletteItems.filter((item) => {
+    const matchesCategory =
+      category === 'all' || item.category === category;
+    const query = search.trim().toLowerCase();
+    const matchesSearch =
+      query === '' ||
+      item.label.toLowerCase().includes(query) ||
+      item.id.toLowerCase().includes(query);
+    return matchesCategory && matchesSearch;
+  });
+
+  return (
+    <div className="entity-palette">
+      <div className="project-toolbar">
+        <input
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search entities…"
+        />
+        <select
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+        >
+          <option value="all">All</option>
+          {state.entityPaletteCategories.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="entity-grid">
+        {items.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className="entity-palette-item"
+            draggable
+            onDragStart={(event) => {
+              event.dataTransfer.setData(
+                'application/x-cyre-entity',
+                item.id,
+              );
+              event.dataTransfer.effectAllowed = 'copy';
+            }}
+            onClick={() => addNetworkNodeFromPalette(item.id)}
+          >
+            <span className="entity-item-label">{item.label}</span>
+            <span className="entity-item-category">
+              {item.category}
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function InspectorBody({
   target,
 }: {
   target: InspectorTarget | null;
 }): JSX.Element {
+  const {
+    setInspectorPropertyValue,
+    resetInspectorProperty,
+    resetInspectorProperties,
+  } = useStudio();
+
+  const [values, setValues] = useState<Record<string, unknown>>({});
+
+  useEffect(() => {
+    if (target) {
+      const initial: Record<string, unknown> = {};
+      for (const property of target.properties) {
+        initial[property.key] = property.value;
+      }
+      setValues(initial);
+    } else {
+      setValues({});
+    }
+  }, [target]);
+
   if (!target) {
     return <div className="inspector-empty">No selection</div>;
   }
@@ -775,11 +868,17 @@ function InspectorBody({
     ),
   ).sort();
 
+  const commit = (key: string, value: unknown): void => {
+    setValues((current) => ({ ...current, [key]: value }));
+    setInspectorPropertyValue(key, value);
+  };
+
   return (
-    <div>
-      <div className="panel-header">
-        <span>INSPECTOR</span>
-        <strong>{target.name}</strong>
+    <div className="inspector-body">
+      <div className="inspector-toolbar">
+        <button type="button" onClick={resetInspectorProperties}>
+          Reset All
+        </button>
       </div>
 
       {categories.map((category) => (
@@ -793,15 +892,82 @@ function InspectorBody({
               (property) =>
                 (property.category ?? 'General') === category,
             )
-            .map((property) => (
-              <div
-                key={property.key}
-                className="property-row"
-              >
-                <span>{property.label}</span>
-                <strong>{String(property.value)}</strong>
-              </div>
-            ))}
+            .map((property) => {
+              const value = values[property.key] ?? property.value;
+
+              if (property.type === 'boolean') {
+                return (
+                  <div className="property-row" key={property.key}>
+                    <span>{property.label}</span>
+                    <input
+                      type="checkbox"
+                      checked={Boolean(value)}
+                      onChange={(event) =>
+                        commit(property.key, event.target.checked)
+                      }
+                    />
+                  </div>
+                );
+              }
+
+              if (property.type === 'number') {
+                return (
+                  <div className="property-row" key={property.key}>
+                    <span>{property.label}</span>
+                    <input
+                      type="number"
+                      value={Number(value)}
+                      onChange={(event) =>
+                        commit(property.key, Number(event.target.value))
+                      }
+                    />
+                  </div>
+                );
+              }
+
+              if (
+                property.type === 'object' ||
+                property.type === 'array'
+              ) {
+                const text = JSON.stringify(value, null, 2);
+                return (
+                  <div className="property-row vertical" key={property.key}>
+                    <span>{property.label}</span>
+                    <textarea
+                      value={text}
+                      onChange={(event) => {
+                        try {
+                          commit(property.key, JSON.parse(event.target.value));
+                        setValues((current) => ({
+                          ...current,
+                          [property.key]: JSON.parse(event.target.value),
+                        }));
+                      } catch {
+                        // keep invalid JSON locally without committing
+                        setValues((current) => ({
+                          ...current,
+                          [property.key]: event.target.value,
+                        }));
+                      }
+                    }}
+                    />
+                  </div>
+                );
+              }
+
+              return (
+                <div className="property-row" key={property.key}>
+                  <span>{property.label}</span>
+                  <input
+                    type="text"
+                    value={String(value)}
+                    onChange={(event) =>
+                      commit(property.key, event.target.value)
+                    }
+                  />
+                </div>
+              );
+            })}
         </section>
       ))}
     </div>
@@ -842,7 +1008,16 @@ function NetworkBody({
   nodes: NetworkGraphNode[];
   edges: NetworkGraphEdge[];
 }): JSX.Element {
-  return <Viewport nodes={nodes} edges={edges} />;
+  const { selectNetworkNode, addNetworkNodeFromPalette } = useStudio();
+
+  return (
+    <Viewport
+      nodes={nodes}
+      edges={edges}
+      onSelectNode={selectNetworkNode}
+      onDropEntity={addNetworkNodeFromPalette}
+    />
+  );
 }
 
 function getPanelBody(
@@ -872,6 +1047,9 @@ function getPanelBody(
       return (
         <ConsoleBody notifications={state.notifications} />
       );
+
+    case 'entity-palette':
+      return <EntityPalettePanel />;
 
     default:
       return (

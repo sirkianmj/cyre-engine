@@ -8,11 +8,15 @@ import type {
 interface ViewportProps {
   nodes: NetworkGraphNode[];
   edges: NetworkGraphEdge[];
+  onSelectNode?: (nodeId: string) => void;
+  onDropEntity?: (itemId: string, x: number, y: number) => void;
 }
 
 export function Viewport({
   nodes,
   edges,
+  onSelectNode,
+  onDropEntity,
 }: ViewportProps): JSX.Element {
   const nodePositions = useMemo(() => {
     const positions = new Map<
@@ -41,8 +45,23 @@ export function Viewport({
     );
   }
 
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>): void => {
+    if (!onDropEntity) return;
+    event.preventDefault();
+    const itemId = event.dataTransfer.getData('application/x-cyre-entity');
+    if (!itemId) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    onDropEntity(itemId, x, y);
+  };
+
   return (
-    <div className="cyre-viewport">
+    <div
+      className="cyre-viewport"
+      onDragOver={(event) => event.preventDefault()}
+      onDrop={handleDrop}
+    >
       <svg
         viewBox="0 0 1000 600"
         preserveAspectRatio="xMidYMid meet"
@@ -78,6 +97,7 @@ export function Viewport({
             <g
               key={node.id}
               className="network-node"
+              onClick={() => onSelectNode?.(node.id)}
             >
               <circle
                 cx={position.x}

@@ -1,9 +1,11 @@
 import {
   CommandPalette,
+  CyberEntityPalette,
   DockManager,
   EditorShell,
   Engine,
   Inspector,
+  MultiSelectionManager,
   NetworkGraphEditor,
   PlayModeController,
   ProjectExplorer,
@@ -23,6 +25,8 @@ import type {
   MenuItem,
   NetworkGraphEdge,
   NetworkGraphNode,
+  SelectionItem,
+  CyberEntityPaletteItem,
   ProjectData,
   ProjectModel,
   ProjectNode,
@@ -62,6 +66,10 @@ export interface StudioSnapshot {
   maximizedPanelId: string | null;
   activePanelId: string | null;
   savedDockLayouts: DockLayoutSummary[];
+  selectedItems: SelectionItem[];
+  selectionCount: number;
+  entityPaletteItems: CyberEntityPaletteItem[];
+  entityPaletteCategories: string[];
 }
 
 interface PanelInit {
@@ -88,6 +96,8 @@ export class StudioApplication {
   private projectExplorer = new ProjectExplorer();
   private inspector = new Inspector();
   private networkGraphEditor = new NetworkGraphEditor();
+  private readonly cyberEntityPalette = new CyberEntityPalette();
+  private readonly multiSelectionManager = new MultiSelectionManager();
 
   private currentProject: ProjectModel | null = null;
   private activeWorkspaceId: string | null = null;
@@ -246,7 +256,133 @@ export class StudioApplication {
     this.emit();
   }
 
-  clearInspectorSelection(): void {
+  selectProjectNode(nodeId: string): void {
+    try {
+      const node = this.projectExplorer.getNode(nodeId);
+      const properties: InspectorTarget['properties'] = [
+        { key: 'id', label: 'ID', type: 'string', value: node.id },
+        { key: 'name', label: 'Name', type: 'string', value: node.name },
+        { key: 'type', label: 'Type', type: 'string', value: node.type },
+        { key: 'parentId', label: 'Parent', type: 'string', value: node.parentId ?? '' },
+      ];
+      this.inspector.selectTarget(node.id, node.name, properties);
+      this.multiSelectionManager.select({ id: node.id, type: node.type, name: node.name });
+      this.editorShell.setStatusMessage(`Selected project node: ${node.name}`);
+    } catch (error) {
+      this.editorShell.addNotification('error', `Select project node failed: ${this.errorMessage(error)}`);
+    }
+    this.emit();
+  }
+
+  selectNetworkNode(nodeId: string): void {
+    try {
+      const node = this.networkGraphEditor.getNode(nodeId);
+      const properties: InspectorTarget['properties'] = [
+        { key: 'id', label: 'ID', type: 'string', value: node.id },
+        { key: 'label', label: 'Label', type: 'string', value: node.label },
+        { key: 'type', label: 'Type', type: 'string', value: node.type },
+        { key: 'subnet', label: 'Subnet', type: 'string', value: node.subnet ?? '' },
+        { key: 'zone', label: 'Zone', type: 'string', value: node.zone ?? '' },
+        { key: 'group', label: 'Group', type: 'string', value: node.group ?? '' },
+      ];
+      this.inspector.selectTarget(node.id, node.label, properties);
+      this.multiSelectionManager.select({ id: node.id, type: node.type, name: node.label });
+      this.editorShell.setStatusMessage(`Selected network node: ${node.label}`);
+    } catch (error) {
+      this.editorShell.addNotification('error', `Select network node failed: ${this.errorMessage(error)}`);
+    }
+    this.emit();
+  }
+
+  toggleSelection(item: SelectionItem): void {
+    try {
+      this.multiSelectionManager.toggle(item);
+    } catch (error) {
+      this.editorShell.addNotification('error', `Toggle selection failed: ${this.errorMessage(error)}`);
+    }
+    this.emit();
+  }
+
+  clearMultiSelection(): void {
+    try {
+      this.multiSelectionManager.clear();
+    } catch (error) {
+      this.editorShell.addNotification('error', `Clear selection failed: ${this.errorMessage(error)}`);
+    }
+    this.emit();
+  }
+
+  setInspectorPropertyValue(key: string, value: unknown): void {
+    try {
+      this.inspector.setPropertyValue(key, value);
+      this.editorShell.addNotification('success', `Updated inspector property ${key}.`);
+    } catch (error) {
+      this.editorShell.addNotification('error', `Update inspector property failed: ${this.errorMessage(error)}`);
+    }
+    this.emit();
+  }
+
+  resetInspectorProperty(key: string): void {
+    try {
+      this.inspector.resetProperty(key);
+      this.editorShell.addNotification('success', `Reset inspector property ${key}.`);
+    } catch (error) {
+      this.editorShell.addNotification('error', `Reset inspector property failed: ${this.errorMessage(error)}`);
+    }
+    this.emit();
+  }
+
+  resetInspectorProperties(): void {
+    try {
+      this.inspector.resetAllProperties();
+      this.editorShell.addNotification('success', 'Reset all inspector properties.');
+    } catch (error) {
+      this.editorShell.addNotification('error', `Reset inspector properties failed: ${this.errorMessage(error)}`);
+    }
+    this.emit();
+  }
+
+  addNetworkNodeFromPalette(itemId: string, x?: number, y?: number): void {
+    try {
+      const item = this.cyberEntityPalette.getItem(itemId);
+      const entity = this.cyberEntityPalette.createEntityData(itemId);
+      const typeMap: Record<string, NetworkGraphNode['type']> = {
+        host: 'host',
+        server: 'server',
+        client: 'client',
+        router: 'router',
+        firewall: 'firewall',
+        network: 'network',
+        database: 'database',
+        service: 'service',
+        user: 'other',
+        account: 'other',
+        role: 'other',
+        vulnerability: 'other',
+        'security-control': 'other',
+      };
+      const nodeType = typeMap[itemId] ?? 'other';
+      const node: NetworkGraphNode = {
+        id: `entity-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+        label: item.label,
+        type: nodeType,
+        position: x !== undefined && y !== undefined ? { x, y } : {
+          x: 80 + Math.random() * 600,
+          y: 80 + Math.random() * 400,
+        },
+        metadata: entity.properties,
+      };
+
+      this.networkGraphEditor.addNode(node);
+      this.selectNetworkNode(node.id);
+      this.editorShell.addNotification('success', `Created ${item.label}.`);
+    } catch (error) {
+      this.editorShell.addNotification('error', `Add entity failed: ${this.errorMessage(error)}`);
+    }
+    this.emit();
+  }
+
+    clearInspectorSelection(): void {
     try {
       this.inspector.clearSelection();
       this.editorShell.addNotification(
@@ -596,6 +732,13 @@ export class StudioApplication {
         dockArea: 'bottom',
         order: 4,
       },
+      {
+        id: 'entity-palette',
+        title: 'Entity Palette',
+        editorDock: 'left',
+        dockArea: 'left',
+        order: 5,
+      },
     ];
 
     for (const panel of panels) {
@@ -632,6 +775,8 @@ export class StudioApplication {
 
     this.activeWorkspaceId = 'editor';
     this.workspaceManager.activateWorkspace('editor', this.dockManager);
+
+        this.dockManager.tabPanels(['project-explorer', 'entity-palette']);
 
         this.registerMenuGroups();
     this.registerToolbarButtons();
@@ -1223,6 +1368,10 @@ export class StudioApplication {
       activePanelId:
         this.dockManager.getActivePanelId() ?? null,
       savedDockLayouts: this.listDockLayouts(),
+      selectedItems: this.multiSelectionManager.getSelectedItems(),
+      selectionCount: this.multiSelectionManager.getSelectionCount(),
+      entityPaletteItems: this.cyberEntityPalette.listItems(),
+      entityPaletteCategories: this.cyberEntityPalette.listCategories(),
     };
   }
 
