@@ -34,6 +34,8 @@ import { RenderingPanel } from './RenderingPanel';
 import { AssetPipelinePanel } from './AssetPipelinePanel';
 import { ScriptingPluginPanel } from './ScriptingPluginPanel';
 import { BuildDeployPanel } from './BuildDeployPanel';
+import { EngineViewport } from './EngineViewport';
+import { AssetFilePanel } from './AssetFilePanel';
 import { ScenarioDesignerPanel, MissionDesignerPanel, ObjectiveGraphPanel, EventTriggerPanel, ScenarioGeneratorPanel } from './AuthoringPanels';
 
 const nodeIcons: Record<string, string> = {
@@ -1129,6 +1131,12 @@ function getPanelBody(
 
     case 'build-deployment':
       return <BuildDeployPanel />;
+
+    case 'engine-viewport':
+      return <EngineViewport />;
+
+    case 'asset-files':
+      return <AssetFilePanel />;
 
     default:
       return (

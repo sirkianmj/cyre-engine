@@ -324,3 +324,19 @@ describe('Phase 12: Build & Deployment', () => {
     expect(app.getState().packagingResults.length).toBe(1);
   });
 });
+
+describe('Phase 13: Real Viewport & File Import/Export', () => {
+  it('keeps rendering panels available', () => {
+    const app = new StudioApplication();
+    const ids = app.getState().panels.map((panel) => panel.id);
+    expect(ids).toContain('engine-viewport');
+    expect(ids).toContain('asset-files');
+  });
+
+  it('still renders an asset scene', () => {
+    const app = new StudioApplication();
+    app.addNetworkNodeFromPalette('server', 100, 100);
+    app.renderScene(800, 600, '2d');
+    expect(app.getState().renderResult).not.toBeNull();
+  });
+});

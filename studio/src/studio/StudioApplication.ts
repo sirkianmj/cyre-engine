@@ -2086,6 +2086,20 @@ export class StudioApplication {
         dockArea: 'center',
         order: 23,
       },
+      {
+        id: 'engine-viewport',
+        title: 'Engine Viewport',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 24,
+      },
+      {
+        id: 'asset-files',
+        title: 'Import / Export',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 25,
+      },
     ];
 
     for (const panel of panels) {
