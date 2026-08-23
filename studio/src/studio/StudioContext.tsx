@@ -189,6 +189,7 @@ export interface StudioContextValue {
   }>;
   setActiveRenderingBackend: (backendId: string) => void;
   renderScene: (width: number, height: number, mode: string) => void;
+  setRenderMode: (mode: string) => void;
 
   registerAsset: (name: string, type: string, path?: string) => void;
   importAssetFromContent: (
@@ -365,6 +366,8 @@ export function StudioProvider({
       listRenderingBackends: () => studioApplication.listRenderingBackends(),
       setActiveRenderingBackend: (backendId) => studioApplication.setActiveRenderingBackend(backendId),
       renderScene: (width, height, mode) => studioApplication.renderScene(width, height, mode),
+
+      setRenderMode: (mode) => studioApplication.setRenderMode(mode),
 
       registerAsset: (name, type, path) => studioApplication.registerAsset(name, type, path),
       importAssetFromContent: (name, type, content) => studioApplication.importAssetFromContent(name, type, content),

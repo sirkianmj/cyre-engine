@@ -178,6 +178,7 @@ export interface StudioSnapshot {
     capabilities: Record<string, unknown>;
   }>;
   activeRenderingBackendId: string | null;
+  renderMode: '2d' | '2.5d' | '3d';
   renderResult: RenderResultData | null;
   assets: Array<Record<string, unknown>>;
   assetBrowserTypes: string[];
@@ -259,6 +260,7 @@ export class StudioApplication {
   private readonly renderBackendRegistry = new RenderBackendRegistry();
   private readonly simpleRenderBackend = new SimpleSceneGraphBackend();
   private activeRenderingBackendId: string | null = null;
+  private renderMode: '2d' | '2.5d' | '3d' = '3d';
   private renderResult: RenderResultData | null = null;
   private gameUiRender: Record<string, unknown> | null = null;
   private readonly accessibilityController = new AccessibilityController({
@@ -1800,6 +1802,16 @@ export class StudioApplication {
     this.emit();
   }
 
+    setRenderMode(mode: string): void {
+    if (!['2d', '2.5d', '3d'].includes(mode)) {
+      throw new Error('Invalid render mode: ' + mode);
+    }
+
+    this.renderMode = mode as '2d' | '2.5d' | '3d';
+    this.editorShell.addNotification('success', 'Render mode set to ' + mode.toUpperCase());
+    this.emit();
+  }
+
     play(): void {
     try {
       this.playModeController.start();
@@ -2570,6 +2582,7 @@ export class StudioApplication {
       gameUiRender: this.gameUiRender,
       renderingBackends: this.listRenderingBackends(),
       activeRenderingBackendId: this.activeRenderingBackendId,
+      renderMode: this.renderMode,
       renderResult: this.renderResult,
       assets: this.assetManager.list().map((asset) => asset.toJSON()),
       assetBrowserTypes: this.assetBrowser.listAvailableTypes() as string[],

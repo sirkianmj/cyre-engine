@@ -2839,3 +2839,20 @@ select {
   background: var(--studio-green);
   box-shadow: 0 0 8px var(--studio-green);
 }
+
+/* ===== MODE-AWARE VIEWPORT LAYERS ===== */
+
+.render-layer {
+  position: absolute;
+  inset: 0;
+  display: none;
+}
+
+.render-layer.active {
+  display: block;
+}
+
+.webgl-viewport canvas.render-layer {
+  width: 100%;
+  height: 100%;
+}

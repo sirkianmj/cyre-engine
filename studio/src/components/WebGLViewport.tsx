@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useStudio } from '../studio/StudioContext';
 
-const TYPE_META: Record<string, { color: string; geometry: 'box' | 'sphere' | 'cylinder' | 'capsule' }> = {
+const TYPE_META: Record<string, { color: string; geometry: 'box' | 'sphere' | 'cylinder' }> = {
   host: { color: '#4f8cff', geometry: 'box' },
   server: { color: '#19c9a7', geometry: 'box' },
   client: { color: '#f39c12', geometry: 'box' },
@@ -16,8 +16,9 @@ const TYPE_META: Record<string, { color: string; geometry: 'box' | 'sphere' | 'c
 
 export function WebGLViewport(): JSX.Element {
   const { state, selectNetworkNode } = useStudio();
-  const containerRef = useRef<HTMLDivElement | null>(null);
-  const [modeLabel, setModeLabel] = useState('3D');
+  const renderMode = state.renderMode ?? '3d';
+  const webglRef = useRef<HTMLDivElement | null>(null);
+  const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
 
   const nodes = state.networkNodes;
   const edges = state.networkEdges;
@@ -36,25 +37,18 @@ export function WebGLViewport(): JSX.Element {
       });
 
       let geometry: THREE.BufferGeometry;
-      switch (meta.geometry) {
-        case 'sphere':
-          geometry = new THREE.SphereGeometry(0.8, 24, 18);
-          break;
-        case 'cylinder':
-          geometry = new THREE.CylinderGeometry(0.65, 0.65, 1.8, 24);
-          break;
-        case 'capsule':
-          geometry = new THREE.CapsuleGeometry(0.55, 0.9, 8, 16);
-          break;
-        default:
-          geometry = new THREE.BoxGeometry(1.3, 1.0, 1.3);
-          break;
+      if (meta.geometry === 'sphere') {
+        geometry = new THREE.SphereGeometry(0.8, 24, 18);
+      } else if (meta.geometry === 'cylinder') {
+        geometry = new THREE.CylinderGeometry(0.65, 0.65, 1.8, 24);
+      } else {
+        geometry = new THREE.BoxGeometry(1.3, 1.0, 1.3);
       }
 
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(
         node.position?.x ? (node.position.x - 400) / 120 : (index % 5) * 2.4 - 4.8,
-        node.position?.y ? 0.5 : 0.5,
+        0.5,
         node.position?.y ? (node.position.y - 300) / 120 : Math.floor(index / 5) * 2.4 - 2.4,
       );
       mesh.userData = { nodeId: node.id };
@@ -66,12 +60,11 @@ export function WebGLViewport(): JSX.Element {
         new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.45 }),
       );
       mesh.add(wireframe);
-
       group.add(mesh);
       map.set(node.id, mesh);
     });
 
-    edges.forEach((edge, index) => {
+    edges.forEach((edge) => {
       const source = map.get(edge.source);
       const target = map.get(edge.target);
       if (!source || !target) return;
@@ -80,7 +73,6 @@ export function WebGLViewport(): JSX.Element {
       const end = target.position.clone();
       const distance = start.distanceTo(end);
       const mid = start.clone().add(end).multiplyScalar(0.5);
-
       const direction = end.clone().sub(start).normalize();
       const quaternion = new THREE.Quaternion().setFromUnitVectors(
         new THREE.Vector3(0, 1, 0),
@@ -96,7 +88,6 @@ export function WebGLViewport(): JSX.Element {
       const line = new THREE.Mesh(lineGeometry, lineMaterial);
       line.position.copy(mid);
       line.quaternion.copy(quaternion);
-      line.userData = { edgeId: edge.id };
       group.add(line);
     });
 
@@ -104,7 +95,8 @@ export function WebGLViewport(): JSX.Element {
   }, [nodes, edges]);
 
   useEffect(() => {
-    const container = containerRef.current;
+    if (renderMode !== '3d') return;
+    const container = webglRef.current;
     if (!container) return;
 
     const scene = new THREE.Scene();
@@ -133,9 +125,7 @@ export function WebGLViewport(): JSX.Element {
     floor.receiveShadow = true;
     scene.add(floor);
 
-    const hemi = new THREE.HemisphereLight('#bcd3ff', '#0b0e14', 1.2);
-    scene.add(hemi);
-
+    scene.add(new THREE.HemisphereLight('#bcd3ff', '#0b0e14', 1.2));
     const dir = new THREE.DirectionalLight('#ffffff', 3.2);
     dir.position.set(8, 14, 7);
     dir.castShadow = true;
@@ -149,26 +139,18 @@ export function WebGLViewport(): JSX.Element {
     scene.add(dir);
 
     const viewportGroup = new THREE.Group();
+    viewportGroup.add(nodeObjects.clone());
     scene.add(viewportGroup);
-
-    const replaceContent = (): void => {
-      while (viewportGroup.children.length > 0) {
-        viewportGroup.remove(viewportGroup.children[0]);
-      }
-      viewportGroup.add(nodeObjects.clone());
-    };
-    replaceContent();
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
-
-    let isPointerDown = false;
-    let startX = 0;
-    let startY = 0;
     let yaw = 0.62;
     let pitch = -0.28;
     let distance = 15;
-    let target = new THREE.Vector3(0, 0.2, 0);
+    const target = new THREE.Vector3(0, 0.2, 0);
+    let isPointerDown = false;
+    let startX = 0;
+    let startY = 0;
 
     const updateCamera = (): void => {
       const x = target.x + distance * Math.sin(yaw) * Math.cos(pitch);
@@ -177,7 +159,6 @@ export function WebGLViewport(): JSX.Element {
       camera.position.set(x, y, z);
       camera.lookAt(target);
     };
-
     updateCamera();
 
     const resize = (): void => {
@@ -188,77 +169,60 @@ export function WebGLViewport(): JSX.Element {
       camera.updateProjectionMatrix();
     };
 
-    const handlePointerDown = (event: PointerEvent): void => {
+    const down = (event: PointerEvent): void => {
       isPointerDown = true;
       startX = event.clientX;
       startY = event.clientY;
-      (event.target as HTMLElement)?.setPointerCapture?.(event.pointerId);
     };
-
-    const handlePointerMove = (event: PointerEvent): void => {
+    const move = (event: PointerEvent): void => {
       if (!isPointerDown) return;
       const dx = event.clientX - startX;
       const dy = event.clientY - startY;
       startX = event.clientX;
       startY = event.clientY;
-
-      if (event.shiftKey) {
-        const panScale = distance * 0.002;
-        const forward = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
-        const right = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
-        target.addScaledVector(right, -dx * panScale);
-        target.addScaledVector(forward, dy * panScale);
-      } else {
-        yaw += dx * 0.008;
-        pitch = Math.max(-1.25, Math.min(1.25, pitch - dy * 0.008));
-      }
+      yaw += dx * 0.008;
+      pitch = Math.max(-1.25, Math.min(1.25, pitch - dy * 0.008));
       updateCamera();
     };
-
-    const handlePointerUp = (event: PointerEvent): void => {
+    const up = (): void => {
       isPointerDown = false;
-      (event.target as HTMLElement)?.releasePointerCapture?.(event.pointerId);
     };
-
-    const handleWheel = (event: WheelEvent): void => {
+    const wheel = (event: WheelEvent): void => {
       event.preventDefault();
       distance = Math.max(4, Math.min(34, distance * (event.deltaY > 0 ? 1.08 : 0.92)));
       updateCamera();
     };
-
-    const handlePointerDownForSelection = (event: PointerEvent): void => {
+    const select = (event: PointerEvent): void => {
       if (event.button !== 0) return;
       const rect = renderer.domElement.getBoundingClientRect();
       pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
       pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
       raycaster.setFromCamera(pointer, camera);
-
       const intersections = raycaster.intersectObjects(viewportGroup.children, true);
-      for (const intersection of intersections) {
-        let object: THREE.Object3D | null = intersection.object;
-        while (object) {
-          const nodeId = object.userData?.nodeId;
+      for (const hit of intersections) {
+        let obj: THREE.Object3D | null = hit.object;
+        while (obj) {
+          const nodeId = obj.userData?.nodeId;
           if (typeof nodeId === 'string') {
             selectNetworkNode(nodeId);
             return;
           }
-          object = object.parent;
+          obj = obj.parent;
         }
       }
     };
 
-    renderer.domElement.addEventListener('pointerdown', handlePointerDown);
-    renderer.domElement.addEventListener('pointermove', handlePointerMove);
-    renderer.domElement.addEventListener('pointerup', handlePointerUp);
-    renderer.domElement.addEventListener('wheel', handleWheel);
-    renderer.domElement.addEventListener('pointerdown', handlePointerDownForSelection);
-
+    renderer.domElement.addEventListener('pointerdown', down);
+    renderer.domElement.addEventListener('pointermove', move);
+    renderer.domElement.addEventListener('pointerup', up);
+    renderer.domElement.addEventListener('wheel', wheel);
+    renderer.domElement.addEventListener('pointerdown', select);
     window.addEventListener('resize', resize);
     resize();
 
-    let animationFrame = 0;
     let frame = 0;
-    const render = (): void => {
+    let raf = 0;
+    const animate = (): void => {
       frame += 1;
       const t = frame * 0.001;
       viewportGroup.children.forEach((child, index) => {
@@ -267,33 +231,155 @@ export function WebGLViewport(): JSX.Element {
         }
       });
       renderer.render(scene, camera);
-      animationFrame = window.requestAnimationFrame(render);
+      raf = requestAnimationFrame(animate);
     };
-    render();
+    animate();
 
     return () => {
-      window.cancelAnimationFrame(animationFrame);
+      cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
-      renderer.domElement.removeEventListener('pointerdown', handlePointerDown);
-      renderer.domElement.removeEventListener('pointermove', handlePointerMove);
-      renderer.domElement.removeEventListener('pointerup', handlePointerUp);
-      renderer.domElement.removeEventListener('wheel', handleWheel);
-      renderer.domElement.removeEventListener('pointerdown', handlePointerDownForSelection);
+      renderer.domElement.removeEventListener('pointerdown', down);
+      renderer.domElement.removeEventListener('pointermove', move);
+      renderer.domElement.removeEventListener('pointerup', up);
+      renderer.domElement.removeEventListener('wheel', wheel);
+      renderer.domElement.removeEventListener('pointerdown', select);
       renderer.dispose();
       container.removeChild(renderer.domElement);
     };
-  }, [nodeObjects, selectNetworkNode]);
+  }, [nodeObjects, nodes, edges, renderMode, selectNetworkNode]);
+
+  useEffect(() => {
+    if (renderMode === '3d') return;
+    const canvas = canvas2dRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let raf = 0;
+    let frame = 0;
+
+    const resize = (): void => {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, rect.width * ratio);
+      canvas.height = Math.max(1, rect.height * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    };
+
+    const draw = (): void => {
+      frame += 1;
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      ctx.clearRect(0, 0, width, height);
+
+      const bg = ctx.createRadialGradient(width / 2, height / 2, 40, width / 2, height / 2, Math.max(width, height));
+      bg.addColorStop(0, '#0c1524');
+      bg.addColorStop(1, '#050810');
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, width, height);
+
+      const gridSize = 70;
+      ctx.strokeStyle = 'rgba(120,170,255,0.09)';
+      ctx.lineWidth = 1;
+      for (let x = -width; x < width * 2; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+      for (let y = -height; y < height * 2; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      const projected = new Map<string, { x: number; y: number; scale: number; z: number }>();
+      nodes.forEach((node, index) => {
+        const angle = (index / Math.max(1, nodes.length)) * Math.PI * 2;
+        const base = node.position ?? { x: 400 + Math.cos(angle) * 220, y: 300 + Math.sin(angle) * 170 };
+        const z = node.position?.y ?? index * 12;
+
+        if (renderMode === '2d') {
+          projected.set(node.id, { x: base.x, y: base.y, scale: 1, z: 0 });
+        } else {
+          const depth = Math.max(0.35, 1 - z / 520);
+          projected.set(node.id, {
+            x: (base.x - width / 2) * depth + width / 2,
+            y: (base.y - height / 2) * depth + height / 2 - z * 0.28,
+            scale: depth,
+            z,
+          });
+        }
+      });
+
+      ctx.strokeStyle = 'rgba(80,160,255,0.32)';
+      ctx.lineWidth = 2;
+      for (const edge of edges) {
+        const a = projected.get(edge.source);
+        const b = projected.get(edge.target);
+        if (!a || !b) continue;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+
+      const sorted = Array.from(projected.entries()).sort((a, b) => a[1].y - b[1].y);
+      for (const [id, p] of sorted) {
+        const node = nodes.find((entry) => entry.id === id);
+        if (!node) continue;
+        const color = TYPE_META[node.type]?.color ?? TYPE_META.other.color;
+        const size = 32 * p.scale;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.shadowColor = color;
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.arc(0, 0, size, 0, Math.PI * 2);
+        ctx.fillStyle = `${color}26`;
+        ctx.fill();
+        ctx.strokeStyle = color;
+        ctx.stroke();
+        ctx.fillStyle = '#f5f7fb';
+        ctx.font = `${Math.max(10, 12 * p.scale)}px Inter, sans-serif`;
+        ctx.textAlign = 'center';
+        ctx.fillText(node.label ?? id, 0, -(size + 9));
+        ctx.fillStyle = '#8f9bb3';
+        ctx.fillText(node.type ?? 'other', 0, -(size - 3));
+        ctx.restore();
+      }
+
+      raf = requestAnimationFrame(draw);
+    };
+
+    resize();
+    window.addEventListener('resize', resize);
+    draw();
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+    };
+  }, [renderMode, nodes, edges]);
 
   return (
-    <div className="webgl-viewport" ref={containerRef}>
+    <div className="webgl-viewport">
+      <div
+        ref={webglRef}
+        className={`render-layer webgl-layer ${renderMode === '3d' ? 'active' : ''}`}
+      />
+      <canvas
+        ref={canvas2dRef}
+        className={`render-layer canvas-layer ${renderMode !== '3d' ? 'active' : ''}`}
+      />
       <div className="viewport-mode-label">
         <span className="mode-dot" />
-        {modeLabel}
+        {renderMode.toUpperCase()}
       </div>
       <div className="viewport-help">
-        <span>Left-drag: orbit</span>
-        <span>Shift+drag: pan</span>
-        <span>Wheel: zoom</span>
+        <span>Mode: {renderMode.toUpperCase()}</span>
         <span>Click node: select</span>
       </div>
     </div>
