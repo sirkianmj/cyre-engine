@@ -18,6 +18,17 @@ interface RenderSettings {
   lightIntensity: number;
 }
 
+const windowDefinitions: Array<{ id: PanelId; label: string }> = [
+  { id: 'project', label: 'Project' },
+  { id: 'hierarchy', label: 'Hierarchy' },
+  { id: 'inspector', label: 'Details' },
+  { id: 'entities', label: 'Entities' },
+  { id: 'content', label: 'Content Browser' },
+  { id: 'console', label: 'Console' },
+  { id: 'timeline', label: 'Timeline' },
+  { id: 'rendering', label: 'Rendering Settings' },
+];
+
 export function UnrealEditorLayout(): JSX.Element {
   const { state, play, pause, resume, stop, restart, setSimulationSpeed, setRenderMode } = useStudio();
 
@@ -49,7 +60,6 @@ export function UnrealEditorLayout(): JSX.Element {
   };
 
   const roots = useMemo(() => state.projectExplorerNodes.filter((node) => !node.parentId), [state.projectExplorerNodes]);
-
   const simulationLabel = !state.isPlaying ? 'STOPPED' : state.isPaused ? 'PAUSED' : 'RUNNING';
 
   return (
@@ -69,17 +79,10 @@ export function UnrealEditorLayout(): JSX.Element {
 
         <div className="unreal-window-menu">
           <span className="window-menu-label">Windows</span>
-          {([
-            ['project', 'Project'],
-            ['hierarchy', 'Hierarchy'],
-            ['inspector', 'Details'],
-            ['entities', 'Entities'],
-            ['content', 'Content Browser'],
-            ['console', 'Console'],
-            ['timeline', 'Timeline'],
-            ['rendering', 'Rendering Settings'],
-          ] as Array<[PanelId, string]>).map(([id, label]) => (
-            <button key={id} className={openPanels.has(id) ? 'active' : ''} onClick={() => togglePanel(id)}>{label}</button>
+          {windowDefinitions.map((def) => (
+            <button key={def.id} className={openPanels.has(def.id) ? 'active' : ''} onClick={() => togglePanel(def.id)}>
+              {def.label}
+            </button>
           ))}
         </div>
       </div>

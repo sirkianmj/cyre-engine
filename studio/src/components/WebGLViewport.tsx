@@ -190,10 +190,11 @@ export function WebGLViewport({ settings }: { settings: ViewportSettings }): JSX
       }
     };
 
+    renderer.domElement.style.touchAction = 'none';
     renderer.domElement.addEventListener('pointerdown', down);
     renderer.domElement.addEventListener('pointermove', move);
     renderer.domElement.addEventListener('pointerup', up);
-    renderer.domElement.addEventListener('wheel', wheel);
+    renderer.domElement.addEventListener('wheel', wheel, { passive: false });
     renderer.domElement.addEventListener('pointerdown', select);
     window.addEventListener('resize', resize);
     resize();
@@ -232,6 +233,12 @@ export function WebGLViewport({ settings }: { settings: ViewportSettings }): JSX
     if (!ctx) return;
     let raf = 0;
     let frame = 0;
+    let panX = 0;
+    let panY = 0;
+    let zoom = 1;
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
 
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
@@ -257,8 +264,10 @@ export function WebGLViewport({ settings }: { settings: ViewportSettings }): JSX
         const gridSize = 70;
         ctx.strokeStyle = 'rgba(120,170,255,0.09)';
         ctx.lineWidth = 1;
-        for (let x = -width; x < width * 2; x += gridSize) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); }
-        for (let y = -height; y < height * 2; y += gridSize) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke(); }
+        const offsetX = panX % gridSize;
+        const offsetY = panY % gridSize;
+        for (let x = offsetX; x < width; x += gridSize) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); }
+        for (let y = offsetY; y < height; y += gridSize) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke(); }
       }
 
       const projected = new Map<string, { x: number; y: number; scale: number; z: number }>();
@@ -268,10 +277,10 @@ export function WebGLViewport({ settings }: { settings: ViewportSettings }): JSX
         const z = node.position?.y ?? index * 12;
 
         if (renderMode === '2d') {
-          projected.set(node.id, { x: base.x, y: base.y, scale: 1, z: 0 });
+          projected.set(node.id, { x: (base.x + panX) * zoom, y: (base.y + panY) * zoom, scale: zoom, z: 0 });
         } else {
           const depth = Math.max(0.35, 1 - z / 520);
-          projected.set(node.id, { x: (base.x - width / 2) * depth + width / 2, y: (base.y - height / 2) * depth + height / 2 - z * 0.28, scale: depth, z });
+          projected.set(node.id, { x: ((base.x - width / 2) * depth + width / 2 + panX) * zoom, y: ((base.y - height / 2) * depth + height / 2 + panY - z * 0.28) * zoom, scale: depth * zoom, z });
         }
       });
 
@@ -312,6 +321,26 @@ export function WebGLViewport({ settings }: { settings: ViewportSettings }): JSX
       raf = requestAnimationFrame(draw);
     };
 
+    const pointerDown = (event: PointerEvent) => { dragging = true; lastX = event.clientX; lastY = event.clientY; };
+    const pointerMove = (event: PointerEvent) => {
+      if (!dragging) return;
+      panX += event.clientX - lastX;
+      panY += event.clientY - lastY;
+      lastX = event.clientX;
+      lastY = event.clientY;
+    };
+    const pointerUp = () => { dragging = false; };
+    const wheel = (event: WheelEvent) => {
+      event.preventDefault();
+      zoom = Math.max(0.35, Math.min(4, zoom * (event.deltaY > 0 ? 0.92 : 1.08)));
+    };
+
+    canvas.style.touchAction = 'none';
+    canvas.addEventListener('pointerdown', pointerDown);
+    canvas.addEventListener('pointermove', pointerMove);
+    canvas.addEventListener('pointerup', pointerUp);
+    canvas.addEventListener('wheel', wheel, { passive: false });
+
     resize();
     window.addEventListener('resize', resize);
     draw();
@@ -319,6 +348,10 @@ export function WebGLViewport({ settings }: { settings: ViewportSettings }): JSX
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
+      canvas.removeEventListener('pointerdown', pointerDown);
+      canvas.removeEventListener('pointermove', pointerMove);
+      canvas.removeEventListener('pointerup', pointerUp);
+      canvas.removeEventListener('wheel', wheel);
     };
   }, [renderMode, nodes, edges, settings.showGrid]);
 
@@ -327,7 +360,7 @@ export function WebGLViewport({ settings }: { settings: ViewportSettings }): JSX
       <div ref={webglRef} className={`render-layer webgl-layer ${renderMode === '3d' ? 'active' : ''}`} />
       <canvas ref={canvas2dRef} className={`render-layer canvas-layer ${renderMode !== '3d' ? 'active' : ''}`} />
       <div className="viewport-mode-label"><span className="mode-dot" />{renderMode.toUpperCase()}</div>
-      <div className="viewport-help"><span>Mode: {renderMode.toUpperCase()}</span><span>Click node: select</span></div>
+      <div className="viewport-help"><span>Mode: {renderMode.toUpperCase()}</span><span>Drag: move/pan | Wheel: zoom</span></div>
     </div>
   );
 }

@@ -2881,3 +2881,34 @@ select {
 .unreal-settings { display: flex; flex-direction: column; gap: 8px; padding: 12px; color: var(--studio-text-secondary); font-size: 12px; }
 .unreal-settings label { display: flex; align-items: center; gap: 8px; }
 .unreal-settings input[type='range'] { flex: 1; }
+
+/* ===== HOME RENDER SELECT + WINDOW FIXES ===== */
+
+.home-render-select { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 8px; color: var(--studio-text-secondary); font-size: 12px; }
+.render-mode-options { display: flex; gap: 5px; }
+.render-mode-options button { min-width: 42px; height: 30px; border-radius: 8px; background: rgba(255,255,255,.06); border: 1px solid var(--studio-border); color: var(--studio-text-secondary); font-size: 11px; }
+.render-mode-options button.active { background: rgba(91,170,255,.2); border-color: rgba(91,170,255,.4); color: var(--studio-text); }
+
+.unreal-toolbar.top { flex-wrap: wrap; height: auto; min-height: 42px; padding: 6px 8px; gap: 5px; }
+.unreal-window-menu { max-height: 30px; overflow-x: auto; overflow-y: hidden; flex-wrap: nowrap; }
+.unreal-window-menu button { flex: 0 0 auto; }
+.window-menu-label { flex: 0 0 auto; }
+
+.unreal-window { min-height: 0; display: flex; flex-direction: column; background: #0d111a; border: 1px solid rgba(255,255,255,.06); overflow: hidden; }
+.unreal-window.bottom { height: 100%; }
+.unreal-window-header { display: flex; align-items: center; justify-content: space-between; height: 28px; padding: 0 8px; background: #10151f; border-bottom: 1px solid rgba(255,255,255,.06); color: var(--studio-text-secondary); font-size: 11px; }
+.unreal-window-header button { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; border-radius: 5px; background: transparent; color: var(--studio-text-tertiary); }
+.unreal-window-header button:hover { background: rgba(255,255,255,.08); color: var(--studio-text); }
+.unreal-window-body { flex: 1; min-height: 0; overflow: auto; }
+
+.unreal-floating-window { position: absolute; top: 90px; left: 50%; transform: translateX(-50%); z-index: 500; width: 340px; max-height: 400px; background: #0d111a; border: 1px solid var(--studio-border-strong); border-radius: 14px; box-shadow: var(--studio-shadow); overflow: hidden; }
+
+.unreal-settings { display: flex; flex-direction: column; gap: 8px; padding: 12px; color: var(--studio-text-secondary); font-size: 12px; }
+.unreal-settings label { display: flex; align-items: center; gap: 8px; }
+.unreal-settings input[type='range'] { flex: 1; }
+
+.render-layer { position: absolute; inset: 0; display: none; }
+.render-layer.active { display: block; }
+.webgl-viewport canvas.render-layer { width: 100%; height: 100%; }
+.viewport-help { pointer-events: none; }
+.viewport-mode-label { pointer-events: none; }
