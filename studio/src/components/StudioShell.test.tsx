@@ -202,25 +202,6 @@ describe('Phase 07: Presentation', () => {
   });
 });
 
-describe('Phase 07: Presentation', () => {
-  it('lists themes', () => {
-    const app = new StudioApplication();
-    expect(app.getState().uiThemes.length).toBeGreaterThan(0);
-  });
-
-  it('activates a theme', () => {
-    const app = new StudioApplication();
-    const themeId = app.getState().uiThemes[0].id;
-    app.activateTheme(themeId);
-    expect(app.getState().activeThemeId).toBe(themeId);
-  });
-
-  it('runs UX audit', () => {
-    const app = new StudioApplication();
-    app.runUxAudit();
-    expect(app.getState().uxAuditReport).not.toBeNull();
-  });
-});
 
 describe('Phase 08: Game UI Workspace', () => {
   it('sets active game UI panel', () => {
