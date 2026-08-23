@@ -85,6 +85,8 @@ export function CyreViewport({ settings }: CyreViewportProps): JSX.Element {
   } | null>(null);
   const [stats, setStats] = useState({ fps: 0, draws: 0 });
   const [connectSource, setConnectSource] = useState<string | null>(null);
+  const runtimeRef = useRef({ isPlaying: state.isPlaying, simulationSpeed: state.simulationSpeed });
+  runtimeRef.current = { isPlaying: state.isPlaying, simulationSpeed: state.simulationSpeed };
 
   const threeRef = useRef<{
     scene: THREE.Scene;
@@ -445,8 +447,23 @@ export function CyreViewport({ settings }: CyreViewportProps): JSX.Element {
         fpsFrames = 0;
       }
 
+      const running = runtimeRef.current.isPlaying;
       nodeGroup.children.forEach((child, index) => {
-        child.position.y = (child.userData.baseY ?? 0.55) + Math.sin(frame * 0.012 + index) * 0.035;
+        const amplitude = running ? 0.14 : 0.025;
+        const speed = running ? 0.055 : 0.012;
+        child.position.y = (child.userData.baseY ?? 0.55) + Math.sin(frame * speed + index) * amplitude;
+
+        if (running) {
+          const mesh = child as THREE.Mesh;
+          const material = mesh.material as THREE.MeshStandardMaterial | THREE.MeshStandardMaterial[];
+          if (Array.isArray(material)) {
+            material.forEach((entry) => {
+              entry.emissiveIntensity = 0.35 + Math.sin(frame * 0.1 + index) * 0.22;
+            });
+          } else {
+            material.emissiveIntensity = 0.35 + Math.sin(frame * 0.1 + index) * 0.22;
+          }
+        }
       });
 
       renderer.render(scene, camera);
@@ -483,6 +500,7 @@ export function CyreViewport({ settings }: CyreViewportProps): JSX.Element {
     selectedId,
     connectSource,
     renderMode,
+    isPlaying: state.isPlaying,
   });
   canvasStateRef.current = {
     nodes,
@@ -491,6 +509,7 @@ export function CyreViewport({ settings }: CyreViewportProps): JSX.Element {
     selectedId,
     connectSource,
     renderMode,
+    isPlaying: state.isPlaying,
   };
   const moveRef = useRef(moveNetworkNode);
   const connectRef = useRef(connectNetworkNodes);
@@ -657,7 +676,8 @@ export function CyreViewport({ settings }: CyreViewportProps): JSX.Element {
         if (!point) continue;
         const visual = visualForType(node.type);
         const selected = frameSelected === node.id || frameConnect === node.id;
-        const radius = NODE_RADIUS * point.scale;
+        const running2d = canvasStateRef.current.isPlaying;
+        const radius = NODE_RADIUS * point.scale * (running2d ? 1 + Math.sin(now * 0.008 + index) * 0.06 : 1);
 
         ctx.save();
         ctx.translate(point.x, point.y);
@@ -854,6 +874,9 @@ export function CyreViewport({ settings }: CyreViewportProps): JSX.Element {
       <div className="stage-overlay top-left glass">
         <span className="mode-dot" />
         <strong>{renderMode.toUpperCase()}</strong>
+        <span className={`sim-badge ${state.isPlaying ? 'running' : state.isPaused ? 'paused' : 'stopped'}`}>
+          ● {state.isPlaying ? 'RUNNING' : state.isPaused ? 'PAUSED' : 'STOPPED'}
+        </span>
         <span>{stats.fps} fps</span>
         <span>{nodes.length} entities</span>
       </div>

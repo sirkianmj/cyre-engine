@@ -15,6 +15,7 @@ import {
   LiveSimulationInspector,
   GameUIWorkspace,
   MissionDesigner,
+  MissionStatus,
   MotionSystem,
   UIThemeManager,
   UxAuditSystem,
@@ -253,6 +254,7 @@ export class StudioApplication {
   private readonly objectiveGraphEditor = new ObjectiveGraphEditor();
   private readonly eventTriggerSystem = new EventTriggerSystem();
   private currentScenarioData: ScenarioData | null = null;
+  private currentScenarioDefinition: ScenarioDefinition | null = null;
   private readonly liveSimulationInspector = new LiveSimulationInspector();
   private readonly liveEventStream = new LiveEventStream();
   private readonly cyreDebugger = new CyreDebugger({ name: 'CYRE Studio Debugger' });
@@ -1149,6 +1151,7 @@ export class StudioApplication {
 
       const definition = this.scenarioEditor.build();
       this.currentScenarioData = this.scenarioEditor.getData();
+      this.currentScenarioDefinition = definition;
       this.playModeController.loadScenario(definition);
       this.editorShell.setStatusMessage('Scenario built and loaded for play mode.');
       this.editorShell.addNotification('success', 'Scenario validated and loaded.');
@@ -1163,6 +1166,7 @@ export class StudioApplication {
       const data = this.scenarioGenerator.generate(options);
       this.currentScenarioData = data;
       const definition = new ScenarioDefinition(data);
+      this.currentScenarioDefinition = definition;
       this.playModeController.loadScenario(definition);
       this.editorShell.setStatusMessage('Generated scenario loaded for play mode.');
       this.editorShell.addNotification('success', 'Scenario generated and loaded.');
@@ -1989,6 +1993,11 @@ export class StudioApplication {
 
   play(): void {
     try {
+      const missionStatus = this.playModeController.getMissionRunner().getMissionStatus();
+      if (missionStatus === MissionStatus.Completed || missionStatus === MissionStatus.Failed) {
+        this.reloadCurrentScenario();
+      }
+
       this.playModeController.start();
       this.syncMissionToGameUI();
       this.editorShell.setStatusMessage('Simulation running.');
@@ -2033,7 +2042,8 @@ export class StudioApplication {
   stop(): void {
     try {
       this.playModeController.stop();
-      this.editorShell.setStatusMessage('Simulation stopped.');
+      this.reloadCurrentScenario();
+      this.editorShell.setStatusMessage('Simulation stopped and reset.');
     } catch (error) {
       this.editorShell.addNotification(
         'error',
@@ -2049,7 +2059,9 @@ export class StudioApplication {
       if (this.playModeController.getState() !== 'stopped') {
         this.playModeController.stop();
       }
+      this.reloadCurrentScenario();
       this.playModeController.start();
+      this.syncMissionToGameUI();
       this.editorShell.setStatusMessage('Simulation restarted.');
     } catch (error) {
       this.editorShell.addNotification(
@@ -2627,6 +2639,7 @@ export class StudioApplication {
 
     try {
       this.playModeController.loadMission(missionId);
+      this.currentScenarioDefinition = this.playModeController.getMissionRunner().scenario;
       this.resetMissionPlaythroughState();
     } catch (error) {
       this.editorShell.addNotification(
