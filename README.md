@@ -68,7 +68,7 @@ CYRE
 
 ## Current Status
 
-CYRE v1.0.2 is released.
+CYRE v1.0.4 is released.
 
 CYRE Studio provides a professional editor with real 2D, 2.5D, and 3D viewports, asset import/export, Mission 001 playthrough, live simulation, replay, debugger, and build/deploy tools.
 
