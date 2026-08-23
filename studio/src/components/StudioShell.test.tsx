@@ -287,3 +287,17 @@ describe('Phase 10: Asset Pipeline', () => {
     expect(app.getState().assetPreviews.length).toBe(1);
   });
 });
+
+describe('Phase 11: Scripting & Plugins', () => {
+  it('creates a sample CYRE script', () => {
+    const app = new StudioApplication();
+    app.createSampleCyreScript();
+    expect(app.getState().cyreScripts.length).toBe(1);
+  });
+
+  it('registers a sample plugin', () => {
+    const app = new StudioApplication();
+    app.registerSamplePlugin('Test Plugin');
+    expect(app.getState().cyrePluginInfos.length).toBe(1);
+  });
+});

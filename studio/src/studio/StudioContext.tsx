@@ -197,6 +197,12 @@ export interface StudioContextValue {
     content: string,
   ) => void;
   generateAssetPreviews: () => void;
+
+  createSampleCyreScript: () => void;
+  registerCyreScriptFromDefinition: (
+    definition: Record<string, unknown>,
+  ) => void;
+  registerSamplePlugin: (name?: string) => void;
 }
 
 const studioApplication = new StudioApplication();
@@ -350,6 +356,10 @@ export function StudioProvider({
       registerAsset: (name, type, path) => studioApplication.registerAsset(name, type, path),
       importAssetFromContent: (name, type, content) => studioApplication.importAssetFromContent(name, type, content),
       generateAssetPreviews: () => studioApplication.generateAssetPreviews(),
+
+      createSampleCyreScript: () => studioApplication.createSampleCyreScript(),
+      registerCyreScriptFromDefinition: (definition) => studioApplication.registerCyreScriptFromDefinition(definition),
+      registerSamplePlugin: (name) => studioApplication.registerSamplePlugin(name),
     }),
     [snapshot],
   );

@@ -39,6 +39,11 @@ import {
   SimpleSceneGraphBackend,
   AssetBrowser,
   AssetDescriptor,
+  CyrePluginManager,
+  CyreScript,
+  CyreScriptBuilder,
+  CyreScriptEngine,
+  CyreScriptRegistry,
   AssetImportPipeline,
   AssetImportRequest,
   AssetManager,
@@ -171,6 +176,8 @@ export interface StudioSnapshot {
   assetBrowserTypes: string[];
   assetBrowserTags: string[];
   assetPreviews: Array<Record<string, unknown>>;
+  cyreScripts: Array<Record<string, unknown>>;
+  cyrePluginInfos: Array<Record<string, unknown>>;
 }
 
 interface PanelInit {
@@ -221,6 +228,9 @@ export class StudioApplication {
   private readonly assetBrowser = new AssetBrowser(this.assetManager);
   private readonly assetImportPipeline = new AssetImportPipeline();
   private readonly assetPreviewGenerator = new AssetPreviewGenerator(this.assetManager);
+  private readonly cyreScriptRegistry = new CyreScriptRegistry();
+  private readonly cyreScriptEngine = new CyreScriptEngine(this.cyreScriptRegistry);
+  private readonly cyrePluginManager = new CyrePluginManager();
   private readonly renderBackendRegistry = new RenderBackendRegistry();
   private readonly simpleRenderBackend = new SimpleSceneGraphBackend();
   private activeRenderingBackendId: string | null = null;
@@ -1552,6 +1562,103 @@ export class StudioApplication {
     this.emit();
   }
 
+  createSampleCyreScript(): void {
+    try {
+      const script = new CyreScript({
+        id: 'sample-script',
+        name: 'Sample CYRE Script',
+        description: 'A directly registered sample CYRE script.',
+        organizationName: 'Sample Organization',
+        industry: 'Technology',
+        networkNodes: [
+          { id: 'node-a', type: 'host', name: 'Workstation A' },
+          { id: 'node-b', type: 'server', name: 'Server B' },
+        ],
+        networkEdges: [
+          { source: 'node-a', target: 'node-b' },
+        ],
+        assets: [],
+        users: [],
+        attacker: {
+          id: 'attacker-1',
+          name: 'Sample Attacker',
+          objective: 'Gain access',
+          sophistication: 'low',
+        },
+        defense: {
+          controls: ['edr'],
+          monitoringLevel: 'basic',
+        },
+        attackPath: {
+          source: 'node-a',
+          target: 'node-b',
+          path: ['node-a', 'node-b'],
+        },
+        evidence: [],
+        objectives: [
+          {
+            id: 'objective-1',
+            description: 'Investigate the incident',
+            type: 'primary',
+          },
+        ],
+        timeline: [],
+      });
+
+      this.cyreScriptRegistry.register(script);
+      this.editorShell.addNotification('success', 'Sample CYRE script created.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Create sample script failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  registerCyreScriptFromDefinition(definition: Record<string, unknown>): void {
+    try {
+      const script = new CyreScriptBuilder()
+        .withId(String(definition.id ?? ''))
+        .withName(String(definition.name ?? ''))
+        .withOrganization(String(definition.organizationName ?? 'Default Organization'))
+        .addNetworkNode('node-a', 'host', 'Node A')
+        .addNetworkNode('node-b', 'server', 'Node B')
+        .addNetworkEdge('node-a', 'node-b')
+        .setAttacker({
+          id: 'attacker-1',
+          name: 'Attacker',
+          objective: 'Compromise target',
+          sophistication: 'low',
+        })
+        .setDefense([], 'basic')
+        .setAttackPath('node-a', 'node-b', ['node-a', 'node-b'])
+        .addObjective('objective-1', 'Investigate the incident', 'primary')
+        .buildScript();
+
+      this.cyreScriptRegistry.register(script);
+      this.editorShell.addNotification('success', 'CYRE script registered.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Register script failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  registerSamplePlugin(name?: string): void {
+    try {
+      const plugin = {
+        id: 'plugin-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+        name: name?.trim() || 'Sample CYRE Plugin',
+        version: '1.0.0',
+        description: 'A sample plugin registered from CYRE Studio.',
+        async activate() {},
+      };
+
+      this.cyrePluginManager.registerPlugin(plugin as any);
+      this.editorShell.addNotification('success', 'Sample plugin registered.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Register plugin failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
     play(): void {
     try {
       this.playModeController.start();
@@ -1824,6 +1931,13 @@ export class StudioApplication {
         editorDock: 'center',
         dockArea: 'center',
         order: 21,
+      },
+      {
+        id: 'scripting-panel',
+        title: 'Scripting & Plugins',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 22,
       },
     ];
 
@@ -2276,6 +2390,8 @@ export class StudioApplication {
       assetBrowserTypes: this.assetBrowser.listAvailableTypes() as string[],
       assetBrowserTags: this.assetBrowser.listAvailableTags(),
       assetPreviews: this.assetPreviewGenerator.previewAll().map((preview) => preview.toJSON()),
+      cyreScripts: this.cyreScriptRegistry.list().map((script) => script.toJSON() as unknown as Record<string, unknown>),
+      cyrePluginInfos: this.cyrePluginManager.listPluginInfos().map((info) => ({ ...info })),
     };
   }
 
