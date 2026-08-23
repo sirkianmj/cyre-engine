@@ -1606,15 +1606,15 @@ export class StudioApplication {
 
     registerAsset(name: string, type: string, path?: string): void {
     try {
-      const descriptor = new AssetDescriptor({
+      const request = new AssetImportRequest({
         id: 'asset-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
         name: name.trim() || 'Unnamed Asset',
         type: type as any,
-        path: path || undefined,
-        tags: [],
+        content: path,
       });
-      this.assetManager.register(descriptor);
-      this.editorShell.addNotification('success', 'Asset registered: ' + descriptor.name);
+      const result = this.assetImportPipeline.importAsset(request);
+      this.assetManager.register(result.descriptor);
+      this.editorShell.addNotification('success', 'Asset registered: ' + result.descriptor.name);
     } catch (error) {
       this.editorShell.addNotification('error', 'Register asset failed: ' + this.errorMessage(error));
     }
@@ -1630,6 +1630,7 @@ export class StudioApplication {
         content,
       });
       const result = this.assetImportPipeline.importAsset(request);
+      this.assetManager.register(result.descriptor);
       this.editorShell.addNotification('success', 'Asset import processed: ' + result.status);
     } catch (error) {
       this.editorShell.addNotification('error', 'Import asset failed: ' + this.errorMessage(error));
