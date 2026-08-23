@@ -4,8 +4,8 @@
 
 CYRE is a modular, extensible, domain-specific game and simulation engine designed specifically for building high-quality interactive cybersecurity games and cyber-simulation applications.
 
-> **Status:** Early development — Sprint 0 complete, repository initialised, governance established.  
-> Current sprint: **Sprint 3 — Professional README & Project Identity**
+> **Status:** Professional release verification — CYRE Studio 1.0.1 ready.  
+> Current release: **1.0.1**
 
 ---
 
@@ -79,7 +79,8 @@ See [docs/roadmap.md](docs/roadmap.md) for the full plan.
 - [x] Sprint 0: Development Environment
 - [x] Sprint 1: GitHub Repository
 - [x] Sprint 2: Ownership, License & Governance
-- [ ] Sprint 3: Professional README & Project Identity (current)
+- [x] Sprint 3: Professional README & Project Identity
+- [x] CYRE Studio hardening: Unreal-like windows, 2D/2.5D/3D viewports, asset import/export, play mode, Mission 001 playthrough, build/deploy
 
 ---
 

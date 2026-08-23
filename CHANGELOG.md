@@ -2,6 +2,22 @@
 
 All notable changes to CYRE will be documented in this file.
 
+## [1.0.1] - 2026-08-23
+
+### Added
+- CYRE Studio professional editor with real 2D, 2.5D, and 3D engine viewports
+- Unreal-like window system with persistent layout and Windows menu
+- Real asset import/export pipeline with checksums, metadata, and previews
+- Mission 001 playthrough actions, live status, and campaign progression
+- Authoring tools generate/load scenarios into Play Mode
+- Build & deployment hardening for web, desktop, and mobile packages
+
+### Fixed
+- Duplicate test blocks and dead `engine-viewport` panel
+- Play/Pause/Stop/Resume status consistency
+- Runtime viewport feedback in 2D/2.5D/3D modes
+- Imported assets registered into asset manager
+
 ## [1.0.0] - 2026-08-17
 
 ### Added
