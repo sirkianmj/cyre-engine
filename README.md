@@ -66,23 +66,47 @@ CYRE
 
 ---
 
+## Current Status
+
+CYRE v1.0.2 is released.
+
+CYRE Studio provides a professional editor with real 2D, 2.5D, and 3D viewports, asset import/export, Mission 001 playthrough, live simulation, replay, debugger, and build/deploy tools.
+
+The architecture remains modular and cybersecurity-specific. See [CHANGELOG.md](CHANGELOG.md) for release details.
+
+
 ## Roadmap
 
-CYRE follows a 40-sprint roadmap from environment setup to v1.0 release.
+CYRE is released as a professional, modular, domain-specific engine and development environment. The roadmap reflects the CYRE Studio trajectory and the original specification, not a generic sprint checklist.
 
-See [docs/roadmap.md](docs/roadmap.md) for the full plan.
+### Current release
 
----
+- CYRE Engine: modular simulation kernel, cyber world, network/identity, attack/defense, scenarios, missions, evidence, investigation, debug/timeline/replay, telemetry/research, automation, platform packaging.
+- CYRE Studio: professional React editor with project launcher, docking/workspace windows, 2D/2.5D/3D viewports, command palette, inspector, project explorer, authoring tools, play mode, debug/replay, asset import/export, build/deploy panels.
+- Verification: engine tests (134 suites / 1,426 tests), studio tests (42), architecture audit clean.
 
-## Current Development Status
+### Professional milestones
 
-- [x] Sprint 0: Development Environment
-- [x] Sprint 1: GitHub Repository
-- [x] Sprint 2: Ownership, License & Governance
-- [x] Sprint 3: Professional README & Project Identity
-- [x] CYRE Studio hardening: Unreal-like windows, 2D/2.5D/3D viewports, asset import/export, play mode, Mission 001 playthrough, build/deploy
+1. Engine and API hardening: public API policy, module contracts, serialization stability, performance/security audits.
+2. Project and serialization foundation: templates, migrations, recent projects, project settings.
+3. Editor completeness: workspace presets, docking polish, command/shortcut search, visual polish and accessibility.
+4. Visual graph editors: network, attack, evidence, timeline, scenario generator, validation UX.
+5. Gameplay/runtime: live simulation inspector, stepping, replay studio, debugger, profiler, adaptive scenario engine.
+6. Asset and extensibility: real import/export pipelines, previews, scripting API, plugin manager.
+7. Rendering: production 2D/2.5D, optional 3D foundation; keep simulation independent.
+8. Cross-platform and CI/CD: web/desktop/mobile packaging, release channels, crash reporting.
+9. Research and automation: experiment runner, dataset export, webhooks/n8n.
+10. Flagship vertical slice: complete playable campaign and a real-world developer test.
 
----
+### Explicit non-goals
+
+- Do not become a general-purpose Unreal/Unity replacement.
+- Do not build custom physics, AAA renderer, or massive open worlds.
+- Advanced 3D only after the simulation/editor foundation is mature.
+- Integrate mature technologies behind CYRE's abstraction.
+
+See docs/roadmap.md for the historical sprint plan.
+
 
 ## Ownership & Licensing
 
