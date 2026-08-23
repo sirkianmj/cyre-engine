@@ -301,3 +301,26 @@ describe('Phase 11: Scripting & Plugins', () => {
     expect(app.getState().cyrePluginInfos.length).toBe(1);
   });
 });
+
+describe('Phase 12: Build & Deployment', () => {
+  it('registers and builds a web profile', () => {
+    const app = new StudioApplication();
+    app.registerBuildProfile('web-dev', 'Web Dev', 'web', 'development');
+    expect(app.getState().buildProfiles.length).toBe(1);
+
+    app.buildProfile('web-dev');
+    expect(app.getState().buildResults.length).toBe(1);
+  });
+
+  it('sets a release channel', () => {
+    const app = new StudioApplication();
+    app.setReleaseChannel('stable');
+    expect(app.getState().activeReleaseChannel).toBe('stable');
+  });
+
+  it('packages a web game', () => {
+    const app = new StudioApplication();
+    app.packageWebGame('Test Game');
+    expect(app.getState().packagingResults.length).toBe(1);
+  });
+});

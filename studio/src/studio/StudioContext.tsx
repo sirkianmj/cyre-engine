@@ -203,6 +203,19 @@ export interface StudioContextValue {
     definition: Record<string, unknown>,
   ) => void;
   registerSamplePlugin: (name?: string) => void;
+
+  registerBuildProfile: (
+    id: string,
+    name: string,
+    target: string,
+    flavor: string,
+  ) => void;
+  buildProfile: (profileId: string) => void;
+  setReleaseChannel: (channel: string) => void;
+  runCiCdPipeline: () => void;
+  packageWebGame: (name: string) => void;
+  packageDesktopGame: (name: string) => void;
+  packageMobileGame: (name: string) => void;
 }
 
 const studioApplication = new StudioApplication();
@@ -360,6 +373,27 @@ export function StudioProvider({
       createSampleCyreScript: () => studioApplication.createSampleCyreScript(),
       registerCyreScriptFromDefinition: (definition) => studioApplication.registerCyreScriptFromDefinition(definition),
       registerSamplePlugin: (name) => studioApplication.registerSamplePlugin(name),
+
+      registerBuildProfile: (id, name, target, flavor) =>
+        studioApplication.registerBuildProfile(id, name, target, flavor),
+
+      buildProfile: (profileId) =>
+        studioApplication.buildProfile(profileId),
+
+      setReleaseChannel: (channel) =>
+        studioApplication.setReleaseChannel(channel),
+
+      runCiCdPipeline: () =>
+        studioApplication.runCiCdPipeline(),
+
+      packageWebGame: (name) =>
+        studioApplication.packageWebGame(name),
+
+      packageDesktopGame: (name) =>
+        studioApplication.packageDesktopGame(name),
+
+      packageMobileGame: (name) =>
+        studioApplication.packageMobileGame(name),
     }),
     [snapshot],
   );

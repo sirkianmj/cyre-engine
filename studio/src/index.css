@@ -2403,3 +2403,14 @@ select {
   padding: 8px;
   font-size: 11px;
 }
+
+/* ===== BUILD DEPLOY ===== */
+
+.build-deploy-panel .authoring-card input {
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--studio-border);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--studio-text);
+  padding: 0 8px;
+}

@@ -48,6 +48,13 @@ import {
   AssetImportRequest,
   AssetManager,
   AssetPreviewGenerator,
+  BuildPipeline,
+  BuildProfile,
+  CiCdPipeline,
+  DesktopPackager,
+  MobilePackager,
+  ReleaseChannelManager,
+  WebPackager,
 } from '@cyre/engine';
 
 import type {
@@ -178,6 +185,13 @@ export interface StudioSnapshot {
   assetPreviews: Array<Record<string, unknown>>;
   cyreScripts: Array<Record<string, unknown>>;
   cyrePluginInfos: Array<Record<string, unknown>>;
+
+  buildProfiles: Array<Record<string, unknown>>;
+  buildResults: Array<Record<string, unknown>>;
+  releaseChannels: string[];
+  activeReleaseChannel: string;
+  ciCdResult: Record<string, unknown> | null;
+  packagingResults: Array<Record<string, unknown>>;
 }
 
 interface PanelInit {
@@ -231,6 +245,17 @@ export class StudioApplication {
   private readonly cyreScriptRegistry = new CyreScriptRegistry();
   private readonly cyreScriptEngine = new CyreScriptEngine(this.cyreScriptRegistry);
   private readonly cyrePluginManager = new CyrePluginManager();
+  private readonly buildPipeline = new BuildPipeline();
+  private readonly releaseChannelManager = new ReleaseChannelManager();
+  private readonly ciCdPipeline = new CiCdPipeline({
+    buildPipeline: this.buildPipeline,
+  });
+  private readonly webPackager = new WebPackager();
+  private readonly desktopPackager = new DesktopPackager();
+  private readonly mobilePackager = new MobilePackager();
+  private buildResults: Array<Record<string, unknown>> = [];
+  private ciCdResult: Record<string, unknown> | null = null;
+  private packagingResults: Array<Record<string, unknown>> = [];
   private readonly renderBackendRegistry = new RenderBackendRegistry();
   private readonly simpleRenderBackend = new SimpleSceneGraphBackend();
   private activeRenderingBackendId: string | null = null;
@@ -1659,6 +1684,121 @@ export class StudioApplication {
     this.emit();
   }
 
+    registerBuildProfile(
+    id: string,
+    name: string,
+    target: string,
+    flavor: string,
+  ): void {
+    try {
+      const profile = new BuildProfile({
+        id: id.trim() || 'build-' + Date.now().toString(36),
+        name: name.trim() || 'Build Profile',
+        target: target as any,
+        flavor: flavor as any,
+      });
+
+      this.buildPipeline.registerProfile(profile);
+      this.editorShell.addNotification('success', 'Build profile registered: ' + profile.name);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Register build profile failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  buildProfile(profileId: string): void {
+    try {
+      const result = this.buildPipeline.build(profileId);
+      this.buildResults = [result as unknown as Record<string, unknown>];
+      this.editorShell.addNotification('success', 'Build completed for ' + profileId);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Build profile failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  setReleaseChannel(channel: string): void {
+    try {
+      this.releaseChannelManager.setActive(channel);
+      this.editorShell.addNotification('success', 'Release channel set to ' + channel);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Set release channel failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  runCiCdPipeline(): void {
+    try {
+      const result = this.ciCdPipeline.run();
+      this.ciCdResult = result as unknown as Record<string, unknown>;
+      this.editorShell.addNotification('success', 'CI/CD pipeline completed.');
+    } catch (error) {
+      this.ciCdResult = null;
+      this.editorShell.addNotification('error', 'CI/CD pipeline failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  packageWebGame(name: string): void {
+    try {
+      const result = this.webPackager.package({
+        id: 'web-' + Date.now().toString(36),
+        name: name.trim() || 'CYRE Web Game',
+        version: '1.0.0',
+        entryPoint: 'index.html',
+      });
+
+      this.packagingResults = [
+        ...this.packagingResults,
+        result.package.toJSON(),
+      ];
+      this.editorShell.addNotification('success', 'Web package created.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Web packaging failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  packageDesktopGame(name: string): void {
+    try {
+      const result = this.desktopPackager.package({
+        id: 'desktop-' + Date.now().toString(36),
+        name: name.trim() || 'CYRE Desktop Game',
+        version: '1.0.0',
+        executableName: 'cyre-game',
+      });
+
+      this.packagingResults = [
+        ...this.packagingResults,
+        result.package.toJSON(),
+      ];
+      this.editorShell.addNotification('success', 'Desktop package created.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Desktop packaging failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  packageMobileGame(name: string): void {
+    try {
+      const result = this.mobilePackager.package({
+        id: 'mobile-' + Date.now().toString(36),
+        name: name.trim() || 'CYRE Mobile Game',
+        version: '1.0.0',
+        bundleId: 'com.cyre.game',
+      });
+
+      this.packagingResults = [
+        ...this.packagingResults,
+        result.package.toJSON(),
+      ];
+      this.editorShell.addNotification('success', 'Mobile package created.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Mobile packaging failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
     play(): void {
     try {
       this.playModeController.start();
@@ -1938,6 +2078,13 @@ export class StudioApplication {
         editorDock: 'center',
         dockArea: 'center',
         order: 22,
+      },
+      {
+        id: 'build-deployment',
+        title: 'Build & Deploy',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 23,
       },
     ];
 
@@ -2392,6 +2539,12 @@ export class StudioApplication {
       assetPreviews: this.assetPreviewGenerator.previewAll().map((preview) => preview.toJSON()),
       cyreScripts: this.cyreScriptRegistry.list().map((script) => script.toJSON() as unknown as Record<string, unknown>),
       cyrePluginInfos: this.cyrePluginManager.listPluginInfos().map((info) => ({ ...info })),
+      buildProfiles: this.buildPipeline.listProfiles().map((profile) => profile.toJSON()),
+      buildResults: this.buildResults,
+      releaseChannels: this.releaseChannelManager.list(),
+      activeReleaseChannel: this.releaseChannelManager.getActive(),
+      ciCdResult: this.ciCdResult,
+      packagingResults: this.packagingResults,
     };
   }
 

@@ -33,6 +33,7 @@ import { GameUIPanel } from './GameUIPanel';
 import { RenderingPanel } from './RenderingPanel';
 import { AssetPipelinePanel } from './AssetPipelinePanel';
 import { ScriptingPluginPanel } from './ScriptingPluginPanel';
+import { BuildDeployPanel } from './BuildDeployPanel';
 import { ScenarioDesignerPanel, MissionDesignerPanel, ObjectiveGraphPanel, EventTriggerPanel, ScenarioGeneratorPanel } from './AuthoringPanels';
 
 const nodeIcons: Record<string, string> = {
@@ -1125,6 +1126,9 @@ function getPanelBody(
 
     case 'scripting-panel':
       return <ScriptingPluginPanel />;
+
+    case 'build-deployment':
+      return <BuildDeployPanel />;
 
     default:
       return (
