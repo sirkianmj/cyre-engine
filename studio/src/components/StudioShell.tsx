@@ -45,11 +45,15 @@ function BootScreen(): JSX.Element {
 function HomeScreen({
   projectTitle,
   statusMessage,
+  renderMode,
+  onRenderModeChange,
   onEnter,
   onNewProject,
 }: {
   projectTitle: string;
   statusMessage: string;
+  renderMode: '2d' | '2.5d' | '3d';
+  onRenderModeChange: (mode: '2d' | '2.5d' | '3d') => void;
   onEnter: () => void;
   onNewProject: () => void;
 }): JSX.Element {
@@ -64,55 +68,41 @@ function HomeScreen({
           </div>
         </div>
 
-        <button className="btn" onClick={onEnter}>
-          Enter Studio
-        </button>
+        <button className="btn" onClick={onEnter}>Enter Studio</button>
       </nav>
 
       <main className="home-main">
         <div className="home-hero">
-          <h1>
-            Build the world&apos;s most{' '}
-            <span>advanced cyber simulations.</span>
-          </h1>
-
-          <p>
-            Design networks, missions, attacks, evidence, and
-            training scenarios with a production-grade engine.
-          </p>
+          <h1>Build the world&apos;s most <span>advanced cyber simulations.</span></h1>
+          <p>Design networks, missions, attacks, evidence, and training scenarios with a production-grade engine.</p>
 
           <div className="home-card">
             <div>
-              <div className="home-card-title">
-                Last project
-              </div>
-              <div className="home-card-name">
-                {projectTitle}
-              </div>
-              <div className="home-card-status">
-                {statusMessage}
-              </div>
+              <div className="home-card-title">Last project</div>
+              <div className="home-card-name">{projectTitle}</div>
+              <div className="home-card-status">{statusMessage}</div>
             </div>
+            <button className="btn btn-primary" onClick={onEnter}>Continue</button>
+          </div>
 
-            <button
-              className="btn btn-primary"
-              onClick={onEnter}
-            >
-              Continue
-            </button>
+          <div className="home-render-select">
+            <span>Render Mode</span>
+            <div className="render-mode-options">
+              {(['2d', '2.5d', '3d'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  className={renderMode === mode ? 'active' : ''}
+                  onClick={() => onRenderModeChange(mode)}
+                >
+                  {mode === '2d' ? '2D' : mode === '2.5d' ? '2.5D' : '3D'}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="home-actions">
-            <button
-              className="btn btn-primary"
-              onClick={onNewProject}
-            >
-              New Project
-            </button>
-
-            <button className="btn" onClick={onEnter}>
-              Open Project
-            </button>
+            <button className="btn btn-primary" onClick={onNewProject}>New Project</button>
+            <button className="btn" onClick={onEnter}>Open Project</button>
           </div>
         </div>
       </main>
@@ -313,6 +303,7 @@ export function StudioShell(): JSX.Element {
     restart,
     setSimulationSpeed,
     setWorkspace,
+    setRenderMode,
     clearNotifications,
   } = useStudio();
 
@@ -381,6 +372,8 @@ export function StudioShell(): JSX.Element {
       <HomeScreen
         projectTitle={state.projectTitle}
         statusMessage={state.statusMessage}
+        renderMode={state.renderMode}
+        onRenderModeChange={(mode) => setRenderMode(mode)}
         onEnter={() => setPhase('editor')}
         onNewProject={() => {
           application.createProject(

@@ -2,6 +2,12 @@ import { useEffect, useMemo, useRef } from 'react';
 import * as THREE from 'three';
 import { useStudio } from '../studio/StudioContext';
 
+interface ViewportSettings {
+  showGrid: boolean;
+  showWireframe: boolean;
+  lightIntensity: number;
+}
+
 const TYPE_META: Record<string, { color: string; geometry: 'box' | 'sphere' | 'cylinder' }> = {
   host: { color: '#4f8cff', geometry: 'box' },
   server: { color: '#19c9a7', geometry: 'box' },
@@ -14,12 +20,11 @@ const TYPE_META: Record<string, { color: string; geometry: 'box' | 'sphere' | 'c
   other: { color: '#9b59b6', geometry: 'box' },
 };
 
-export function WebGLViewport(): JSX.Element {
+export function WebGLViewport({ settings }: { settings: ViewportSettings }): JSX.Element {
   const { state, selectNetworkNode } = useStudio();
   const renderMode = state.renderMode ?? '3d';
   const webglRef = useRef<HTMLDivElement | null>(null);
   const canvas2dRef = useRef<HTMLCanvasElement | null>(null);
-
   const nodes = state.networkNodes;
   const edges = state.networkEdges;
 
@@ -30,20 +35,11 @@ export function WebGLViewport(): JSX.Element {
     nodes.forEach((node, index) => {
       const meta = TYPE_META[node.type] ?? TYPE_META.other;
       const color = new THREE.Color(meta.color);
-      const material = new THREE.MeshStandardMaterial({
-        color,
-        roughness: 0.45,
-        metalness: 0.25,
-      });
-
+      const material = new THREE.MeshStandardMaterial({ color, roughness: 0.45, metalness: 0.25 });
       let geometry: THREE.BufferGeometry;
-      if (meta.geometry === 'sphere') {
-        geometry = new THREE.SphereGeometry(0.8, 24, 18);
-      } else if (meta.geometry === 'cylinder') {
-        geometry = new THREE.CylinderGeometry(0.65, 0.65, 1.8, 24);
-      } else {
-        geometry = new THREE.BoxGeometry(1.3, 1.0, 1.3);
-      }
+      if (meta.geometry === 'sphere') geometry = new THREE.SphereGeometry(0.8, 24, 18);
+      else if (meta.geometry === 'cylinder') geometry = new THREE.CylinderGeometry(0.65, 0.65, 1.8, 24);
+      else geometry = new THREE.BoxGeometry(1.3, 1.0, 1.3);
 
       const mesh = new THREE.Mesh(geometry, material);
       mesh.position.set(
@@ -55,11 +51,11 @@ export function WebGLViewport(): JSX.Element {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
 
-      const wireframe = new THREE.LineSegments(
-        new THREE.EdgesGeometry(geometry),
-        new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.45 }),
-      );
-      mesh.add(wireframe);
+      if (settings.showWireframe) {
+        const wireframe = new THREE.LineSegments(new THREE.EdgesGeometry(geometry), new THREE.LineBasicMaterial({ color, transparent: true, opacity: 0.45 }));
+        mesh.add(wireframe);
+      }
+
       group.add(mesh);
       map.set(node.id, mesh);
     });
@@ -74,17 +70,10 @@ export function WebGLViewport(): JSX.Element {
       const distance = start.distanceTo(end);
       const mid = start.clone().add(end).multiplyScalar(0.5);
       const direction = end.clone().sub(start).normalize();
-      const quaternion = new THREE.Quaternion().setFromUnitVectors(
-        new THREE.Vector3(0, 1, 0),
-        direction,
-      );
+      const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
 
       const lineGeometry = new THREE.CylinderGeometry(0.03, 0.03, distance, 6);
-      const lineMaterial = new THREE.MeshBasicMaterial({
-        color: new THREE.Color('#55aaff'),
-        transparent: true,
-        opacity: 0.35,
-      });
+      const lineMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color('#55aaff'), transparent: true, opacity: 0.35 });
       const line = new THREE.Mesh(lineGeometry, lineMaterial);
       line.position.copy(mid);
       line.quaternion.copy(quaternion);
@@ -92,7 +81,7 @@ export function WebGLViewport(): JSX.Element {
     });
 
     return group;
-  }, [nodes, edges]);
+  }, [nodes, edges, settings.showWireframe]);
 
   useEffect(() => {
     if (renderMode !== '3d') return;
@@ -113,20 +102,18 @@ export function WebGLViewport(): JSX.Element {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     container.appendChild(renderer.domElement);
 
-    const grid = new THREE.GridHelper(22, 22, new THREE.Color('#1c2b42'), new THREE.Color('#101b2b'));
-    scene.add(grid);
+    if (settings.showGrid) {
+      scene.add(new THREE.GridHelper(22, 22, new THREE.Color('#1c2b42'), new THREE.Color('#101b2b')));
+    }
 
-    const floor = new THREE.Mesh(
-      new THREE.PlaneGeometry(22, 22),
-      new THREE.MeshStandardMaterial({ color: '#0b111c', roughness: 0.92, metalness: 0.04 }),
-    );
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(22, 22), new THREE.MeshStandardMaterial({ color: '#0b111c', roughness: 0.92, metalness: 0.04 }));
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = -0.02;
     floor.receiveShadow = true;
     scene.add(floor);
 
     scene.add(new THREE.HemisphereLight('#bcd3ff', '#0b0e14', 1.2));
-    const dir = new THREE.DirectionalLight('#ffffff', 3.2);
+    const dir = new THREE.DirectionalLight('#ffffff', settings.lightIntensity);
     dir.position.set(8, 14, 7);
     dir.castShadow = true;
     dir.shadow.mapSize.set(2048, 2048);
@@ -152,7 +139,7 @@ export function WebGLViewport(): JSX.Element {
     let startX = 0;
     let startY = 0;
 
-    const updateCamera = (): void => {
+    const updateCamera = () => {
       const x = target.x + distance * Math.sin(yaw) * Math.cos(pitch);
       const y = target.y + distance * Math.sin(pitch);
       const z = target.z + distance * Math.cos(yaw) * Math.cos(pitch);
@@ -161,7 +148,7 @@ export function WebGLViewport(): JSX.Element {
     };
     updateCamera();
 
-    const resize = (): void => {
+    const resize = () => {
       const width = Math.max(1, container.clientWidth);
       const height = Math.max(1, container.clientHeight);
       renderer.setSize(width, height, false);
@@ -169,12 +156,8 @@ export function WebGLViewport(): JSX.Element {
       camera.updateProjectionMatrix();
     };
 
-    const down = (event: PointerEvent): void => {
-      isPointerDown = true;
-      startX = event.clientX;
-      startY = event.clientY;
-    };
-    const move = (event: PointerEvent): void => {
+    const down = (event: PointerEvent) => { isPointerDown = true; startX = event.clientX; startY = event.clientY; };
+    const move = (event: PointerEvent) => {
       if (!isPointerDown) return;
       const dx = event.clientX - startX;
       const dy = event.clientY - startY;
@@ -184,15 +167,13 @@ export function WebGLViewport(): JSX.Element {
       pitch = Math.max(-1.25, Math.min(1.25, pitch - dy * 0.008));
       updateCamera();
     };
-    const up = (): void => {
-      isPointerDown = false;
-    };
-    const wheel = (event: WheelEvent): void => {
+    const up = () => { isPointerDown = false; };
+    const wheel = (event: WheelEvent) => {
       event.preventDefault();
       distance = Math.max(4, Math.min(34, distance * (event.deltaY > 0 ? 1.08 : 0.92)));
       updateCamera();
     };
-    const select = (event: PointerEvent): void => {
+    const select = (event: PointerEvent) => {
       if (event.button !== 0) return;
       const rect = renderer.domElement.getBoundingClientRect();
       pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -203,10 +184,7 @@ export function WebGLViewport(): JSX.Element {
         let obj: THREE.Object3D | null = hit.object;
         while (obj) {
           const nodeId = obj.userData?.nodeId;
-          if (typeof nodeId === 'string') {
-            selectNetworkNode(nodeId);
-            return;
-          }
+          if (typeof nodeId === 'string') { selectNetworkNode(nodeId); return; }
           obj = obj.parent;
         }
       }
@@ -222,13 +200,11 @@ export function WebGLViewport(): JSX.Element {
 
     let frame = 0;
     let raf = 0;
-    const animate = (): void => {
+    const animate = () => {
       frame += 1;
       const t = frame * 0.001;
       viewportGroup.children.forEach((child, index) => {
-        if (child.type === 'Mesh') {
-          child.rotation.y = t * 0.08 + index * 0.02;
-        }
+        if (child.type === 'Mesh') child.rotation.y = t * 0.08 + index * 0.02;
       });
       renderer.render(scene, camera);
       raf = requestAnimationFrame(animate);
@@ -246,20 +222,18 @@ export function WebGLViewport(): JSX.Element {
       renderer.dispose();
       container.removeChild(renderer.domElement);
     };
-  }, [nodeObjects, nodes, edges, renderMode, selectNetworkNode]);
+  }, [nodeObjects, nodes, edges, renderMode, selectNetworkNode, settings.showGrid, settings.lightIntensity]);
 
   useEffect(() => {
     if (renderMode === '3d') return;
     const canvas = canvas2dRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-
     let raf = 0;
     let frame = 0;
 
-    const resize = (): void => {
+    const resize = () => {
       const rect = canvas.getBoundingClientRect();
       const ratio = window.devicePixelRatio || 1;
       canvas.width = Math.max(1, rect.width * ratio);
@@ -267,7 +241,7 @@ export function WebGLViewport(): JSX.Element {
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     };
 
-    const draw = (): void => {
+    const draw = () => {
       frame += 1;
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
@@ -279,20 +253,12 @@ export function WebGLViewport(): JSX.Element {
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, width, height);
 
-      const gridSize = 70;
-      ctx.strokeStyle = 'rgba(120,170,255,0.09)';
-      ctx.lineWidth = 1;
-      for (let x = -width; x < width * 2; x += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-        ctx.stroke();
-      }
-      for (let y = -height; y < height * 2; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(width, y);
-        ctx.stroke();
+      if (settings.showGrid) {
+        const gridSize = 70;
+        ctx.strokeStyle = 'rgba(120,170,255,0.09)';
+        ctx.lineWidth = 1;
+        for (let x = -width; x < width * 2; x += gridSize) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); }
+        for (let y = -height; y < height * 2; y += gridSize) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke(); }
       }
 
       const projected = new Map<string, { x: number; y: number; scale: number; z: number }>();
@@ -305,12 +271,7 @@ export function WebGLViewport(): JSX.Element {
           projected.set(node.id, { x: base.x, y: base.y, scale: 1, z: 0 });
         } else {
           const depth = Math.max(0.35, 1 - z / 520);
-          projected.set(node.id, {
-            x: (base.x - width / 2) * depth + width / 2,
-            y: (base.y - height / 2) * depth + height / 2 - z * 0.28,
-            scale: depth,
-            z,
-          });
+          projected.set(node.id, { x: (base.x - width / 2) * depth + width / 2, y: (base.y - height / 2) * depth + height / 2 - z * 0.28, scale: depth, z });
         }
       });
 
@@ -320,10 +281,7 @@ export function WebGLViewport(): JSX.Element {
         const a = projected.get(edge.source);
         const b = projected.get(edge.target);
         if (!a || !b) continue;
-        ctx.beginPath();
-        ctx.moveTo(a.x, a.y);
-        ctx.lineTo(b.x, b.y);
-        ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
       }
 
       const sorted = Array.from(projected.entries()).sort((a, b) => a[1].y - b[1].y);
@@ -362,26 +320,14 @@ export function WebGLViewport(): JSX.Element {
       cancelAnimationFrame(raf);
       window.removeEventListener('resize', resize);
     };
-  }, [renderMode, nodes, edges]);
+  }, [renderMode, nodes, edges, settings.showGrid]);
 
   return (
     <div className="webgl-viewport">
-      <div
-        ref={webglRef}
-        className={`render-layer webgl-layer ${renderMode === '3d' ? 'active' : ''}`}
-      />
-      <canvas
-        ref={canvas2dRef}
-        className={`render-layer canvas-layer ${renderMode !== '3d' ? 'active' : ''}`}
-      />
-      <div className="viewport-mode-label">
-        <span className="mode-dot" />
-        {renderMode.toUpperCase()}
-      </div>
-      <div className="viewport-help">
-        <span>Mode: {renderMode.toUpperCase()}</span>
-        <span>Click node: select</span>
-      </div>
+      <div ref={webglRef} className={`render-layer webgl-layer ${renderMode === '3d' ? 'active' : ''}`} />
+      <canvas ref={canvas2dRef} className={`render-layer canvas-layer ${renderMode !== '3d' ? 'active' : ''}`} />
+      <div className="viewport-mode-label"><span className="mode-dot" />{renderMode.toUpperCase()}</div>
+      <div className="viewport-help"><span>Mode: {renderMode.toUpperCase()}</span><span>Click node: select</span></div>
     </div>
   );
 }
