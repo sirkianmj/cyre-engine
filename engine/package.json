@@ -1,6 +1,6 @@
 {
   "name": "@cyre/engine",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CYRE Engine Core",
   "type": "module",
   "main": "dist/index.js",

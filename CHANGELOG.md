@@ -2,6 +2,13 @@
 
 All notable changes to CYRE will be documented in this file.
 
+## [1.0.2] - 2026-08-23
+
+### Changed
+- Removed misleading roadmap section from README to avoid unsupported claims.
+- Updated current status to accurately reflect the released CYRE Studio feature set.
+- Bumped package versions to 1.0.2.
+
 ## [1.0.1] - 2026-08-23
 
 ### Added

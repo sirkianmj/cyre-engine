@@ -167,10 +167,6 @@ Contributions are currently closed while the project is in early private develop
 When public contribution opens, contributors will be required to sign a Contributor License Agreement (CLA).
 See CONTRIBUTING.md for details.
 
-Screenshots
-
-No screenshots available yet. Placeholder directory: docs/screenshots/
-
 Contact
 
 For inquiries, contact ForgeX4 (contact information will be provided separately).

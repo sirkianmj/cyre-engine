@@ -17,7 +17,7 @@ function BootScreen(): JSX.Element {
       <div className="boot-progress">
         <span />
       </div>
-      <span className="boot-version">v1.0.1 · Deep Blue</span>
+      <span className="boot-version">v1.0.2 · Deep Blue</span>
     </div>
   );
 }
@@ -106,7 +106,7 @@ function HomeScreen({
 
       <footer className="home-footer">
         <span>CYRE Engine · Liquid Glass Editor</span>
-        <span>v1.0.1</span>
+        <span>v1.0.2</span>
       </footer>
     </div>
   );
