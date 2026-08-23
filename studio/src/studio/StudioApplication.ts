@@ -37,6 +37,12 @@ import {
   RenderTarget,
   SceneGraph,
   SimpleSceneGraphBackend,
+  AssetBrowser,
+  AssetDescriptor,
+  AssetImportPipeline,
+  AssetImportRequest,
+  AssetManager,
+  AssetPreviewGenerator,
 } from '@cyre/engine';
 
 import type {
@@ -161,6 +167,10 @@ export interface StudioSnapshot {
   }>;
   activeRenderingBackendId: string | null;
   renderResult: RenderResultData | null;
+  assets: Array<Record<string, unknown>>;
+  assetBrowserTypes: string[];
+  assetBrowserTags: string[];
+  assetPreviews: Array<Record<string, unknown>>;
 }
 
 interface PanelInit {
@@ -207,6 +217,10 @@ export class StudioApplication {
   private readonly uiThemeManager = new UIThemeManager();
   private readonly motionSystem = new MotionSystem();
   private readonly gameUiWorkspace = new GameUIWorkspace();
+  private readonly assetManager = new AssetManager();
+  private readonly assetBrowser = new AssetBrowser(this.assetManager);
+  private readonly assetImportPipeline = new AssetImportPipeline();
+  private readonly assetPreviewGenerator = new AssetPreviewGenerator(this.assetManager);
   private readonly renderBackendRegistry = new RenderBackendRegistry();
   private readonly simpleRenderBackend = new SimpleSceneGraphBackend();
   private activeRenderingBackendId: string | null = null;
@@ -1495,6 +1509,49 @@ export class StudioApplication {
     this.emit();
   }
 
+    registerAsset(name: string, type: string, path?: string): void {
+    try {
+      const descriptor = new AssetDescriptor({
+        id: 'asset-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+        name: name.trim() || 'Unnamed Asset',
+        type: type as any,
+        path: path || undefined,
+        tags: [],
+      });
+      this.assetManager.register(descriptor);
+      this.editorShell.addNotification('success', 'Asset registered: ' + descriptor.name);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Register asset failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  importAssetFromContent(name: string, type: string, content: string): void {
+    try {
+      const request = new AssetImportRequest({
+        id: 'import-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+        name: name.trim() || 'Imported Asset',
+        type: type as any,
+        content,
+      });
+      const result = this.assetImportPipeline.importAsset(request);
+      this.editorShell.addNotification('success', 'Asset import processed: ' + result.status);
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Import asset failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  generateAssetPreviews(): void {
+    try {
+      const previews = this.assetPreviewGenerator.previewAll();
+      this.editorShell.addNotification('success', 'Generated ' + previews.length + ' asset preview(s).');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Generate asset previews failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
     play(): void {
     try {
       this.playModeController.start();
@@ -1760,6 +1817,13 @@ export class StudioApplication {
         editorDock: 'center',
         dockArea: 'center',
         order: 20,
+      },
+      {
+        id: 'asset-pipeline',
+        title: 'Asset Pipeline',
+        editorDock: 'center',
+        dockArea: 'center',
+        order: 21,
       },
     ];
 
@@ -2208,6 +2272,10 @@ export class StudioApplication {
       renderingBackends: this.listRenderingBackends(),
       activeRenderingBackendId: this.activeRenderingBackendId,
       renderResult: this.renderResult,
+      assets: this.assetManager.list().map((asset) => asset.toJSON()),
+      assetBrowserTypes: this.assetBrowser.listAvailableTypes() as string[],
+      assetBrowserTags: this.assetBrowser.listAvailableTags(),
+      assetPreviews: this.assetPreviewGenerator.previewAll().map((preview) => preview.toJSON()),
     };
   }
 

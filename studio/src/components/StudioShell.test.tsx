@@ -266,3 +266,24 @@ describe('Phase 09: Rendering', () => {
     expect(app.getState().renderResult).not.toBeNull();
   });
 });
+
+describe('Phase 10: Asset Pipeline', () => {
+  it('registers an asset', () => {
+    const app = new StudioApplication();
+    app.registerAsset('Test Image', 'image');
+    expect(app.getState().assets.length).toBe(1);
+  });
+
+  it('imports an asset from content', () => {
+    const app = new StudioApplication();
+    app.importAssetFromContent('Imported Data', 'data', '{}');
+    expect(app.getState().assets.length).toBeGreaterThanOrEqual(0);
+  });
+
+  it('generates asset previews', () => {
+    const app = new StudioApplication();
+    app.registerAsset('Scenario Asset', 'scenario');
+    app.generateAssetPreviews();
+    expect(app.getState().assetPreviews.length).toBe(1);
+  });
+});

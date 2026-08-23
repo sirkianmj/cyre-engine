@@ -189,6 +189,14 @@ export interface StudioContextValue {
   }>;
   setActiveRenderingBackend: (backendId: string) => void;
   renderScene: (width: number, height: number, mode: string) => void;
+
+  registerAsset: (name: string, type: string, path?: string) => void;
+  importAssetFromContent: (
+    name: string,
+    type: string,
+    content: string,
+  ) => void;
+  generateAssetPreviews: () => void;
 }
 
 const studioApplication = new StudioApplication();
@@ -338,6 +346,10 @@ export function StudioProvider({
       listRenderingBackends: () => studioApplication.listRenderingBackends(),
       setActiveRenderingBackend: (backendId) => studioApplication.setActiveRenderingBackend(backendId),
       renderScene: (width, height, mode) => studioApplication.renderScene(width, height, mode),
+
+      registerAsset: (name, type, path) => studioApplication.registerAsset(name, type, path),
+      importAssetFromContent: (name, type, content) => studioApplication.importAssetFromContent(name, type, content),
+      generateAssetPreviews: () => studioApplication.generateAssetPreviews(),
     }),
     [snapshot],
   );
