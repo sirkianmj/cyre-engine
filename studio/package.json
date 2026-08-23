@@ -1,12 +1,12 @@
 {
   "name": "@cyre/studio",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "type": "module",
   "description": "CYRE Studio professional graphical development environment",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "pnpm --filter @cyre/engine build && tsc && vite build",
     "preview": "vite preview",
     "test": "vitest run"
   },
