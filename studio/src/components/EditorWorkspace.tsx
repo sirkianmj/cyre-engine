@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+import type { MenuGroup } from '@cyre/engine';
+
 import { useStudio } from '../studio/StudioContext';
 import { CommandPaletteOverlay } from './CommandPaletteOverlay';
 import { CyreViewport } from './CyreViewport';
@@ -42,6 +44,10 @@ interface PersistedLayout {
   bottomTab: BottomTabId;
   preset: LayoutPreset;
   settings: ViewportSettings;
+  leftVisible: boolean;
+  rightVisible: boolean;
+  bottomVisible: boolean;
+  viewportVisible: boolean;
 }
 
 function readLayout(): PersistedLayout | null {
@@ -74,6 +80,10 @@ export function EditorWorkspace({ onGoHome }: EditorWorkspaceProps): JSX.Element
   const [leftWidth, setLeftWidth] = useState(stored?.leftWidth ?? 280);
   const [rightWidth, setRightWidth] = useState(stored?.rightWidth ?? 320);
   const [bottomHeight, setBottomHeight] = useState(stored?.bottomHeight ?? 236);
+  const [leftVisible, setLeftVisible] = useState(stored?.leftVisible ?? true);
+  const [rightVisible, setRightVisible] = useState(stored?.rightVisible ?? true);
+  const [bottomVisible, setBottomVisible] = useState(stored?.bottomVisible ?? true);
+  const [viewportVisible, setViewportVisible] = useState(stored?.viewportVisible ?? true);
   const [leftTab, setLeftTab] = useState<LeftTabId>(stored?.leftTab ?? 'project');
   const [rightTab, setRightTab] = useState<RightTabId>(stored?.rightTab ?? 'inspector');
   const [bottomTab, setBottomTab] = useState<BottomTabId>(stored?.bottomTab ?? 'console');
@@ -99,9 +109,13 @@ export function EditorWorkspace({ onGoHome }: EditorWorkspaceProps): JSX.Element
       bottomTab,
       preset,
       settings,
+      leftVisible,
+      rightVisible,
+      bottomVisible,
+      viewportVisible,
     };
     window.localStorage.setItem(LAYOUT_KEY, JSON.stringify(payload));
-  }, [bottomHeight, bottomTab, leftTab, leftWidth, preset, rightTab, rightWidth, settings]);
+  }, [bottomHeight, bottomTab, leftTab, leftWidth, preset, rightTab, rightWidth, settings, leftVisible, rightVisible, bottomVisible, viewportVisible]);
 
   const applyPreset = (id: LayoutPreset): void => {
     const next = PRESETS.find((entry) => entry.id === id);
@@ -123,6 +137,10 @@ export function EditorWorkspace({ onGoHome }: EditorWorkspaceProps): JSX.Element
       loadSavedProject();
       return;
     }
+    if (action === 'windows.toggle-left') { setLeftVisible((visible) => !visible); return; }
+    if (action === 'windows.toggle-right') { setRightVisible((visible) => !visible); return; }
+    if (action === 'windows.toggle-bottom') { setBottomVisible((visible) => !visible); return; }
+    if (action === 'windows.toggle-viewport') { setViewportVisible((visible) => !visible); return; }
     executeCommand(action);
   };
 
@@ -200,21 +218,52 @@ export function EditorWorkspace({ onGoHome }: EditorWorkspaceProps): JSX.Element
   ]);
 
   const menuGroups = useMemo(() => {
-    return [
-      ...state.menuGroups.map((group) =>
-        group.id === 'file'
-          ? {
-              ...group,
-              items: [
-                ...group.items,
-                { id: 'project.open-saved', label: 'Open Last Project', action: 'project.open-saved', enabled: true },
-                { id: 'studio.home', label: 'Back to Home', action: 'studio.home', enabled: true },
-              ],
-            }
-          : group,
-      ),
-    ];
-  }, [state.menuGroups]);
+    const baseGroups = state.menuGroups.map((group) =>
+      group.id === 'file'
+        ? {
+            ...group,
+            items: [
+              ...group.items,
+              { id: 'project.open-saved', label: 'Open Last Project', action: 'project.open-saved', enabled: true },
+              { id: 'studio.home', label: 'Back to Home', action: 'studio.home', enabled: true },
+            ],
+          }
+        : group,
+    );
+
+    const windowsGroup: MenuGroup = {
+      id: 'windows',
+      label: 'Windows',
+      items: [
+        {
+          id: 'windows.toggle-left',
+          label: leftVisible ? 'Hide Left Panel' : 'Show Left Panel',
+          action: 'windows.toggle-left',
+          enabled: true,
+        },
+        {
+          id: 'windows.toggle-right',
+          label: rightVisible ? 'Hide Right Panel' : 'Show Right Panel',
+          action: 'windows.toggle-right',
+          enabled: true,
+        },
+        {
+          id: 'windows.toggle-bottom',
+          label: bottomVisible ? 'Hide Bottom Panel' : 'Show Bottom Panel',
+          action: 'windows.toggle-bottom',
+          enabled: true,
+        },
+        {
+          id: 'windows.toggle-viewport',
+          label: viewportVisible ? 'Hide Viewport' : 'Show Viewport',
+          action: 'windows.toggle-viewport',
+          enabled: true,
+        },
+      ],
+    };
+
+    return [...baseGroups, windowsGroup];
+  }, [state.menuGroups, leftVisible, rightVisible, bottomVisible, viewportVisible]);
 
   const closeMenus = useCallback(() => setOpenMenu(null), []);
 
@@ -345,6 +394,7 @@ export function EditorWorkspace({ onGoHome }: EditorWorkspaceProps): JSX.Element
           min={160}
           max={460}
           onChange={setBottomHeight}
+          secondVisible={bottomVisible}
           first={
             <SplitPane
               orientation="horizontal"
@@ -352,6 +402,7 @@ export function EditorWorkspace({ onGoHome }: EditorWorkspaceProps): JSX.Element
               min={220}
               max={420}
               onChange={setLeftWidth}
+              firstVisible={leftVisible}
               first={
                 <section className="dock-card">
                   <div className="dock-tabs">
@@ -377,6 +428,8 @@ export function EditorWorkspace({ onGoHome }: EditorWorkspaceProps): JSX.Element
                   min={240}
                   max={460}
                   onChange={setRightWidth}
+                  firstVisible={viewportVisible}
+                  secondVisible={rightVisible}
                   first={
                     <section className="viewport-card">
                       <CyreViewport settings={settings} />

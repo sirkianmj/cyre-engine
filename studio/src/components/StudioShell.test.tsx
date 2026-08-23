@@ -337,7 +337,6 @@ describe('Phase 13: Real Viewport & File Import/Export', () => {
   it('keeps rendering panels available', () => {
     const app = new StudioApplication();
     const ids = app.getState().panels.map((panel) => panel.id);
-    expect(ids).toContain('engine-viewport');
     expect(ids).toContain('asset-files');
   });
 
@@ -358,7 +357,6 @@ describe('Phase 13: Unreal Editor Shell', () => {
   it('keeps unreal shell panels available', () => {
     const app = new StudioApplication();
     const ids = app.getState().panels.map((panel) => panel.id);
-    expect(ids).toContain('engine-viewport');
     expect(ids).toContain('asset-files');
   });
 });

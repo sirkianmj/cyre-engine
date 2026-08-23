@@ -6,6 +6,8 @@ interface SplitPaneProps {
   orientation: 'horizontal' | 'vertical';
   first: ReactNode;
   second: ReactNode;
+  firstVisible?: boolean;
+  secondVisible?: boolean;
   value: number;
   min?: number;
   max?: number;
@@ -18,6 +20,8 @@ export function SplitPane({
   orientation,
   first,
   second,
+  firstVisible = true,
+  secondVisible = true,
   value,
   min = 180,
   max = 640,
@@ -56,14 +60,19 @@ export function SplitPane({
     [max, min, onChange, orientation, primary, value],
   );
 
-  const style =
-    orientation === 'horizontal'
+  const bothVisible = firstVisible && secondVisible;
+
+  const style = bothVisible
+    ? orientation === 'horizontal'
       ? primary === 'second'
         ? { gridTemplateColumns: `minmax(0, 1fr) 8px ${value}px` }
         : { gridTemplateColumns: `${value}px 8px minmax(0, 1fr)` }
       : primary === 'second'
         ? { gridTemplateRows: `minmax(0, 1fr) 8px ${value}px` }
-        : { gridTemplateRows: `${value}px 8px minmax(0, 1fr)` };
+        : { gridTemplateRows: `${value}px 8px minmax(0, 1fr)` }
+    : orientation === 'horizontal'
+      ? { gridTemplateColumns: 'minmax(0, 1fr)' }
+      : { gridTemplateRows: 'minmax(0, 1fr)' };
 
   return (
     <div
@@ -71,14 +80,16 @@ export function SplitPane({
       className={`split-pane split-${orientation}${className ? ` ${className}` : ''}`}
       style={style}
     >
-      <div className="split-first">{first}</div>
-      <button
-        type="button"
-        className="split-handle"
-        aria-label={orientation === 'horizontal' ? 'Resize columns' : 'Resize rows'}
-        onPointerDown={handlePointerDown}
-      />
-      <div className="split-second">{second}</div>
+      {firstVisible && <div className="split-first">{first}</div>}
+      {bothVisible && (
+        <button
+          type="button"
+          className="split-handle"
+          aria-label={orientation === 'horizontal' ? 'Resize columns' : 'Resize rows'}
+          onPointerDown={handlePointerDown}
+        />
+      )}
+      {secondVisible && <div className="split-second">{second}</div>}
     </div>
   );
 }
