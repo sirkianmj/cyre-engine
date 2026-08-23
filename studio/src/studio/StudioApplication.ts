@@ -1991,8 +1991,29 @@ export class StudioApplication {
     }
   }
 
+  private reloadCurrentScenario(): void {
+    if (this.currentScenarioDefinition) {
+      this.playModeController.loadScenario(this.currentScenarioDefinition);
+      this.resetMissionPlaythroughState();
+      return;
+    }
+
+    const missionId = this.currentProject?.getData().missionIds[0];
+    if (missionId) {
+      this.playModeController.loadMission(missionId);
+      this.currentScenarioDefinition = this.playModeController.getMissionRunner().scenario;
+      this.resetMissionPlaythroughState();
+    }
+  }
+
   play(): void {
     try {
+      const state = this.playModeController.getState();
+      if (state === 'paused') {
+        this.resume();
+        return;
+      }
+
       const missionStatus = this.playModeController.getMissionRunner().getMissionStatus();
       if (missionStatus === MissionStatus.Completed || missionStatus === MissionStatus.Failed) {
         this.reloadCurrentScenario();

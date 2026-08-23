@@ -671,13 +671,14 @@ export function CyreViewport({ settings }: CyreViewportProps): JSX.Element {
         return (a?.y ?? 0) - (b?.y ?? 0);
       });
 
-      for (const node of sorted) {
+      for (let nodeIndex = 0; nodeIndex < sorted.length; nodeIndex += 1) {
+        const node = sorted[nodeIndex];
         const point = projected.get(node.id);
         if (!point) continue;
         const visual = visualForType(node.type);
         const selected = frameSelected === node.id || frameConnect === node.id;
         const running2d = canvasStateRef.current.isPlaying;
-        const radius = NODE_RADIUS * point.scale * (running2d ? 1 + Math.sin(now * 0.008 + index) * 0.06 : 1);
+        const radius = NODE_RADIUS * point.scale * (running2d ? 1 + Math.sin(now * 0.008 + nodeIndex) * 0.06 : 1);
 
         ctx.save();
         ctx.translate(point.x, point.y);

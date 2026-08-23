@@ -144,7 +144,7 @@ export function EditorWorkspace({ onGoHome }: EditorWorkspaceProps): JSX.Element
     executeCommand(action);
   };
 
-  const simulationLabel = !state.isPlaying ? 'STOPPED' : state.isPaused ? 'PAUSED' : 'RUNNING';
+  const simulationLabel = state.isPaused ? 'PAUSED' : state.isPlaying ? 'RUNNING' : 'STOPPED';
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent): void => {
@@ -322,11 +322,11 @@ export function EditorWorkspace({ onGoHome }: EditorWorkspaceProps): JSX.Element
         <div className="transport">
           <button
             type="button"
-            className={!state.isPlaying ? 'active' : ''}
-            title={state.isPlaying ? 'Stop' : 'Play'}
-            onClick={state.isPlaying ? stop : play}
+            className={!state.isPlaying && !state.isPaused ? 'active' : ''}
+            title={state.isPlaying || state.isPaused ? 'Stop' : 'Play'}
+            onClick={state.isPlaying || state.isPaused ? stop : play}
           >
-            {state.isPlaying ? '■' : '▶'}
+            {state.isPlaying || state.isPaused ? '■' : '▶'}
           </button>
           <button
             type="button"
