@@ -106,6 +106,11 @@ import type {
   SceneGraphNodeData,
 } from '@cyre/engine';
 
+import {
+  backendIdForMode,
+  createEngineRenderBackends,
+} from '../rendering/CyreRenderBackends';
+
 type PlayModeState = ReturnType<PlayModeController['getState']>;
 
 export interface DockLayoutSummary {
@@ -411,6 +416,7 @@ export class StudioApplication {
       this.lastSerializedProject = this.projectManager.serializeProject(
         this.currentProject.getId(),
       );
+      this.writeStorage('cyre.studio.savedProject', this.lastSerializedProject);
       this.editorShell.setStatusMessage('Project saved.');
       this.editorShell.addNotification('success', 'Project saved.');
     } catch (error) {
@@ -421,6 +427,46 @@ export class StudioApplication {
     }
 
     this.emit();
+  }
+
+  hasSavedProject(): boolean {
+    return Boolean(
+      this.lastSerializedProject || this.readStorage('cyre.studio.savedProject'),
+    );
+  }
+
+  loadSavedProject(): boolean {
+    const raw =
+      this.lastSerializedProject ?? this.readStorage('cyre.studio.savedProject');
+
+    if (!raw) {
+      this.editorShell.addNotification('warning', 'No saved project was found.');
+      this.emit();
+      return false;
+    }
+
+    try {
+      const project = this.projectManager.deserializeProject(raw);
+      this.currentProject = project;
+      this.lastSerializedProject = raw;
+      this.editorShell.setProjectTitle(project.getName());
+      this.editorShell.setStatusMessage('Project loaded.');
+      this.syncProjectExplorer(project);
+      this.loadDefaultMission(project);
+      this.editorShell.addNotification(
+        'success',
+        `Project "${project.getName()}" loaded.`,
+      );
+      this.emit();
+      return true;
+    } catch (error) {
+      this.editorShell.addNotification(
+        'error',
+        `Project load failed: ${this.errorMessage(error)}`,
+      );
+      this.emit();
+      return false;
+    }
   }
 
   setWorkspace(workspaceId: string): void {
@@ -1472,8 +1518,12 @@ export class StudioApplication {
     initializeRenderingSystem(): void {
     try {
       this.renderBackendRegistry.register(this.simpleRenderBackend);
-      this.renderBackendRegistry.setDefault(this.simpleRenderBackend.id);
-      this.activeRenderingBackendId = this.simpleRenderBackend.id;
+      for (const backend of createEngineRenderBackends()) {
+        this.renderBackendRegistry.register(backend);
+      }
+      const defaultId = backendIdForMode(this.renderMode);
+      this.renderBackendRegistry.setDefault(defaultId);
+      this.activeRenderingBackendId = defaultId;
       this.editorShell.addNotification('success', 'Rendering system initialized.');
     } catch (error) {
       this.editorShell.addNotification('error', 'Rendering system init failed: ' + this.errorMessage(error));
@@ -1510,7 +1560,10 @@ export class StudioApplication {
 
   renderScene(width: number, height: number, mode: string): void {
     try {
-      const backend = this.renderBackendRegistry.getDefault();
+      const requestedId = backendIdForMode(mode);
+      const backend =
+        this.renderBackendRegistry.get(requestedId) ??
+        this.renderBackendRegistry.getDefault();
       if (!backend) {
         throw new Error('No active render backend.');
       }
@@ -1521,7 +1574,11 @@ export class StudioApplication {
           id: node.id,
           name: node.label,
           type: node.type,
-          metadata: node.metadata,
+          metadata: {
+            ...(node.metadata ?? {}),
+            x: node.position?.x,
+            y: node.position?.y,
+          },
         });
       }
 
@@ -1808,6 +1865,11 @@ export class StudioApplication {
     }
 
     this.renderMode = mode as '2d' | '2.5d' | '3d';
+    const backendId = backendIdForMode(mode);
+    if (this.renderBackendRegistry.has(backendId)) {
+      this.renderBackendRegistry.setDefault(backendId);
+      this.activeRenderingBackendId = backendId;
+    }
     this.editorShell.addNotification('success', 'Render mode set to ' + mode.toUpperCase());
     this.emit();
   }
@@ -1947,14 +2009,38 @@ export class StudioApplication {
       ['database', 410, 240],
     ];
 
+    const created: string[] = [];
     for (const [itemId, x, y] of defaults) {
       try {
         this.addNetworkNodeFromPalette(itemId, x, y);
+        const nodes = this.networkGraphEditor.listNodes();
+        const last = nodes[nodes.length - 1];
+        if (last) created.push(last.id);
       } catch (error) {
         this.editorShell.addNotification(
           'error',
           'Seed default scene failed for ' + itemId + ': ' + this.errorMessage(error),
         );
+      }
+    }
+
+    const links: Array<[number, number]> = [
+      [5, 4],
+      [4, 0],
+      [4, 1],
+      [2, 4],
+      [3, 4],
+      [0, 6],
+      [1, 6],
+    ];
+    for (const [sourceIndex, targetIndex] of links) {
+      const source = created[sourceIndex];
+      const target = created[targetIndex];
+      if (!source || !target) continue;
+      try {
+        this.networkGraphEditor.connect(source, target);
+      } catch {
+        // Graph validation may reject a duplicate seed link.
       }
     }
   }
@@ -2257,6 +2343,10 @@ export class StudioApplication {
       { id: 'simulation.pause', label: 'Pause Simulation', category: 'Simulation', shortcut: 'F7', action: () => this.pause() },
       { id: 'simulation.stop', label: 'Stop Simulation', category: 'Simulation', shortcut: 'F8', action: () => this.stop() },
       { id: 'simulation.restart', label: 'Restart Simulation', category: 'Simulation', action: () => this.restart() },
+      { id: 'project.open-saved', label: 'Open Last Project', category: 'Project', action: () => { this.loadSavedProject(); } },
+      { id: 'view.mode-2d', label: 'Switch to 2D Engine', category: 'View', shortcut: '1', action: () => this.setRenderMode('2d') },
+      { id: 'view.mode-2.5d', label: 'Switch to 2.5D Engine', category: 'View', shortcut: '2', action: () => this.setRenderMode('2.5d') },
+      { id: 'view.mode-3d', label: 'Switch to 3D Engine', category: 'View', shortcut: '3', action: () => this.setRenderMode('3d') },
     ];
 
     for (const panel of this.editorShell.listPanels()) {
@@ -2609,5 +2699,23 @@ export class StudioApplication {
 
   private errorMessage(error: unknown): string {
     return error instanceof Error ? error.message : String(error);
+  }
+
+  private readStorage(key: string): string | null {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return null;
+      return window.localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  private writeStorage(key: string, value: string): void {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return;
+      window.localStorage.setItem(key, value);
+    } catch {
+      // Storage can be unavailable in private mode or tests.
+    }
   }
 }

@@ -217,6 +217,9 @@ export interface StudioContextValue {
   packageWebGame: (name: string) => void;
   packageDesktopGame: (name: string) => void;
   packageMobileGame: (name: string) => void;
+  saveProject: () => void;
+  loadSavedProject: () => boolean;
+  hasSavedProject: () => boolean;
 }
 
 const studioApplication = new StudioApplication();
@@ -397,6 +400,10 @@ export function StudioProvider({
 
       packageMobileGame: (name) =>
         studioApplication.packageMobileGame(name),
+
+      saveProject: () => studioApplication.saveProject(),
+      loadSavedProject: () => studioApplication.loadSavedProject(),
+      hasSavedProject: () => studioApplication.hasSavedProject(),
     }),
     [snapshot],
   );

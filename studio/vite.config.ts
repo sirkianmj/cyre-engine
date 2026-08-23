@@ -5,9 +5,21 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   plugins: [react()],
-
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    strictPort: true,
+    allowedHosts: true,
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: 4173,
+  },
   resolve: {
     alias: {
+      '@cyre/engine': fileURLToPath(
+        new URL('../engine/src/index.ts', import.meta.url),
+      ),
       'node:http': fileURLToPath(
         new URL('./src/vite-shims/node-http.ts', import.meta.url),
       ),

@@ -46,6 +46,7 @@ describe('StudioApplication', () => {
     );
 
     expect(() => application.saveProject()).not.toThrow();
+    expect(application.hasSavedProject()).toBe(true);
   });
 
   it('rejects invalid simulation speed', () => {
@@ -265,6 +266,31 @@ describe('Phase 09: Rendering', () => {
     const app = new StudioApplication();
     app.renderScene(800, 600, '2d');
     expect(app.getState().renderResult).not.toBeNull();
+  });
+
+  it('registers real 2D, 2.5D, and 3D engine backends', () => {
+    const app = new StudioApplication();
+    const ids = app.getState().renderingBackends.map((backend) => backend.id);
+    expect(ids).toContain('cyre-2d');
+    expect(ids).toContain('cyre-2.5d');
+    expect(ids).toContain('cyre-3d');
+  });
+
+  it('renders with the 3D engine backend', () => {
+    const app = new StudioApplication();
+    app.setRenderMode('3d');
+    app.renderScene(1280, 720, '3d');
+    const result = app.getState().renderResult as { backendId?: string } | null;
+    expect(result).not.toBeNull();
+    expect(result?.backendId).toBe('renderer-3d');
+  });
+
+  it('switches the active backend with render mode', () => {
+    const app = new StudioApplication();
+    app.setRenderMode('2d');
+    expect(app.getState().activeRenderingBackendId).toBe('cyre-2d');
+    app.setRenderMode('2.5d');
+    expect(app.getState().activeRenderingBackendId).toBe('cyre-2.5d');
   });
 });
 
