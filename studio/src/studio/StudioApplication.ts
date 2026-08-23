@@ -29,6 +29,7 @@ import {
   ProjectManager,
   ScenarioEditor,
   ScenarioGenerator,
+  ScenarioDefinition,
   TimelineEditor,
   WorkspaceManager,
   RenderBackendRegistry,
@@ -1099,18 +1100,52 @@ export class StudioApplication {
 
   buildScenario(): void {
     try {
-      this.scenarioEditor.build();
+      const data = this.scenarioEditor.getData();
+
+      if (!data.attacker.id) {
+        this.scenarioEditor.setAttacker(
+          'attacker-external',
+          'External Attacker',
+          'Compromise target network',
+          'medium',
+        );
+      }
+
+      const hydrated = this.scenarioEditor.getData();
+      if (
+        hydrated.attackPath.path.length < 2 &&
+        hydrated.network.nodes.length >= 2
+      ) {
+        const nodeIds = hydrated.network.nodes.map((node) => node.id);
+        this.scenarioEditor.setAttackPath(
+          nodeIds[0],
+          nodeIds[nodeIds.length - 1],
+          nodeIds,
+        );
+      }
+
+      const definition = this.scenarioEditor.build();
       this.currentScenarioData = this.scenarioEditor.getData();
-      this.editorShell.addNotification('success', 'Scenario validated and built.');
-    } catch (error) { this.editorShell.addNotification('error', 'Scenario build failed: ' + this.errorMessage(error)); }
+      this.playModeController.loadScenario(definition);
+      this.editorShell.setStatusMessage('Scenario built and loaded for play mode.');
+      this.editorShell.addNotification('success', 'Scenario validated and loaded.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Scenario build failed: ' + this.errorMessage(error));
+    }
     this.emit();
   }
 
   generateScenario(options: ScenarioGeneratorOptions): void {
     try {
-      this.currentScenarioData = this.scenarioGenerator.generate(options);
-      this.editorShell.addNotification('success', 'Scenario generated.');
-    } catch (error) { this.editorShell.addNotification('error', 'Scenario generation failed: ' + this.errorMessage(error)); }
+      const data = this.scenarioGenerator.generate(options);
+      this.currentScenarioData = data;
+      const definition = new ScenarioDefinition(data);
+      this.playModeController.loadScenario(definition);
+      this.editorShell.setStatusMessage('Generated scenario loaded for play mode.');
+      this.editorShell.addNotification('success', 'Scenario generated and loaded.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Scenario generation failed: ' + this.errorMessage(error));
+    }
     this.emit();
   }
 
