@@ -1933,9 +1933,64 @@ export class StudioApplication {
     this.emit();
   }
 
-    play(): void {
+  private syncMissionToGameUI(): void {
+    try {
+      const runner = this.playModeController.getMissionRunner();
+      const data = runner.scenario.getData();
+
+      this.gameUiWorkspace.setMission({
+        id: data.id,
+        name: data.name,
+        description: data.description,
+        status: 'active',
+        objectives: data.objectives.map((objective) => ({
+          id: objective.id,
+          description: objective.description,
+          type: objective.type,
+          completed: false,
+        })),
+        timeLimitMs: data.timeLimitMs,
+      } as any);
+
+      this.gameUiWorkspace.setEvidence(data.evidence.map((evidence) => ({
+        id: evidence.id,
+        title: evidence.title,
+        type: evidence.type,
+        description: evidence.description,
+        sourceId: evidence.sourceId,
+        timestamp: evidence.timestamp,
+        data: evidence.data,
+      })) as any);
+
+      this.gameUiWorkspace.setAlerts(data.timeline.slice(0, 1).map((event) => ({
+        id: `alert-${event.id}`,
+        title: 'Anomalous authentication events detected',
+        description: `Event type: ${event.type}`,
+        severity: 'high',
+        status: 'new',
+        timestamp: event.timestamp,
+        sourceId: event.sourceId,
+      })) as any);
+
+      this.gameUiWorkspace.setTimeline(data.timeline.map((event) => ({
+        id: event.id,
+        type: event.type,
+        timestamp: event.timestamp,
+        sourceId: event.sourceId,
+        targetId: event.targetId,
+        data: event.data,
+      })) as any);
+
+      this.refreshGameUI();
+    } catch {
+      // Game UI sync is best-effort; Play can continue without it.
+    }
+  }
+
+  play(): void {
     try {
       this.playModeController.start();
+      this.syncMissionToGameUI();
       this.editorShell.setStatusMessage('Simulation running.');
     } catch (error) {
       this.editorShell.addNotification(
@@ -2081,6 +2136,18 @@ export class StudioApplication {
     try {
       this.playModeController.getMissionRunner().completeMission();
       this.missionCompleted = true;
+
+      if (this.gameUiRender) {
+        this.gameUiWorkspace.setMission({
+          ...(this.gameUiWorkspace.render().mission as any),
+          status: 'completed',
+          objectives: (this.gameUiWorkspace.render().mission as any)?.objectives.map((objective: any) => ({
+            ...objective,
+            completed: true,
+          })) ?? [],
+        });
+        this.refreshGameUI();
+      }
 
       const metrics = {
         accuracy: this.missionHypothesisFormed && this.missionAttackPathIdentified ? 1 : 0.6,
