@@ -8,7 +8,7 @@ import type {
 
 import { useStudio } from '../studio/StudioContext';
 import { Viewport } from './Viewport';
-import { DockShell } from './DockShell';
+import { UnrealEditorLayout } from './UnrealEditorLayout';
 
 type StudioPhase = 'boot' | 'home' | 'editor';
 
@@ -531,7 +531,7 @@ export function StudioShell(): JSX.Element {
         </div>
       </div>
 
-      <DockShell />
+      <UnrealEditorLayout />
 
       <footer className="studio-statusbar">
         <div>

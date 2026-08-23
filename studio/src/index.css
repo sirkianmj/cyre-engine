@@ -2492,3 +2492,350 @@ select {
   background: rgba(91, 170, 255, 0.08);
   color: var(--studio-text);
 }
+
+/* ===== UNREAL/UNITY-STYLE EDITOR ===== */
+
+.unreal-editor-shell {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #0a0e16;
+  color: var(--studio-text);
+  font-family: Inter, system-ui, sans-serif;
+  overflow: hidden;
+}
+
+.unreal-center-layout {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr) 320px;
+  gap: 1px;
+}
+
+.unreal-sidebar {
+  min-height: 0;
+  background: #0d111a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.unreal-sidebar-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.unreal-sidebar-tabs button,
+.unreal-bottom-tabs button {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--studio-text-tertiary);
+  font-size: 11px;
+}
+
+.unreal-sidebar-tabs button.active,
+.unreal-bottom-tabs button.active {
+  background: rgba(91, 170, 255, 0.18);
+  color: var(--studio-text);
+}
+
+.unreal-sidebar-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.unreal-viewport-region {
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  background: #050810;
+}
+
+.unreal-toolbar {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px;
+  background: #0b0f18;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.unreal-toolbar button {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--studio-text-secondary);
+  font-size: 12px;
+}
+
+.unreal-toolbar button.active {
+  background: rgba(91, 170, 255, 0.22);
+  color: var(--studio-text);
+}
+
+.simulation-badge {
+  margin-left: 8px;
+  color: var(--studio-text-secondary);
+  font-size: 11px;
+}
+
+.unreal-toolbar select {
+  margin-left: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: var(--studio-text);
+  padding: 4px 6px;
+  font-size: 11px;
+}
+
+.unreal-webgl-area {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.unreal-bottom-region {
+  height: 220px;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.unreal-bottom-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 5px;
+  background: #0b0f18;
+}
+
+.unreal-bottom-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #090c12;
+  padding: 8px;
+}
+
+.webgl-viewport {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.webgl-viewport canvas {
+  display: block;
+}
+
+.viewport-mode-label {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: rgba(8, 12, 20, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--studio-text-secondary);
+  font-size: 11px;
+}
+
+.mode-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--studio-green);
+  box-shadow: 0 0 8px var(--studio-green);
+}
+
+.viewport-help {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  z-index: 5;
+  display: flex;
+  gap: 8px;
+  padding: 5px 9px;
+  border-radius: 7px;
+  background: rgba(8, 12, 20, 0.65);
+  color: var(--studio-text-tertiary);
+  font-size: 10px;
+}
+
+.unreal-console {
+  font-family: 'SFMono-Regular', Menlo, Monaco, monospace;
+  font-size: 11px;
+}
+
+.unreal-console-line {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.unreal-console-line span {
+  color: var(--studio-text-tertiary);
+}
+
+.unreal-console-line strong {
+  color: var(--studio-blue);
+}
+
+.unreal-console-line.warning strong {
+  color: var(--studio-amber);
+}
+
+.unreal-console-line.error strong {
+  color: var(--studio-red);
+}
+
+.unreal-console-line.success strong {
+  color: var(--studio-green);
+}
+
+.unreal-content-browser {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 6px;
+}
+
+.unreal-content-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--studio-text-secondary);
+  font-size: 11px;
+}
+
+.content-thumb {
+  width: 32px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  background: rgba(91, 170, 255, 0.14);
+  color: var(--studio-blue);
+}
+
+.unreal-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.unreal-timeline-entry {
+  display: flex;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--studio-text-secondary);
+  font-size: 11px;
+}
+
+.unreal-tree {
+  padding: 6px;
+}
+
+.unreal-tree-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  color: var(--studio-text-secondary);
+  font-size: 12px;
+}
+
+.unreal-tree-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.unreal-inspector {
+  padding: 8px;
+}
+
+.unreal-inspector-header {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.unreal-inspector-header span {
+  display: block;
+  color: var(--studio-text-tertiary);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.unreal-inspector-header strong {
+  color: var(--studio-text);
+  font-size: 13px;
+}
+
+.unreal-property-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 11px;
+}
+
+.unreal-property-row span {
+  color: var(--studio-text-tertiary);
+}
+
+.unreal-property-row strong {
+  color: var(--studio-text);
+}
+
+.unreal-empty,
+.unreal-meta {
+  color: var(--studio-text-tertiary);
+  font-size: 11px;
+}
+
+.unreal-statusbar {
+  flex: 0 0 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 10px;
+  background: #0a0e16;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--studio-text-tertiary);
+  font-size: 10px;
+}
+
+.unreal-statusbar .status-online {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--studio-green);
+  box-shadow: 0 0 8px var(--studio-green);
+}

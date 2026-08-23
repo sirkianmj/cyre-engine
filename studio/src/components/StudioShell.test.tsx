@@ -63,10 +63,11 @@ describe('Phase 01: Inspector / Palette / Multi-Selection', () => {
 
     application.addNetworkNodeFromPalette('server', 100, 120);
     const state = application.getState();
+    const lastNode = state.networkNodes[state.networkNodes.length - 1];
 
     expect(state.networkNodes.length).toBeGreaterThan(0);
-    expect(state.networkNodes[0].type).toBe('server');
-    expect(state.inspectorTarget?.id).toBe(state.networkNodes[0].id);
+    expect(lastNode.type).toBe('server');
+    expect(state.inspectorTarget?.id).toBe(lastNode.id);
   });
 
   it('selects a project node into inspector', () => {
@@ -338,5 +339,19 @@ describe('Phase 13: Real Viewport & File Import/Export', () => {
     app.addNetworkNodeFromPalette('server', 100, 100);
     app.renderScene(800, 600, '2d');
     expect(app.getState().renderResult).not.toBeNull();
+  });
+});
+
+describe('Phase 13: Unreal Editor Shell', () => {
+  it('seeds a default studio scene', () => {
+    const app = new StudioApplication();
+    expect(app.getState().networkNodes.length).toBeGreaterThan(0);
+  });
+
+  it('keeps unreal shell panels available', () => {
+    const app = new StudioApplication();
+    const ids = app.getState().panels.map((panel) => panel.id);
+    expect(ids).toContain('engine-viewport');
+    expect(ids).toContain('asset-files');
   });
 });

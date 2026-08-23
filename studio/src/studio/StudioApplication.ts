@@ -344,6 +344,7 @@ export class StudioApplication {
     this.initializeStudioShell();
     this.initializeRenderingSystem();
     this.createProject('Untitled CYRE Project', 'soc-game');
+    this.seedDefaultStudioScene();
   }
 
   getState(): StudioSnapshot {
@@ -1923,7 +1924,30 @@ export class StudioApplication {
     this.emit();
   }
 
-  private initializeStudioShell(): void {
+  private seedDefaultStudioScene(): void {
+    const defaults: Array<[string, number, number]> = [
+      ['server', 140, 140],
+      ['server', 310, 180],
+      ['client', 110, 250],
+      ['client', 380, 90],
+      ['router', 240, 210],
+      ['firewall', 80, 180],
+      ['database', 410, 240],
+    ];
+
+    for (const [itemId, x, y] of defaults) {
+      try {
+        this.addNetworkNodeFromPalette(itemId, x, y);
+      } catch (error) {
+        this.editorShell.addNotification(
+          'error',
+          'Seed default scene failed for ' + itemId + ': ' + this.errorMessage(error),
+        );
+      }
+    }
+  }
+
+    private initializeStudioShell(): void {
     const panels: PanelInit[] = [
       {
         id: 'project-explorer',
