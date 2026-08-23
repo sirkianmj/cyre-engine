@@ -2912,3 +2912,57 @@ select {
 .webgl-viewport canvas.render-layer { width: 100%; height: 100%; }
 .viewport-help { pointer-events: none; }
 .viewport-mode-label { pointer-events: none; }
+
+/* ===== UNREAL WINDOW ACTIONS ===== */
+
+.unreal-window-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.unreal-window-actions input {
+  height: 20px;
+  min-width: 80px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--studio-text);
+  padding: 0 5px;
+  font-size: 10px;
+}
+
+.unreal-window-actions button {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--studio-text-tertiary);
+  cursor: pointer;
+}
+
+.unreal-window-actions button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--studio-text);
+}
+
+.unreal-tree-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 5px 6px;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--studio-text-secondary);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.unreal-tree-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
