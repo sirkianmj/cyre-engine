@@ -1,5 +1,6 @@
 import {
   AttackGraphEditor,
+  Campaign,
   CommandPalette,
   CyberEntityPalette,
   DockManager,
@@ -154,6 +155,22 @@ export interface StudioSnapshot {
   timelineEntries: EditorTimelineEntry[];
   currentScenarioData: ScenarioData | null;
   missionDesign: EditorMissionDesignerDesign;
+  missionRunSummary: {
+    status: string;
+    score: number;
+    hypothesisFormed: boolean;
+    attackPathIdentified: boolean;
+    contained: boolean;
+    recovered: boolean;
+    completed: boolean;
+  } | null;
+  campaignProgress: {
+    campaignId: string;
+    currentMissionId: string | null;
+    completedMissionIds: string[];
+    availableMissionIds: string[];
+    isComplete: boolean;
+  } | null;
   objectiveGraphNodes: EditorObjectiveGraphNode[];
   objectiveGraphEdges: EditorObjectiveGraphEdge[];
   eventTriggerRules: EditorEventTriggerRule[];
@@ -245,6 +262,12 @@ export class StudioApplication {
   private readonly uiThemeManager = new UIThemeManager();
   private readonly motionSystem = new MotionSystem();
   private readonly gameUiWorkspace = new GameUIWorkspace();
+  private readonly campaign = new Campaign('campaign-main', 'SOC Campaign', ['mission-001']);
+  private missionHypothesisFormed = false;
+  private missionAttackPathIdentified = false;
+  private missionContained = false;
+  private missionRecovered = false;
+  private missionCompleted = false;
   private readonly assetManager = new AssetManager();
   private readonly assetBrowser = new AssetBrowser(this.assetManager);
   private readonly assetImportPipeline = new AssetImportPipeline();
@@ -1997,6 +2020,91 @@ export class StudioApplication {
     this.emit();
   }
 
+  acknowledgeMissionAlert(): void {
+    try {
+      const runner = this.playModeController.getMissionRunner();
+      runner.acknowledgeAlert();
+      this.editorShell.addNotification('success', 'Initial alert acknowledged.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Acknowledge alert failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  formMissionHypothesis(description = 'Employee credentials were compromised via VPN and used to reach the database.'): void {
+    try {
+      const runner = this.playModeController.getMissionRunner();
+      runner.formHypothesis(description);
+      this.missionHypothesisFormed = true;
+      this.editorShell.addNotification('success', 'Hypothesis formed.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Form hypothesis failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  identifyMissionAttackPath(source = 'internet', target = 'database'): void {
+    try {
+      const runner = this.playModeController.getMissionRunner();
+      runner.identifyAttackPath(source, target);
+      this.missionAttackPathIdentified = true;
+      this.editorShell.addNotification('success', 'Attack path identified.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Identify attack path failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  containMissionIncident(): void {
+    try {
+      this.playModeController.getMissionRunner().containIncident();
+      this.missionContained = true;
+      this.editorShell.addNotification('success', 'Incident contained.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Contain incident failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  recoverMissionIncident(): void {
+    try {
+      this.playModeController.getMissionRunner().recoverIncident();
+      this.missionRecovered = true;
+      this.editorShell.addNotification('success', 'Incident recovered.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Recover incident failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
+  completeMissionPlaythrough(): void {
+    try {
+      this.playModeController.getMissionRunner().completeMission();
+      this.missionCompleted = true;
+
+      const metrics = {
+        accuracy: this.missionHypothesisFormed && this.missionAttackPathIdentified ? 1 : 0.6,
+        responseTimeMs: 5000,
+        damage: this.missionContained ? 0.1 : 0.5,
+        evidenceQuality: 1,
+        penalties: 0,
+      };
+
+      try {
+        if (!this.campaign.isComplete()) {
+          this.campaign.completeCurrentMission(metrics);
+        }
+      } catch (campaignError) {
+        this.editorShell.addNotification('warning', 'Campaign completion failed: ' + this.errorMessage(campaignError));
+      }
+
+      this.editorShell.addNotification('success', 'Mission completed.');
+    } catch (error) {
+      this.editorShell.addNotification('error', 'Complete mission failed: ' + this.errorMessage(error));
+    }
+    this.emit();
+  }
+
   executeCommand(commandId: string): void {
     try {
       const executed = this.commandPalette.execute(commandId);
@@ -2452,6 +2560,7 @@ export class StudioApplication {
 
     try {
       this.playModeController.loadMission(missionId);
+      this.resetMissionPlaythroughState();
     } catch (error) {
       this.editorShell.addNotification(
         'error',
@@ -2636,7 +2745,42 @@ export class StudioApplication {
     }
   }
 
-    private computeSnapshot(): StudioSnapshot {
+    private resetMissionPlaythroughState(): void {
+    this.missionHypothesisFormed = false;
+    this.missionAttackPathIdentified = false;
+    this.missionContained = false;
+    this.missionRecovered = false;
+    this.missionCompleted = false;
+  }
+
+  private getMissionRunSummary() {
+    try {
+      const runner = this.playModeController.getMissionRunner();
+      return {
+        status: String(runner.getMissionStatus()),
+        score: runner.getScore(),
+        hypothesisFormed: this.missionHypothesisFormed,
+        attackPathIdentified: this.missionAttackPathIdentified,
+        contained: this.missionContained,
+        recovered: this.missionRecovered,
+        completed: this.missionCompleted,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  private getCampaignProgress() {
+    return {
+      campaignId: this.campaign.id,
+      currentMissionId: this.campaign.getCurrentMissionId(),
+      completedMissionIds: this.campaign.getCompletedMissionIds(),
+      availableMissionIds: this.campaign.getAvailableMissionIds(),
+      isComplete: this.campaign.isComplete(),
+    };
+  }
+
+  private computeSnapshot(): StudioSnapshot {
     const playState = this.playModeController.getState();
 
     return {
@@ -2682,6 +2826,8 @@ export class StudioApplication {
       timelineEntries: this.timelineEditor.listEntries(),
       currentScenarioData: this.currentScenarioData,
       missionDesign: this.missionDesigner.getDesign(),
+      missionRunSummary: this.getMissionRunSummary(),
+      campaignProgress: this.getCampaignProgress(),
       objectiveGraphNodes: this.objectiveGraphEditor.listNodes(),
       objectiveGraphEdges: this.objectiveGraphEditor.listEdges(),
       eventTriggerRules: this.eventTriggerSystem.listRules(),

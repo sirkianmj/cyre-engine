@@ -9,6 +9,12 @@ export function GameUIPanel(): JSX.Element {
     addGameUIAlert,
     addGameUITimelineEvent,
     setGameUIMission,
+    acknowledgeMissionAlert,
+    formMissionHypothesis,
+    identifyMissionAttackPath,
+    containMissionIncident,
+    recoverMissionIncident,
+    completeMissionPlaythrough,
   } = useStudio();
 
   const [evidenceType, setEvidenceType] = useState('log');
@@ -64,6 +70,87 @@ export function GameUIPanel(): JSX.Element {
             >
               Set Mission
             </button>
+            <div className="authoring-card">
+              <h4>Mission 001 Playthrough</h4>
+              {state.missionRunSummary ? (
+                <div className="graph-node-list">
+                  <div className="graph-node-row">
+                    <span>Status</span>
+                    <span className="graph-node-meta">
+                      {state.missionRunSummary.status}
+                    </span>
+                  </div>
+                  <div className="graph-node-row">
+                    <span>Score</span>
+                    <span className="graph-node-meta">
+                      {state.missionRunSummary.score}
+                    </span>
+                  </div>
+                  <div className="graph-node-row">
+                    <span>Hypothesis</span>
+                    <span className="graph-node-meta">
+                      {state.missionRunSummary.hypothesisFormed ? 'YES' : 'NO'}
+                    </span>
+                  </div>
+                  <div className="graph-node-row">
+                    <span>Attack Path</span>
+                    <span className="graph-node-meta">
+                      {state.missionRunSummary.attackPathIdentified ? 'YES' : 'NO'}
+                    </span>
+                  </div>
+                  <div className="graph-node-row">
+                    <span>Contained</span>
+                    <span className="graph-node-meta">
+                      {state.missionRunSummary.contained ? 'YES' : 'NO'}
+                    </span>
+                  </div>
+                  <div className="graph-node-row">
+                    <span>Recovered</span>
+                    <span className="graph-node-meta">
+                      {state.missionRunSummary.recovered ? 'YES' : 'NO'}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="graph-empty">No mission runner loaded.</div>
+              )}
+
+              <div className="graph-toolbar">
+                <button onClick={acknowledgeMissionAlert}>
+                  Acknowledge Alert
+                </button>
+                <button onClick={() => formMissionHypothesis()}>
+                  Form Hypothesis
+                </button>
+                <button onClick={() => identifyMissionAttackPath()}>
+                  Identify Attack Path
+                </button>
+                <button onClick={containMissionIncident}>Contain</button>
+                <button onClick={recoverMissionIncident}>Recover</button>
+                <button onClick={completeMissionPlaythrough}>
+                  Complete Mission
+                </button>
+              </div>
+            </div>
+
+            {state.campaignProgress && (
+              <div className="authoring-card">
+                <h4>Campaign</h4>
+                <div className="graph-node-row">
+                  <span>Current Mission</span>
+                  <span className="graph-node-meta">
+                    {state.campaignProgress.currentMissionId ?? 'None'}
+                  </span>
+                </div>
+                <div className="graph-node-row">
+                  <span>Completed</span>
+                  <span className="graph-node-meta">
+                    {state.campaignProgress.completedMissionIds.length}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {game?.mission && (
               <pre className="authoring-preview">
                 {JSON.stringify(game.mission, null, 2)}

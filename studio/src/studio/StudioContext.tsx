@@ -103,6 +103,13 @@ export interface StudioContextValue {
   setSimulationSpeed: (speed: number) => void;
   executeCommand: (commandId: string) => void;
 
+  acknowledgeMissionAlert: () => void;
+  formMissionHypothesis: (description?: string) => void;
+  identifyMissionAttackPath: (source?: string, target?: string) => void;
+  containMissionIncident: () => void;
+  recoverMissionIncident: () => void;
+  completeMissionPlaythrough: () => void;
+
   addAttackGraphNode: (label: string, status?: string, stage?: string) => void;
   connectAttackGraphNodes: (sourceId: string, targetId: string) => void;
   removeAttackGraphNode: (nodeId: string) => void;
@@ -302,6 +309,13 @@ export function StudioProvider({
       restart: () => studioApplication.restart(),
       setSimulationSpeed: (speed) => studioApplication.setSimulationSpeed(speed),
       executeCommand: (commandId) => studioApplication.executeCommand(commandId),
+
+      acknowledgeMissionAlert: () => studioApplication.acknowledgeMissionAlert(),
+      formMissionHypothesis: (description) => studioApplication.formMissionHypothesis(description),
+      identifyMissionAttackPath: (source, target) => studioApplication.identifyMissionAttackPath(source, target),
+      containMissionIncident: () => studioApplication.containMissionIncident(),
+      recoverMissionIncident: () => studioApplication.recoverMissionIncident(),
+      completeMissionPlaythrough: () => studioApplication.completeMissionPlaythrough(),
 
       addAttackGraphNode: (label, status, stage) => studioApplication.addAttackGraphNode(label, status, stage),
       connectAttackGraphNodes: (sourceId, targetId) => studioApplication.connectAttackGraphNodes(sourceId, targetId),
