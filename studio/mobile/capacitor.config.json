@@ -1,0 +1,20 @@
+{
+  "appId": "com.forgex4.cyre.studio",
+  "appName": "CYRE Studio",
+  "webDir": "../dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#0b0d10"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "backgroundColor": "#0b0d10",
+      "showSpinner": false
+    }
+  }
+}

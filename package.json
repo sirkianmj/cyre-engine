@@ -1,0 +1,33 @@
+{
+  "name": "cyre-monorepo",
+  "private": true,
+  "version": "1.0.4",
+  "description": "CYRE cybersecurity game development platform monorepo",
+  "scripts": {
+    "build:engine": "pnpm --filter @cyre/engine build",
+    "test:engine": "pnpm --filter @cyre/engine test",
+    "audit:engine": "pnpm --filter @cyre/engine audit:architecture",
+    "dev:studio": "pnpm --filter @cyre/studio dev",
+    "build:studio": "pnpm --filter @cyre/studio build",
+    "preview:studio": "pnpm --filter @cyre/studio preview",
+    "test:studio": "pnpm --filter @cyre/studio test",
+    "build": "pnpm build:engine && pnpm build:studio",
+    "test": "pnpm test:engine && pnpm test:studio",
+    "typecheck": "pnpm build:engine && pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "ci": "pnpm install --frozen-lockfile && pnpm typecheck && pnpm lint && pnpm test && pnpm build",
+    "verify": "pnpm audit:engine && pnpm audit:placeholders && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "audit:placeholders": "pnpm --filter @cyre/engine audit:placeholders",
+    "benchmark": "pnpm --filter @cyre/engine build && pnpm --filter @cyre/engine benchmark",
+    "package:web": "pnpm --filter @cyre/studio package:web",
+    "package:desktop": "pnpm --filter @cyre/studio package:desktop",
+    "package:mobile": "pnpm --filter @cyre/studio package:mobile"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "eslint-plugin-unused-imports": "^4.4.1",
+    "typescript-eslint": "^8.0.0"
+  },
+  "type": "module"
+}

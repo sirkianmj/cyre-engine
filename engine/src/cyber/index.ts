@@ -1,0 +1,42 @@
+/**
+ * CYRE Cyber Module Exports
+ * ---------------------------
+ * Public API for cyber entities, network graph, access control,
+ * vulnerabilities, attack model, and defense model.
+ */
+
+export * from './simulation/index.js';
+export { CyberEntity } from './CyberEntity.js';
+export { Host } from './Host.js';
+export { Server } from './Server.js';
+export { Client } from './Client.js';
+export { Router } from './Router.js';
+export { Firewall } from './Firewall.js';
+export { Database } from './Database.js';
+export { Service } from './Service.js';
+export { User } from './User.js';
+export { Account } from './Account.js';
+export { validateOptionalIpAddress, validateOptionalHostname } from './validation.js';
+export { NetworkGraph } from './NetworkGraph.js';
+export type {
+  NetworkNode,
+  NetworkEdge,
+  NodeId,
+  EdgeType,
+  PathResult,
+} from './networkTypes.js';
+export { Privilege } from './Privilege.js';
+export { Role } from './Role.js';
+export { Session } from './Session.js';
+export { AccessControl } from './AccessControl.js';
+export { Vulnerability, type VulnerabilitySeverity, type VulnerabilityOptions } from './Vulnerability.js';
+export { VulnerabilityCatalog } from './VulnerabilityCatalog.js';
+export {
+  AttackStage,
+  ATTACK_STAGE_ORDER,
+  getNextStage,
+  isStageReached,
+} from './AttackStage.js';
+export { AttackState, type AttackStageTransition } from './AttackState.js';
+export { DefensiveAction, ALL_DEFENSIVE_ACTIONS, isDefensiveAction } from './DefensiveAction.js';
+export { DefenseState, type DefenseActionRecord } from './DefenseState.js';
