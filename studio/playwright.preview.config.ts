@@ -15,7 +15,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm --filter @cyre/studio build && pnpm --filter @cyre/studio preview --host 127.0.0.1 --port 4173',
+    command: 'VITE_E2E=1 pnpm --filter @cyre/studio build && VITE_E2E=1 pnpm --filter @cyre/studio preview --host 127.0.0.1 --port 4173',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

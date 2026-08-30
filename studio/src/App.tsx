@@ -9,6 +9,21 @@ import { StudioProvider } from './studio/StudioContext';
 
 import type { LauncherProject } from './launcher/projectStore';
 
+const IS_E2E = import.meta.env.VITE_E2E === '1';
+
+function e2eProject(): LauncherProject {
+  return {
+    id: 'e2e-project',
+    name: 'E2E Cyber Project',
+    scenarioId: 'lab-basic',
+    renderMode: '3d',
+    renderer: 'engine-gpu',
+    createdAt: new Date().toISOString(),
+    lastOpenedAt: new Date().toISOString(),
+    notes: '',
+  };
+}
+
 type Phase = 'boot' | 'launcher' | 'studio';
 
 /**
@@ -30,8 +45,8 @@ export default function App(): JSX.Element {
     [],
   );
 
-  const [phase, setPhase] = useState<Phase>(() => (store.getSettings().showBootAnimation ? 'boot' : 'launcher'));
-  const [project, setProject] = useState<LauncherProject | null>(null);
+  const [phase, setPhase] = useState<Phase>(() => IS_E2E ? 'studio' : (store.getSettings().showBootAnimation ? 'boot' : 'launcher'));
+  const [project, setProject] = useState<LauncherProject | null>(() => IS_E2E ? e2eProject() : null);
 
   const handleLaunch = useCallback((next: LauncherProject): void => {
     setProject(next);

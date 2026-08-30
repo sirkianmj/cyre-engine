@@ -98,3 +98,10 @@ data/
 # Playwright run artifacts
 studio/test-results/
 playwright-report/
+
+# Native packaging build output
+studio/desktop/src-tauri/target/
+studio/desktop/src-tauri/gen/
+studio/desktop/src-tauri/Cargo.lock
+studio/mobile/android/
+studio/mobile/ios/
