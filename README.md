@@ -12,7 +12,8 @@ CYRE is a modular, extensible, domain-specific game and simulation engine design
 ## Project Identity
 
 - **Project Name:** CYRE — Cybersecurity Reality Engine
-- **Owner:** ForgeX4 / Kian M.J.
+- **Developer:** Kian Mansouri Jamshidi
+- **Founder:** ForgeX4
 - **Repository:** [sirkianmj/cyre-engine](https://github.com/sirkianmj/cyre-engine)
 - **License:** Proprietary — All rights reserved
 - **Primary Language:** TypeScript
@@ -45,9 +46,9 @@ The engine powers interactive experiences where players and automated agents act
    Seeded RNG, replay recording, and structured telemetry produce repeatable executions.
 
 5. **Cross-Platform**  
-   CYRE applications can target web, mobile, desktop, and potentially console platforms.
+   CYRE applications can target web, with desktop and mobile application scaffolds available. Console support is not implemented.
 
-6. **Research-Grade**  
+6. **Research-Oriented**  
    Canonical scenarios, telemetry export, replay reproduction, and verified determinism support academic work.
 
 ---
@@ -81,6 +82,8 @@ The engine internally organizes cyber simulation, scenario, game, replay, analyt
 ## Current Status
 
 CYRE v1.0.4 is implemented and verified as an early functional domain-specific engine. The canonical cyber simulation path works, but some platform-level subsystems remain active development.
+
+CYRE Studio opens through an animated launcher and project manager, then enters the menu/window-based editor with the selected project, render mode, and renderer.
 
 CYRE Studio is a professional simulation editor built around a native-style menu bar and a real windowing system. It opens directly into the 2D/2.5D/3D viewport; every secondary tool — scenario library, scenario editor, simulation control, attack chain, detection & response, host inspector, telemetry, replay, experiment runner, benchmarks, security validation, project, visualization and the authoring/production panels — is a draggable, resizable, minimizable window reached from the menu bar, the ⌘K palette, or a keyboard shortcut. See [`docs/STUDIO.md`](docs/STUDIO.md).
 
@@ -144,23 +147,21 @@ The following areas are functional foundations but not yet fully generalized pro
 
 - Deterministic ordering is (due time, then action id). Cross-condition inference beyond Welch's t and standardised effect sizes — no error-family correction, mixed models or power analysis — is not implemented.
 - The engine GPU renderer covers the cyber network scene — hosts, connections, containment and overlays. Richer scene content (meshes, materials, animation, shadows) is not yet rendered through it; `Renderer3D` still emits command objects for that content.
-- The 2D/2.5D/3D viewport is a point-and-line renderer. It has no mesh-level geometry, text labels are drawn by the Canvas2D fallback only, and there is no WebGPU backend.
+- The engine GPU renderer currently focuses on the cyber network scene — hosts, connections, containment and overlays. Full mesh/material/animation/shadow pipeline and WebGPU are still future work. 2D/2.5D text labels use a Canvas2D overlay.
 - Native bundles cannot be produced in every environment. Real Tauri v2 (`studio/desktop`) and Capacitor 6 (`studio/mobile`) projects exist with build scripts, but producing an `.app`/`.deb`/`.apk` requires the Rust + webkit2gtk and JDK + Android SDK toolchains; where those are absent the scripts report the missing prerequisites and exit non-zero rather than reporting an artifact.
 - The canonical attack chain targets the laboratory topology (`web-server` / `database-server`); on scenarios without those hosts the chain steps are disabled with an explanation rather than generalized.
 
 These limitations are tracked in `docs/roadmap.md` and are the focus of future phases.
 
-### Recently closed
+### Recent milestones
 
-- **2D and 2.5D viewports render correctly.** They previously drew into an invisible 300×150 corner because the `<canvas>` is a replaced element and its sizing rule targeted a descendant selector.
-- **Mission scoring is state-derived.** `MissionPerformanceTracker` records measured elapsed time, evidence reviewed, hypotheses formed, attack-path correctness, containment and recovery actions, and failed actions; `deriveScoringMetrics()` computes accuracy, response time, damage, evidence quality and penalties from that record. No fixed values remain in `MissionRunner` or `Mission001Runner`.
-- **The engine drives real GPU rendering.** `engine/src/rendering/gpu` defines a `GpuDevice` abstraction and a `GpuSceneRenderer` that compiles a real GLSL ES 3.00 program, uploads interleaved vertex buffers and issues `drawArrays` for connections and hosts — orthographic for 2D/2.5D, perspective for 3D, all from one engine scene description. The Studio binds that abstraction to a live `WebGL2RenderingContext`; the Three.js dependency and its 1007-line viewport are gone, and the bundle fell from 1312 kB to 795 kB. When WebGL2 is unavailable the viewport falls back to Canvas2D and says so on screen rather than showing a blank surface.
-- **Native packaging is real, not metadata.** `studio/scripts/package-web.mjs` builds and validates the web artifact (verifying the mount point, that every referenced script resolves, and that no file is empty) and writes a SHA-256 manifest. `studio/desktop` is a Tauri v2 project and `studio/mobile` a Capacitor 6 project, each with a script that builds, invokes the real toolchain, and verifies an artifact was actually produced.
-- **One canonical simulation kernel.** `SimulationWorld` is now the authoritative runtime: it owns state, world time and the canonical event log, and `Simulation` delegates to it, so `CyberSimulation` and scenario execution all run on a single kernel instead of two parallel runtimes. `SimulationWorld` gained `applyPatch`, `advance`, `emit`, `getEvents`, `replaceState` and `setTime` for this, and serialization round-trips through it.
-- **Research analytics are implemented.** `ResearchAnalytics` provides descriptive statistics (quartiles, IQR, skewness), condition aggregation, condition comparison, Cohen's d, Hedges' g, Welch's t with Welch–Satterthwaite degrees of freedom, and CSV/JSON/NDJSON export, surfaced in the Studio Analytics panel.
+- Real engine GPU rendering with triangle geometry, lighting, and deterministic scene construction.
+- State-derived mission scoring replacing all fixed metrics.
+- Canonical `SimulationWorld` kernel used by cyber simulation and scenario execution.
+- Research analytics with descriptive statistics, effect sizes, and export formats.
+- Real Tauri v2 and Capacitor 6 packaging scaffolds.
 
-
----
+-
 
 ## Verification
 
@@ -192,13 +193,15 @@ Current verified state:
 
 ```text
 Architecture audit       PASS
-Placeholder audit        PASS  (356 source files)
+Placeholder audit        PASS  (364 source files)
 Engine lint              PASS
 Studio lint              PASS
 Engine typecheck         PASS
 Studio typecheck         PASS
-Engine + Studio tests    161 test files / 1634 tests
-  └ Studio only          10 test files / 140 tests
+Engine tests             160 test files / 1688 tests
+Studio tests             178 test files / 1966 tests
+Playwright dev E2E       19 workflows
+Playwright preview E2E   2 workflows
 Engine build             PASS
 Studio build             PASS with chunk-size warning only
 Playwright E2E           19 workflows (dev) + 2 (production preview)
@@ -320,7 +323,7 @@ See `CONTRIBUTING.md` for details.
 
 ## Contact
 
-For inquiries, contact **ForgeX4 / Kian M.J.**
+For inquiries, contact **Kian Mansouri Jamshidi**, founder of **ForgeX4**.
 
 ---
 
