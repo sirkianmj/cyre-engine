@@ -48,10 +48,11 @@ function walk(dir) {
 if (!skipBuild) {
   console.log('→ Building Studio web bundle…');
   try {
-    const pnpmCmd = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+    const pnpmCmd = process.platform === 'win32' ? 'pnpm' : 'pnpm';
     execFileSync(pnpmCmd, ['--filter', '@cyre/studio', 'build'], {
       cwd: repoRoot,
       stdio: 'inherit',
+      shell: process.platform === 'win32',
     });
   } catch {
     fail('Web build failed.');
