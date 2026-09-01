@@ -13,7 +13,7 @@ CYRE is a modular, extensible, domain-specific game and simulation engine design
 
 - **Project Name:** CYRE — Cybersecurity Reality Engine
 - **Owner:** ForgeX4 / Kian M.J.
-- **Repository:** [sirkianmj/Forgex4-CYRE](https://github.com/sirkianmj/Forgex4-CYRE)
+- **Repository:** [sirkianmj/cyre-engine](https://github.com/sirkianmj/cyre-engine)
 - **License:** Proprietary — All rights reserved
 - **Primary Language:** TypeScript
 - **Domain:** Cybersecurity simulation, serious games, education, research
@@ -295,23 +295,18 @@ Project governance is described in `GOVERNANCE.md`.
 
 ## Screenshots
 
-![Screenshot 1](docs/screenshots/screenshot-2026-08-23-at-5-08-17-pm.png)
+![CYRE Studio editor](docs/screenshots/01-cyre-studio-editor.png)
+![Project browser](docs/screenshots/02-cyre-project-browser.png)
+![2D network render](docs/screenshots/03-cyre-2d-render.png)
+![2.5D network render](docs/screenshots/04-cyre-25d-render.png)
+![Attack chain window](docs/screenshots/05-cyre-attack-chain.png)
+![Replay studio](docs/screenshots/06-cyre-replay-studio.png)
+![Scenario editor](docs/screenshots/07-cyre-scenario-editor.png)
+![Visualization settings](docs/screenshots/08-cyre-visualization-settings.png)
+![Project explorer window](docs/screenshots/09-cyre-project-explorer.png)
+![CYRE loading screen](docs/screenshots/10-cyre-loading.png)
 
-![Screenshot 2](docs/screenshots/screenshot-2026-08-23-at-5-08-28-pm.png)
-
-![Screenshot 3](docs/screenshots/screenshot-2026-08-23-at-5-08-39-pm.png)
-
-![Screenshot 4](docs/screenshots/screenshot-2026-08-23-at-5-08-52-pm.png)
-
-![Screenshot 5](docs/screenshots/screenshot-2026-08-23-at-5-09-02-pm.png)
-
-![Screenshot 6](docs/screenshots/screenshot-2026-08-23-at-5-09-16-pm.png)
-
-[Watch: Editor](docs/screenshots/editor.mp4)
-
-[Watch: Loading](docs/screenshots/loading.mp4)
-
----
+All screenshots show the professional CYRE Studio shell, including the launcher, editor, network visualization, attack workflows, replay, and scenario editor.
 
 ## Contribution Policy
 
