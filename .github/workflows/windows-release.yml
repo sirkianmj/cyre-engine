@@ -25,6 +25,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Apply Windows Tauri configuration
+        run: Copy-Item -Force studio/desktop/src-tauri/tauri.windows.conf.json studio/desktop/src-tauri/tauri.conf.json
+
       - name: Build CYRE Studio Windows app
         run: pnpm --filter @cyre/studio package:desktop
 

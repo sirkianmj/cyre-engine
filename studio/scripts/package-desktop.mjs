@@ -119,7 +119,8 @@ if (!fs.existsSync(path.join(frontendDist, 'index.html'))) {
 }
 
 console.log('→ Invoking tauri build…');
-const result = spawnSync('npx', ['--yes', '@tauri-apps/cli@2', 'build'], {
+const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+const result = spawnSync(npxCmd, ['--yes', '@tauri-apps/cli@2', 'build'], {
   cwd: tauriDir,
   stdio: 'inherit',
 });

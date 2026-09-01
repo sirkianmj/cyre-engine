@@ -48,7 +48,8 @@ function walk(dir) {
 if (!skipBuild) {
   console.log('→ Building Studio web bundle…');
   try {
-    execFileSync('pnpm', ['--filter', '@cyre/studio', 'build'], {
+    const pnpmCmd = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+    execFileSync(pnpmCmd, ['--filter', '@cyre/studio', 'build'], {
       cwd: repoRoot,
       stdio: 'inherit',
     });
